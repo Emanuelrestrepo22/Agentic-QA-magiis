@@ -6,12 +6,14 @@
  *
  * TODO: Replace 'PROJ' in @atc IDs with your Jira project key (e.g., @atc('UPEX-101'))
  *
- * Page: /login (UPEX Dojo)
- * Locators (data-testid):
- * - Email: [data-testid="login-email-input"]
- * - Password: [data-testid="login-password-input"]
- * - Submit: [data-testid="login-submit-button"]
- * - Error: [data-testid="login-error"]
+ * Page: MAGIIS Carrier V2 — /carrier/#/auth/login (Angular 18, hash routing)
+ * Locators (NO hay data-testid en el front; validados en vivo contra UAT):
+ * - Email:  input[type="email"]  (placeholder "Ingrese Email")
+ * - Password: input[type="password"]  (placeholder "Ingrese Contraseña")
+ * - Submit: button[type="submit"]  (texto "Iniciar Sesión")
+ * - Error:  .error-sign-in
+ * Éxito: redirige a /carrier/#/dashboard.
+ * TODO: pedir data-testid al equipo para estabilizar selectores.
  */
 
 import type { TestContextOptions } from '@TestContext';
@@ -51,9 +53,9 @@ export class LoginPage extends UiBase {
    * Helper that combines fill + submit actions
    */
   private async fillAndSubmitLoginForm(credentials: LoginCredentials): Promise<void> {
-    await this.page.locator('[data-testid="login-email-input"]').fill(credentials.email);
-    await this.page.locator('[data-testid="login-password-input"]').fill(credentials.password);
-    await this.page.locator('[data-testid="login-submit-button"]').click();
+    await this.page.locator('input[type="email"]').fill(credentials.email);
+    await this.page.locator('input[type="password"]').fill(credentials.password);
+    await this.page.locator('button[type="submit"]').click();
   }
 
   // ============================================
@@ -66,7 +68,7 @@ export class LoginPage extends UiBase {
    */
   @step
   async goto(): Promise<void> {
-    await this.page.goto(this.buildUrl('/login'));
+    await this.page.goto(this.buildUrl('/carrier/#/auth/login'));
   }
 
   // ============================================
@@ -81,13 +83,13 @@ export class LoginPage extends UiBase {
    *
    * @param credentials - Email and password
    */
-  @atc('PROJ-101')
+  @atc('MX-101')
   async loginSuccessfully(credentials: LoginCredentials): Promise<void> {
     await this.fillAndSubmitLoginForm(credentials);
 
-    // Wait for authentication to complete and redirect
-    await this.page.waitForURL(url => !url.pathname.includes('/login'), { timeout: 15000 });
-    await expect(this.page).not.toHaveURL(/.*\/login.*/);
+    // Éxito: el SPA carrier-v2 redirige a /carrier/#/dashboard (hash routing)
+    await this.page.waitForURL(/\/carrier\/#\/dashboard/, { timeout: 15000 });
+    await expect(this.page).not.toHaveURL(/auth\/login/);
   }
 
   /**
@@ -98,13 +100,13 @@ export class LoginPage extends UiBase {
    *
    * @param credentials - Invalid email or password
    */
-  @atc('PROJ-102')
+  @atc('MX-102')
   async loginWithInvalidCredentials(credentials: LoginCredentials): Promise<void> {
     await this.fillAndSubmitLoginForm(credentials);
 
-    // Fixed assertion - error should be visible (UPEX Dojo uses data-testid="login-error")
-    const errorIndicator = this.page.locator('[data-testid="login-error"]');
+    // Error visible + seguimos en el login (carrier-v2: span.error-sign-in)
+    const errorIndicator = this.page.locator('.error-sign-in');
     await expect(errorIndicator).toBeVisible({ timeout: 5000 });
-    await expect(this.page).toHaveURL(/.*\/login.*/);
+    await expect(this.page).toHaveURL(/auth\/login/);
   }
 }

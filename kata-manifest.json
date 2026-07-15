@@ -1,29 +1,29 @@
 {
   "version": "1.0",
-  "generatedAt": "2026-05-21T08:28:54.468Z",
+  "generatedAt": "2026-07-15T14:30:27.026Z",
   "components": {
     "api": [
       {
         "name": "AuthApi",
         "file": "AuthApi.ts",
-        "relativePath": "tests/components/api/AuthApi.ts",
+        "relativePath": "tests\\components\\api\\AuthApi.ts",
         "atcs": [
           {
-            "id": "PROJ-101",
+            "id": "MX-101",
             "method": "authenticateSuccessfully",
-            "line": 73
+            "line": 75
           },
           {
-            "id": "PROJ-102",
+            "id": "MX-102",
             "method": "loginWithInvalidCredentials",
-            "line": 112
+            "line": 114
           }
         ]
       },
       {
         "name": "ExampleApi",
         "file": "ExampleApi.ts",
-        "relativePath": "tests/components/api/ExampleApi.ts",
+        "relativePath": "tests\\components\\api\\ExampleApi.ts",
         "atcs": [
           {
             "id": "PROJ-101",
@@ -47,7 +47,7 @@
       {
         "name": "ExamplePage",
         "file": "ExamplePage.ts",
-        "relativePath": "tests/components/ui/ExamplePage.ts",
+        "relativePath": "tests\\components\\ui\\ExamplePage.ts",
         "atcs": [
           {
             "id": "PROJ-101",
@@ -64,17 +64,17 @@
       {
         "name": "LoginPage",
         "file": "LoginPage.ts",
-        "relativePath": "tests/components/ui/LoginPage.ts",
+        "relativePath": "tests\\components\\ui\\LoginPage.ts",
         "atcs": [
           {
-            "id": "PROJ-101",
+            "id": "MX-101",
             "method": "loginSuccessfully",
-            "line": 84
+            "line": 86
           },
           {
-            "id": "PROJ-102",
+            "id": "MX-102",
             "method": "loginWithInvalidCredentials",
-            "line": 101
+            "line": 103
           }
         ]
       }

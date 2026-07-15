@@ -70,7 +70,9 @@ export class AuthApi extends ApiBase {
    * @param credentials - Email and password
    * @returns Tuple with response, token data, and sent payload
    */
-  @atc('PROJ-101')
+  // TODO(MAGIIS): adaptar en el incremento de facade/entidad — login devuelve `token` (no access_token),
+  // sin token_type/expires_in en el body; header RoleToAttempt en el POST; meEndpoint (/auth/me) = Discovery Gap.
+  @atc('MX-101')
   async authenticateSuccessfully(
     credentials: LoginPayload,
   ): Promise<[APIResponse, TokenResponse, LoginPayload]> {
@@ -109,7 +111,7 @@ export class AuthApi extends ApiBase {
    * @param credentials - Invalid email or password
    * @returns Tuple with error response and sent payload
    */
-  @atc('PROJ-102')
+  @atc('MX-102')
   async loginWithInvalidCredentials(
     credentials: LoginPayload,
   ): Promise<[APIResponse, AuthErrorResponse, LoginPayload]> {
