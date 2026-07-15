@@ -17,14 +17,16 @@
                                Quality Assurance Engineer                                        
 </pre>
 
-<h3>The QA workflow, but AI runs it.</h3>
+<h3>AI-driven QA engineering for MAGIIS.</h3>
 
-<p><i>From test plan to regression suite to release sign-off. Built for real QA teams shipping real test cases — every phase has a skill. You decide what to verify.</i></p>
+<p><i>MAGIIS is the cloud platform that powers passenger-transport fleets — live trip dispatch, smart pricing, drivers, in-app payments and financial settlement, multi-region and multi-currency. This repo is the agentic QA engineering behind it: an AI-run workflow from test plan to regression suite to release GO / NO-GO.</i></p>
 
 <br />
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8+-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Bun](https://img.shields.io/badge/Bun-1.0+-000000?style=for-the-badge&logo=bun&logoColor=white)](https://bun.sh/)
+[![Playwright](https://img.shields.io/badge/Playwright-1.60-2EAD33?style=for-the-badge&logo=playwright&logoColor=white)](https://playwright.dev/)
+[![Allure](https://img.shields.io/badge/Allure-3-FF6C37?style=for-the-badge)](https://allurereport.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-EAB308?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 </div>
@@ -138,6 +140,22 @@ POSTMAN_API_KEY
 ## What this is
 
 A starter for QA teams that want AI agents driving the testing workflow — not isolated test snippets, but the whole loop. Plan a sprint, document test cases in Jira/Xray, write KATA-compliant Playwright tests, run regression, sign off the release. Eight workflow skills cover the phases. A handful of slash commands handle the chores around them. The development half (project foundation, sprint dev, deploys) lives in [agentic-dev-boilerplate](https://github.com/upex-galaxy/agentic-dev-boilerplate) — pair them or use one.
+
+<br />
+
+## Agentic QA Engineering @ MAGIIS — impact &amp; my role
+
+I own the QA engineering for the **MAGIIS v1.72.6 Web** release as an **Agentic QA Engineer**: I don't hand-run every test — I orchestrate AI agents across the full quality lifecycle and own the verdicts. What that looked like in this implementation:
+
+- **Release validation, end to end (trifuerza UI / API / DB).** Consolidated a release-wide regression over the 9 tickets of `fixVersion 17080` and issued the release GO / NO-GO — **🟢 GO** with documented risks — formalized in Jira as an Xray Test Plan (ATP), per-feature Test Executions (ATR) and a release-level RTR.
+- **External-integration testing.** Validated the FlightAware AeroAPI flight-linking (`getFlights`) live against UAT — real flights, empty-result and error paths — plus Stripe / 3DS payment flows and Oracle-backed data assertions.
+- **From exploration to automation.** Turned live exploratory recordings into green Playwright specs running on the real runner against UAT, on a scalable per-feature KATA architecture (shared `BasePage` substrate + feature modules + provisioning fixtures).
+- **Traceability &amp; defect management.** Every finding classified (Bug / Defect / Improvement), parented to QA-process epics, linked to its source Story, with reproducible reports and evidence.
+- **Test-design rigor.** Coverage derived by technique (Equivalence Partitioning, BVA, State-Transition, Decision Tables) — not just AC-conformance — with an ROI verdict per case (Candidate / Manual / Deferred).
+
+**Impact:** a repeatable, AI-orchestrated QA pipeline that takes a release from raw tickets to a defensible GO decision with full Jira traceability — and leaves behind automated regression coverage that reruns on demand (local / Docker / Jenkins / GitHub Actions, never GitLab CI).
+
+<sub><i>Agentic QA Engineer — Emanuel Restrepo · MAGIIS.</i></sub>
 
 <br />
 
