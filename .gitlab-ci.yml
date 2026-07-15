@@ -1,0 +1,19 @@
+# 🚨 NO COMENTAR NI VACIAR ESTE ARCHIVO.
+# GitLab CI DESHABILITADO — política MAGIIS: la CI corre LOCAL / en DOCKER / Jenkins /
+# GitHub Actions (github personal), NUNCA en GitLab CI. El bloque `workflow: rules: when: never`
+# bloquea TODOS los pipelines de GitLab. Un .gitlab-ci.yml PRESENTE además desactiva Auto DevOps
+# (sin este archivo, GitLab puede disparar un pipeline Auto DevOps al pushear — incidente 2026-07-15).
+# ─────────────────────────────────────────────────────────────────────────────────────────────
+workflow:
+  rules:
+    - when: never
+
+stages:
+  - noop
+
+noop:
+  stage: noop
+  rules:
+    - when: never
+  script:
+    - echo "GitLab CI disabled by MAGIIS policy — CI runs local/Docker/Jenkins/GitHub Actions."
