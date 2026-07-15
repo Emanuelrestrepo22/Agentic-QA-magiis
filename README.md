@@ -630,6 +630,97 @@ The `.template/boilerplate.lock.json` file is committable — commit it so your 
 
 <br />
 
+## Multi-repo orchestration (parent + automation children)
+
+MAGIIS runs `magiis-qa` (`gitlab.com/repo.magiis/magiis-qa`) as the **canonical parent** that orchestrates the KATA flow, plus **automation children** — one repo per domain / test-type — where the actual test code lives. The children already exist as mature, independent Playwright repos (pnpm/npm, own structure), so MAGIIS uses **light-layer sharing**: the parent distributes only the **agent + CI layer** — skills, doctrine, the `.context/` master-test-plan, and the Jenkins Shared Library. It does **not** run a full `bun run up` framework sync into the children; each child keeps its own runtime stack.
+
+```
+magiis-qa  (PARENT — repo.magiis/magiis-qa — KATA-flow orchestrator)
+│   • .claude/skills/ (6-stage pipeline)     • .context/ (master-test-plan, business maps)
+│   • Jenkins Shared Library (CI logic)      • .agents/ (Jira/Xray catalogs)
+│
+│  light-layer sync:  skills + .context via submodule/subtree/sparse (TD-7)
+│                     CI via Jenkins @Library('magiis-qa-ci')
+│
+├── magiis-playwright       V2 flow (UI)          Playwright · pnpm/npm
+├── magiis-carrier-v2-e2e   Carrier V2 (E2E)      Playwright
+├── magiis-api-e2e          API E2E + k6 perf     Playwright + k6 · perf/ in prod
+│
+├── mobile-pax    (ROADMAP — Appium)              app pax
+└── mobile-driver (ROADMAP — Appium)              app driver
+```
+
+### Parent vs child ownership (light-layer model)
+
+| Layer                                 | Parent `magiis-qa` distributes      | Child owns                              |
+| ------------------------------------- | ----------------------------------- | --------------------------------------- |
+| Skills / commands / doctrine          | ✅ the 6-stage pipeline (canonical)  | consumes (shared, read-only)            |
+| `.context/` + master-test-plan        | ✅ single source of truth            | references it — never duplicates        |
+| CI logic                              | ✅ Jenkins Shared Library            | thin `Jenkinsfile` that imports it      |
+| Runtime stack (pkg manager, config)   | —                                   | ✅ its own (pnpm / npm / bun)            |
+| Test code (specs, POM/KATA, fixtures) | —                                   | ✅ **all of it**, its own structure      |
+| Secrets                               | —                                   | Jenkins credentials (`withCredentials`) |
+
+### Automation children (existing repos)
+
+| Child (local dir)       | GitLab remote                | Domain               | Test type              | Runner              | Env             |
+| ----------------------- | ---------------------------- | -------------------- | ---------------------- | ------------------- | --------------- |
+| `magiis-playwright`     | `repo.magiis/magiis-testing` | V2 flow (UI)         | E2E UI                 | Playwright          | staging         |
+| `magiis-carrier-v2-e2e` | (audit pending)              | Carrier of V2        | E2E functional         | Playwright          | staging         |
+| `magiis-api-e2e`        | (audit pending)              | API contracts + load | API E2E **+ k6 perf**  | Playwright **+ k6** | **prod** (load) |
+
+> These are pre-existing pnpm/npm Playwright repos, **not** KATA boilerplate consumers (no `kata-manifest.json` / `.template/`). `magiis-playwright` still ships a `.gitlab-ci.yml` (to be removed — GitLab CI is banned) and a personal GitHub remote (to be dropped in favor of `repo.magiis`). The carrier + API children are not yet audited.
+
+### KATA-flow split
+
+- **Stages 0–4** (Shift-Left · Sprint · Docs · ROI) run in the **parent** — Jira + `.context/`, shared across children.
+- **Stages 5–6** (automation code · regression CI) run in each **child**, scoped to its domain.
+
+### Platform — GitLab + Jenkins (no GitLab CI)
+
+MAGIIS hosts every repo on **GitLab** (group `repo.magiis`) and runs CI on **Jenkins**. **GitLab CI/CD pipelines are prohibited by rule** — no repo ships a `.gitlab-ci.yml`. Jenkins is triggered by GitLab webhooks (GitLab plugin / Multibranch Pipeline with a GitLab source) and posts build status back to the merge request. The boilerplate's shipped `.github/workflows/*` are GitHub-only and are **not** used here — each repo ships a `Jenkinsfile` instead (framework gaps tracked as TD-7..TD-10 below).
+
+### Orchestration mechanisms
+
+- **Light-layer distribution** — the parent distributes only the agent layer: `.claude/skills/` + `.context/` (master-test-plan, business maps). The sync mechanism (git submodule / subtree / sparse-checkout from `repo.magiis/magiis-qa`) is **TD-7**. The `bun run up` full-framework updater is **not** used for these children (it is `gh`-only and assumes the bun/KATA shape). Each child keeps its own package manager, config, and test code.
+- **Meta-CI dispatch (Jenkins)** — a parent **orchestrator pipeline** triggers each child job (`build job: '<child>', wait: true, parameters: […]`) and consolidates a single GO / CAUTION / NO-GO. The shared CI logic lives in a **Jenkins Shared Library** in its own repo (e.g. `magiis-qa-ci` — a different name from the `magiis-qa` parent), so each child `Jenkinsfile` is a thin `@Library('magiis-qa-ci') _` import — the Jenkins-native analogue of a central sync for pipeline code.
+- **Aggregated Allure portal** — each child's Jenkins job publishes to one private, login-walled report portal via `scripts/ci/publish-allure-portal.ts` (Supabase / R2 / Vercel). The GitHub-Pages variant (`publish-allure-pages.ts`) does not apply on GitLab.
+- **Secrets** — GitHub Actions secrets → **Jenkins credentials** (`withCredentials` bindings); `.env` keys map 1:1.
+- **Single source of truth** — the parent `.context/master-test-plan.md` decides what each child automates; children reference it, never duplicate it.
+
+### Onboard a child (light-layer)
+
+```bash
+# In the child repo — it keeps its own pnpm/npm/bun stack:
+# 1. Wire the shared agent layer from the parent (skills + .context/):
+#    git submodule / subtree / sparse-checkout of repo.magiis/magiis-qa  (mechanism = TD-7)
+# 2. Import the shared CI logic in the child Jenkinsfile:
+#    @Library('magiis-qa-ci') _   ->   magiisQaPipeline(suite: 'e2e')
+# 3. Point QA context at the parent master-test-plan (reference it, do not copy).
+#
+# A brand-new greenfield child MAY instead adopt the full boilerplate:
+#    bun install && bun run setup  ->  /project-discovery  ->  /adapt-framework
+```
+
+### Technical debt & roadmap
+
+Two MAGIIS mobile apps — **app pax** and **app driver** — are slated for automation with **Appium** as future children. Appium is a different runner from Playwright, and KATA is Playwright-centric today, so the framework needs new capabilities before mobile automation can start. File each row as a Jira `TECHDEBT` issue parented to the QA-process epic (per the defect-management doctrine); do **not** begin mobile automation until the KATA Appium base (TD-1) exists.
+
+| #     | Technical debt                              | Why it exists                                                                                     | Blocks                    |
+| ----- | ------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------- |
+| TD-1  | KATA L2 Appium base (`MobileBase`)          | KATA has no mobile driver abstraction — only `UiBase` (Playwright) / `ApiBase` (HTTP)             | mobile-pax, mobile-driver |
+| TD-2  | `mobile-pax` child (Appium)                 | Automate the passenger app                                                                        | needs TD-1                |
+| TD-3  | `mobile-driver` child (Appium)              | Automate the driver app                                                                           | needs TD-1                |
+| TD-4  | Device/emulator + mobile CI strategy        | Mobile CI needs real devices / a cloud farm (BrowserStack / Sauce) — heavier than headless Chrome | TD-2, TD-3                |
+| TD-5  | k6 hybrid-runner convention in `api-e2e`    | k6 perf runs outside the Playwright runner — needs a documented `perf/` layout + shared test data | api-e2e perf              |
+| TD-6  | Prod load-test guardrails                   | k6 against prod needs off-peak windows, synthetic accounts, rate-limit pacts, observability coord | api-e2e perf              |
+| TD-7  | Light-layer sync of skills + `.context/`    | pick + wire submodule / subtree / sparse-checkout from `repo.magiis/magiis-qa` (the `bun run up` updater is `gh`-only + full-sync — not used for light-layer children) | every child's shared agent layer |
+| TD-8  | GitLab merge requests in `git-flow-master`  | the git skill opens GitHub PRs via `gh`; MAGIIS reviews via GitLab MRs (`glab` / GitLab API)       | every child's review flow |
+| TD-9  | `Jenkinsfile` templates + Jenkins Shared Library | boilerplate ships `.github/workflows/*` (GitHub Actions); MAGIIS runs Jenkins and **bans GitLab CI** | CI in every repo          |
+| TD-10 | Jenkins credentials mapping                 | `.env` + GitHub-secrets model must map to the Jenkins credentials store (`withCredentials`)        | CI auth in every repo     |
+
+<br />
+
 ## CI/CD Pipelines
 
 ### GitHub Actions Workflows
