@@ -93,6 +93,7 @@
     "boxen": "^8.0.1",
     "cli-table3": "^0.6.5",
     "figures": "^6.1.0",
+    "oracledb": "^7.0.0",
     "picocolors": "^1.1.1",
     "yaml": "^2.8.2"
   },

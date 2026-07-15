@@ -108,7 +108,8 @@ const TOKENS_JSON_FILE = resolve(AUTH_DIR, 'tokens.json');
  * Override this for different auth formats (e.g., { username, password }, OAuth2 form data).
  */
 function buildAuthPayload(email: string, password: string): Record<string, string> {
-  return { email, password };
+  // MAGIIS: el campo se llama `username` (aunque sea un email); + password.
+  return { username: email, password };
 }
 
 /**
@@ -125,7 +126,8 @@ function extractTokenFromResponse(body: Record<string, unknown>): {
   refreshToken: string | null
 } {
   return {
-    accessToken: String(body.access_token ?? ''),
+    // MAGIIS devuelve `token` (JWT). Fallback a access_token por compat.
+    accessToken: String(body.token ?? body.access_token ?? ''),
     tokenType: String(body.token_type ?? 'Bearer'),
     expiresIn: Number(body.expires_in ?? 86400),
     refreshToken: body.refresh_token ? String(body.refresh_token) : null,
@@ -163,6 +165,8 @@ async function authenticate(): Promise<ApiState | null> {
       headers: {
         'Accept': '*/*',
         'Content-Type': 'application/json',
+        // MAGIIS: rol a autenticar (login no autenticado, _needAuthenticate=false)
+        'RoleToAttempt': process.env.LOGIN_ROLE ?? 'ROLE_CARRIER',
       },
       body: JSON.stringify(payload),
     });

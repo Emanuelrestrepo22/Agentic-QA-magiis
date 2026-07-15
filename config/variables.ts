@@ -112,8 +112,9 @@ const envDataMap: Record<
     user: userCredentialsMap.local,
   },
   staging: {
-    base: 'https://dojo.upexgalaxy.com',
-    api: 'https://dojo.upexgalaxy.com/api',
+    // MAGIIS UAT (Carrier). Login carrier-v2: base + /carrier/#/auth/login
+    base: 'https://apps-uat.magiis.com',
+    api: 'https://apps-uat.magiis.com/magiis-v0.2',
     user: userCredentialsMap.staging,
   },
 };
@@ -128,11 +129,12 @@ export const config = {
   baseUrl: envData.base,
   apiUrl: envData.api,
 
-  // Authentication config (UPEX Dojo endpoints - relative to apiUrl)
+  // Authentication config (MAGIIS — relative to apiUrl = /magiis-v0.2)
+  // Login VALIDADO: POST /auth/login {username,password} + header RoleToAttempt:ROLE_CARRIER → {token}
   auth: {
     loginEndpoint: '/auth/login',
     tokenEndpoint: '/auth/login', // Endpoint to intercept for token (used by page.waitForResponse)
-    meEndpoint: '/auth/me',
+    meEndpoint: '/auth/me', // ⚠ Discovery Gap: verificar endpoint de user-info en MAGIIS
     tokenLifetimeSeconds: 86400, // 24 hours (1 day)
     // Storage paths for authenticated sessions
     storageStatePath: '.auth/user.json',

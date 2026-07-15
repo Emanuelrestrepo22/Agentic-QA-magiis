@@ -381,7 +381,7 @@ link_types:
 # discovered by the sync.
 work_types:
   story:
-    jira_issue_type: Story
+    jira_issue_type: Historia
     description: User story / feature work item
     sync: default
     coverable: true
@@ -483,7 +483,7 @@ work_types:
     used_by: [acli, sprint-testing, test-documentation, project-discovery]
 
   bug:
-    jira_issue_type: Bug
+    jira_issue_type: Error
     description: Defect / bug work item
     sync: default
     coverable: true
@@ -542,7 +542,7 @@ work_types:
     used_by: [acli, sprint-testing]
 
   test_case:
-    jira_issue_type: Test
+    jira_issue_type: Xray Test
     description: Test case (TC) work item
     sync: never
     local_dir: tests
@@ -645,7 +645,7 @@ work_types:
       aborted: { from: any, to: aborted, description: Cancel the epic (global transition) }
 
   defect:
-    jira_issue_type: Defect
+    jira_issue_type: Defecto
     description: Defect found during QA of a coverable issue (story / bug / etc.)
     sync: discovery
     coverable: true
@@ -700,7 +700,7 @@ work_types:
       aborted: { from: any, to: aborted, description: Abandon the defect (global transition) }
 
   improvement:
-    jira_issue_type: Improvement
+    jira_issue_type: Nueva función
     description: Improvement / enhancement work item
     sync: optional
     recommended: true
@@ -848,7 +848,7 @@ work_types:
     local_dir: test-executions
 
   re_test_execution:
-    jira_issue_type: Re-Test Execution
+    jira_issue_type: Sub Test Execution
     description: Xray Re-Test Execution (subtask) — retest ATR (role atr)
     sync: discovery
     role: atr
