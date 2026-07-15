@@ -25,7 +25,7 @@ Mientras que el API testing verifica el contrato y comportamiento de la API, hay
 Un **connection string** (o DSN - Data Source Name) contiene toda la información para conectarse a una base de datos:
 
 ```
-postgresql://usuario:password@host:puerto/database?opciones
+postgresql://<user>:<password>@host:puerto/database?opciones
 └────┬────┘  └──┬──┘ └──┬──┘ └─┬─┘ └─┬─┘ └──┬───┘ └──┬───┘
   protocolo  user   pass   host  port   db    params
 ```
@@ -33,7 +33,7 @@ postgresql://usuario:password@host:puerto/database?opciones
 ### Ejemplo PostgreSQL
 
 ```
-postgresql://qa_user:SecurePass123@db.example.com:5432/myapp_staging?sslmode=require
+postgresql://<user>:<password>@db.example.com:5432/myapp_staging?sslmode=require
 ```
 
 | Componente | Valor | Descripción |
@@ -50,10 +50,10 @@ postgresql://qa_user:SecurePass123@db.example.com:5432/myapp_staging?sslmode=req
 
 ```bash
 # PostgreSQL
-postgresql://user:pass@localhost:5432/mydb
+postgresql://<user>:<password>@localhost:5432/mydb
 
 # MySQL
-mysql://user:pass@localhost:3306/mydb
+mysql://<user>:<password>@localhost:3306/mydb
 
 # SQLite (archivo local)
 sqlite:///path/to/database.db
@@ -195,7 +195,7 @@ test('verify user was created', async () => {
 
 ```bash
 # PostgreSQL
-psql "postgresql://user:pass@host:5432/mydb"
+psql "postgresql://<user>:<password>@host:5432/mydb"
 
 # MySQL
 mysql -h host -P 3306 -u user -p mydb
@@ -212,7 +212,7 @@ sqlite3 /path/to/database.db
 
 ```typescript
 // ❌ NUNCA hagas esto
-const connectionString = 'postgresql://admin:SuperSecret@prod.db.com:5432/production';
+const connectionString = 'postgresql://<user>:<password>@prod.db.com:5432/production';
 
 // ✅ Usa variables de entorno
 const connectionString = process.env.DATABASE_URL;
@@ -222,20 +222,20 @@ const connectionString = process.env.DATABASE_URL;
 
 ```bash
 # .env (nunca commiteado)
-DATABASE_URL=postgresql://user:pass@host:5432/mydb
+DATABASE_URL=postgresql://<user>:<password>@host:5432/mydb
 ```
 
 ### Diferentes credenciales por entorno
 
 ```bash
 # .env.local (desarrollo)
-DATABASE_URL=postgresql://dev:dev@localhost:5432/myapp_dev
+DATABASE_URL=postgresql://<user>:<password>@localhost:5432/myapp_dev
 
 # .env.staging (staging)
-DATABASE_URL=postgresql://qa:StagePass@staging.db.com:5432/myapp_staging
+DATABASE_URL=postgresql://<user>:<password>@staging.db.com:5432/myapp_staging
 
 # .env.production (producción - solo lectura para QA!)
-DATABASE_URL=postgresql://qa_readonly:ReadOnly@prod.db.com:5432/myapp_prod
+DATABASE_URL=postgresql://<user>:<password>@prod.db.com:5432/myapp_prod
 ```
 
 ### Permisos mínimos

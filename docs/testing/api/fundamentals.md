@@ -95,7 +95,7 @@ Cache-Control: no-cache            # Instrucciones de caché
 POST /api/users HTTP/1.1                    ← Línea de Request (método + path)
 Host: api.example.com                        ← Headers
 Content-Type: application/json               ↓
-Authorization: Bearer eyJhbGciOiJI...        ↓
+Authorization: Bearer <JWT_EXAMPLE>        ↓
                                              ← Línea vacía (separador)
 {                                            ← Body (opcional)
   "name": "Juan Pérez",

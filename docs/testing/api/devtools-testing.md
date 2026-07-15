@@ -80,7 +80,7 @@ General:
   Status Code: 200 OK
 
 Request Headers:
-  Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
+  Authorization: Bearer <JWT_EXAMPLE>
   Content-Type: application/json
   Accept: application/json
 
@@ -218,7 +218,7 @@ Click derecho en request > Copy > Copy as cURL
 
 ```bash
 curl 'https://api.example.com/api/orders' \
-  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIs...' \
+  -H 'Authorization: Bearer <JWT_EXAMPLE>' \
   -H 'Content-Type: application/json'
 ```
 
@@ -234,7 +234,7 @@ Para usar en JavaScript:
 ```javascript
 fetch("https://api.example.com/api/orders", {
   headers: {
-    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIs...",
+    "Authorization": "Bearer <JWT_EXAMPLE>",
     "Content-Type": "application/json"
   }
 });

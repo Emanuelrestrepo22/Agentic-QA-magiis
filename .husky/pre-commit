@@ -1,3 +1,6 @@
+# Secret gate — bloquea credenciales/tokens reales en el staging (self-contained).
+bun scripts/secret-scan.ts || exit 1
+
 bunx lint-staged
 
 # Light-weight repo health checks on every commit (fast, cover full repo).

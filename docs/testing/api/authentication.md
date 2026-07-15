@@ -34,7 +34,7 @@ Una clave estática que identifica al cliente:
 
 ```http
 GET /api/products
-X-API-Key: sk_live_abc123xyz
+X-API-Key: sk_live_<api_key>
 ```
 
 **Características:**
@@ -51,7 +51,7 @@ Token temporal que contiene información del usuario:
 
 ```http
 GET /api/orders
-Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
+Authorization: Bearer <JWT_EXAMPLE>
 ```
 
 **Características:**
@@ -123,7 +123,7 @@ Cookie: session=abc123; auth_token=eyJhbG...
 ### Estructura
 
 ```
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4ifQ.SflKxwRJ
+<JWT_EXAMPLE>
 └──────────── Header ────────────┘.└────────── Payload ──────────────┘.└── Signature ──┘
 ```
 
@@ -195,7 +195,7 @@ Content-Type: application/json
 
 ```http
 GET /api/protected-resource
-Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
+Authorization: Bearer <JWT_EXAMPLE>
 ```
 
 ### 4. Renovar Cuando Expira
@@ -367,7 +367,7 @@ test.describe('Authentication', () => {
 # .env (nunca commitear)
 TEST_USER_EMAIL=qa@example.com
 TEST_USER_PASSWORD=SecureTestPassword123!
-API_KEY=sk_test_abc123
+API_KEY=sk_test_<api_key>
 ```
 
 ```typescript

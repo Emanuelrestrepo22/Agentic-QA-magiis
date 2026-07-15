@@ -232,12 +232,12 @@ sqlserver://usuario:password@servidor.database.windows.net:1433/base_datos?encry
 
 #### PostgreSQL
 ```
-postgresql://usuario:password@localhost:5432/base_datos?sslmode=disable
+postgresql://<user>:<password>@localhost:5432/base_datos?sslmode=disable
 ```
 
 #### MySQL
 ```
-mysql://usuario:password@localhost:3306/base_datos
+mysql://<user>:<password>@localhost:3306/base_datos
 ```
 
 ### Configuración DSN
@@ -251,7 +251,7 @@ mysql://usuario:password@localhost:3306/base_datos
         "-y",
         "@bytebase/dbhub@latest",
         "--dsn",
-        "postgresql://usuario:password@localhost:5432/base_datos"
+        "postgresql://<user>:<password>@localhost:5432/base_datos"
       ]
     }
   }

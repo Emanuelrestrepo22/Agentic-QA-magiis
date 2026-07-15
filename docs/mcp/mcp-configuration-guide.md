@@ -478,7 +478,7 @@ Ejecuta tu agente y usa `/mcp` para verificar que el MCP está conectado.
 Para conectarte via extensión de editor:
 
 ```
-postgresql://{{DB_USER}}:{{DB_PASSWORD}}@aws-1-us-east-2.pooler.supabase.com:5432/postgres
+postgresql://<user>:<password>@aws-1-us-east-2.pooler.supabase.com:5432/postgres
 ```
 
 ---
@@ -693,7 +693,7 @@ Content-Type: application/json
 Header para todas las requests:
 
 ```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Authorization: Bearer <JWT_EXAMPLE>
 ```
 
 > **Nota:** El token expira en 7 días. Si recibes 401, vuelve a hacer Login.
