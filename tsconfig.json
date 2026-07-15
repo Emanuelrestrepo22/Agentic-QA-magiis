@@ -55,6 +55,8 @@
     "test-results",
     "allure-results",
     "allure-report",
-    "reports"
+    "reports",
+    "tests/setup/test-*.spec.ts",
+    "tests/**/*.sandbox.ts"
   ]
 }

@@ -133,6 +133,16 @@ dbhub.local.toml
 # ===== Skill-creator eval workspaces (local iteration artifacts, never committed) =====
 .claude/skills/*-workspace/
 
+# ===== Session / discovery scratch — QA evidence screenshots, diagnostic snapshots,
+# codegen recordings and sandbox probes generated during live testing. Real evidence
+# belongs under evidence/ (already ignored); these root-level / scratch artifacts are
+# never part of the repo contract. =====
+/*.png
+flight-*.md
+.discovery-*/
+tests/setup/test-*.spec.ts
+tests/**/*.sandbox.ts
+
 # ===== refcheck per-dev config (local-only) =====
 .refcheckrc.toml
 
