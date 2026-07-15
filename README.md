@@ -665,11 +665,11 @@ magiis-qa  (PARENT — repo.magiis/magiis-qa — KATA-flow orchestrator)
 
 | Child (local dir)       | GitLab remote                | Domain               | Test type              | Runner              | Env             |
 | ----------------------- | ---------------------------- | -------------------- | ---------------------- | ------------------- | --------------- |
-| `magiis-playwright`     | `repo.magiis/magiis-testing` | V2 flow (UI)         | E2E UI                 | Playwright          | staging         |
-| `magiis-carrier-v2-e2e` | (audit pending)              | Carrier of V2        | E2E functional         | Playwright          | staging         |
-| `magiis-api-e2e`        | (audit pending)              | API contracts + load | API E2E **+ k6 perf**  | Playwright **+ k6** | **prod** (load) |
+| `magiis-playwright`     | `repo.magiis/magiis-testing`       | V2 flow / gateway (UI) | E2E UI                 | Playwright (npm+pnpm)  | test/uat/prod |
+| `magiis-carrier-v2-e2e` | `magiis_team/v2-carrier-testing` ⚠ | Carrier FE (Ng 8→18)   | E2E UI + a11y + visual | Playwright (npm)       | test/uat/prod |
+| `magiis-api-e2e`        | `repo.magiis/api-testing`          | Backend API            | API + **k6 perf**      | Playwright + k6 (pnpm) | test/uat/prod |
 
-> These are pre-existing pnpm/npm Playwright repos, **not** KATA boilerplate consumers (no `kata-manifest.json` / `.template/`). `magiis-playwright` still ships a `.gitlab-ci.yml` (to be removed — GitLab CI is banned) and a personal GitHub remote (to be dropped in favor of `repo.magiis`). The carrier + API children are not yet audited.
+> All three are pre-existing Playwright repos with their **own structure** (POM / API-client + `TestBase.ts`), **not** KATA boilerplate consumers (no `kata-manifest.json` / `.template/`). Package managers differ (npm / pnpm / mixed). Each is dual-remote by design: the **personal `Emanuelrestrepo22` GitHub remote is kept as a portfolio** (where the GitHub Actions actually run) and the **GitLab remote is the work copy**. CI is split by platform — the **GitHub Actions stay** (they are inert on GitLab, which never runs them); the only removal is `magiis-playwright`'s `.gitlab-ci.yml` (the banned GitLab CI, which *would* trigger a pipeline on GitLab). GitLab work CI = Jenkins (**TD-9**). Two GitLab groups are in play — `repo.magiis` (playwright, api) vs **`magiis_team`** (carrier); unify the *work* group under `repo.magiis` (**TD-11**).
 
 ### KATA-flow split
 
@@ -718,6 +718,7 @@ Two MAGIIS mobile apps — **app pax** and **app driver** — are slated for aut
 | TD-8  | GitLab merge requests in `git-flow-master`  | the git skill opens GitHub PRs via `gh`; MAGIIS reviews via GitLab MRs (`glab` / GitLab API)       | every child's review flow |
 | TD-9  | `Jenkinsfile` templates + Jenkins Shared Library | boilerplate ships `.github/workflows/*` (GitHub Actions); MAGIIS runs Jenkins and **bans GitLab CI** | CI in every repo          |
 | TD-10 | Jenkins credentials mapping                 | `.env` + GitHub-secrets model must map to the Jenkins credentials store (`withCredentials`)        | CI auth in every repo     |
+| TD-11 | Unify GitLab work group under `repo.magiis` | `carrier` lives in `magiis_team/v2-carrier-testing` while playwright + api are under `repo.magiis`. Personal `Emanuelrestrepo22` GitHub remotes are **kept** as portfolio — not dropped | consistent work ownership |
 
 <br />
 
