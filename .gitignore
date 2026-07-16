@@ -153,3 +153,16 @@ tests/**/*.sandbox.ts
 # matches it, but this guards against future blanket *.lock or skills.* rules.
 !skills.lock.json
 !**/skills.lock.json
+
+# ===== Artefactos internos MAGIIS — NO publicar =====
+.context/magiis-process/
+.context/reports/
+.context/PBI/epics/
+.context/PBI/stories/
+.context/PBI/bugs/
+.context/PBI/auth/
+/PLAN-IMPLEMENTACION-QA-MAGIIS.md
+/PRESENTACION-QA-MAGIIS.pptx
+/PRESENTACION-QA-MAGIIS.html
+/ONBOARDING-QA-FLUJO.pdf
+/GUIA-XRAY-JSON-BUILDER.pdf
