@@ -59,6 +59,10 @@ Thumbs.db
 # Published deck HTMLs (copies of the skill decks; single-file artifacts whose
 # embedded HTML prettier cannot always parse — same rationale as .claude/skills/)
 packages/decks/
+# Standalone QA onboarding artifact: <pre> blocks embed literal < / > (JSON
+# payloads, prompts) that prettier parses as tags and rejects. Single-file
+# deliverable, not source to reformat — same rationale as packages/decks/.
+ONBOARDING-QA-FLUJO.html
 
 # ===========================================
 # MCP reference templates - never format

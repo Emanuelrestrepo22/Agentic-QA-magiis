@@ -26,6 +26,10 @@ export async function create(flags: Flags): Promise<void> {
   const labelsStr = getFlag(flags, 'labels');
   const labels = labelsStr ? labelsStr.split(',').map(l => l.trim()) : undefined;
   const folderPath = getFlag(flags, 'folder');
+  // Some Jira projects (e.g. MAGIIS MX) forbid unassigned issues and have no
+  // assignable default assignee -> createTest fails unless we pass an assignee.
+  // Accept --assignee <accountId> (or ASSIGNEE_ACCOUNT_ID env).
+  const assigneeId = getFlag(flags, 'assignee') || process.env.ASSIGNEE_ACCOUNT_ID;
 
   // Manual steps are NOT created here. Xray Cloud's `createTest` mutation
   // accepts a `steps` argument but does not persist it reliably (steps silently
@@ -49,14 +53,21 @@ export async function create(flags: Flags): Promise<void> {
 
   log.dim(`Creating ${testType} test in project ${projectKey}...`);
 
+  const jiraFields: Record<string, unknown> = {
+    summary,
+    description,
+    labels,
+    project: { key: projectKey },
+  };
+  if (assigneeId) {
+    jiraFields.assignee = { id: assigneeId };
+  }
+
   const result = await graphql<{ createTest: { test: { jira: { key: string, summary: string }, testType: { name: string }, issueId: string }, warnings: string[] } }>(MUTATIONS.createTest, {
     testType: { name: testType },
     unstructured,
     gherkin,
-    projectKey,
-    summary,
-    description,
-    labels,
+    jira: { fields: jiraFields },
     folderPath,
   });
 
@@ -218,8 +229,7 @@ export async function removeStep(flags: Flags): Promise<void> {
 
   log.dim(`Removing step ${stepId} from test ${issueId}...`);
 
-  await graphql<{ deleteTestStep: boolean }>(MUTATIONS.deleteTestStep, {
-    issueId,
+  await graphql<{ removeTestStep: boolean }>(MUTATIONS.deleteTestStep, {
     stepId,
   });
 

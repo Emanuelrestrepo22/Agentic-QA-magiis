@@ -1,0 +1,1452 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Onboarding QA Agéntico — MAGIIS</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --surface-2: #f3f6f8;
+    --ink: #10192a;
+    --ink-2: #132033;
+    --muted: #5a6675;
+    --line: #d9e0e8;
+    --accent: #0f7a63;
+    --accent-2: #0b5f4d;
+    --accent-soft: #e2f1ec;
+    --amber: #b9760f;
+    --amber-soft: #f6ecdb;
+    --red: #bd403a;
+    --red-soft: #f6e2e0;
+    --blue: #2c66ad;
+    --blue-soft: #e3edf8;
+    --mono: ui-monospace, 'Cascadia Code', 'JetBrains Mono', Consolas, monospace;
+    --sans: 'Helvetica Neue', 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.5;
+    font-size: 12.5px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .doc { max-width: 820px; margin: 0 auto; padding: 0 4px; }
+
+  /* ---------- part headers ---------- */
+  .part { break-before: page; padding-top: 6px; }
+  .part:first-of-type { break-before: auto; }
+  .parthead {
+    background: var(--ink);
+    color: #eef3f8;
+    border-radius: 12px;
+    padding: 22px 26px 24px;
+    margin: 0 0 26px;
+  }
+  .parthead .eyebrow {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #46d6b0; margin-bottom: 10px;
+  }
+  .parthead h1 {
+    font-size: 30px; line-height: 1.06; letter-spacing: -0.02em;
+    margin: 0 0 8px; font-weight: 800; color: #fff;
+  }
+  .parthead p { margin: 0; color: #aebccb; font-size: 13px; max-width: 60ch; }
+
+  /* ---------- cover ---------- */
+  .cover { padding-top: 8px; }
+  .cover .kicker {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 14px;
+  }
+  .cover h1 {
+    font-size: 40px; line-height: 1.02; letter-spacing: -0.025em;
+    margin: 0 0 14px; font-weight: 800;
+  }
+  .cover .lead { font-size: 15px; color: var(--muted); max-width: 64ch; margin: 0 0 22px; }
+
+  /* ---------- section headings ---------- */
+  h2.sec {
+    color: var(--accent); font-size: 18px; font-weight: 800; letter-spacing: -0.01em;
+    margin: 26px 0 12px; padding-bottom: 6px; border-bottom: 2px solid var(--accent-soft);
+    break-after: avoid;
+  }
+  h3.sub {
+    font-size: 14px; font-weight: 800; margin: 18px 0 8px; color: var(--ink);
+    break-after: avoid;
+  }
+  h4.mini {
+    font-size: 12.5px; font-weight: 800; margin: 14px 0 6px; color: var(--accent-2);
+    break-after: avoid;
+  }
+  p { margin: 0 0 10px; }
+  .muted { color: var(--muted); }
+  .lead-sm { color: var(--muted); font-size: 12.5px; margin: 0 0 14px; max-width: 68ch; }
+  strong { font-weight: 750; }
+  code.inl { font-family: var(--mono); font-size: 0.86em; background: var(--surface-2);
+    border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; }
+
+  /* ---------- tables ---------- */
+  .tbl {
+    border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+    margin: 0 0 16px; break-inside: avoid;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  thead th {
+    background: var(--ink-2); color: #dbe6f0; text-align: left;
+    font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase;
+    font-weight: 700; padding: 9px 12px;
+  }
+  td { padding: 8px 12px; border-top: 1px solid var(--line); vertical-align: top; }
+  tbody tr:nth-child(even) td { background: var(--surface-2); }
+  td strong { font-weight: 750; }
+  td.mono, th.mono { font-family: var(--mono); font-size: 11px; }
+  .tbl.tight table { font-size: 11.5px; }
+
+  /* ---------- notes / callouts ---------- */
+  .note {
+    background: var(--accent-soft); border: 1px solid #cfe6dd;
+    border-left: 4px solid var(--accent); border-radius: 8px;
+    padding: 11px 14px; margin: 0 0 16px; break-inside: avoid;
+  }
+  .note .lbl {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--accent-2); margin-bottom: 5px;
+  }
+  .note p { margin: 0; font-size: 12px; }
+  .note.amber { background: var(--amber-soft); border-color: #ecd9b6; border-left-color: var(--amber); }
+  .note.amber .lbl { color: var(--amber); }
+  .note.blue { background: var(--blue-soft); border-color: #cadcf1; border-left-color: var(--blue); }
+  .note.blue .lbl { color: var(--blue); }
+  .note.red { background: var(--red-soft); border-color: #efc9c5; border-left-color: var(--red); }
+  .note.red .lbl { color: var(--red); }
+
+  /* ---------- code / prompts ---------- */
+  pre.code {
+    background: #0e1723; color: #d8e2ee; border-radius: 8px; padding: 12px 14px;
+    font-family: var(--mono); font-size: 11px; line-height: 1.55; overflow-x: auto;
+    margin: 0 0 16px; white-space: pre-wrap; word-break: break-word; break-inside: avoid;
+  }
+  pre.code .cmt { color: #6f8296; }
+  .prompt { margin: 0 0 16px; break-inside: avoid; }
+  .prompt .plbl {
+    font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 4px;
+  }
+  .prompt pre {
+    background: #0e1723; color: #cfe8df; border-radius: 8px; padding: 10px 13px;
+    font-family: var(--mono); font-size: 11px; line-height: 1.5; margin: 0;
+    white-space: pre-wrap; word-break: break-word; border-left: 3px solid var(--accent);
+  }
+
+  /* ---------- lists ---------- */
+  ul.clean { margin: 0 0 14px; padding: 0; list-style: none; }
+  ul.clean li { position: relative; padding-left: 18px; margin-bottom: 6px; }
+  ul.clean li::before {
+    content: ''; position: absolute; left: 2px; top: 7px; width: 6px; height: 6px;
+    border-radius: 2px; background: var(--accent);
+  }
+  ul.clean li.a::before { background: var(--amber); }
+  ul.clean li.r::before { background: var(--red); }
+  ol.steps { margin: 0 0 14px; padding-left: 20px; }
+  ol.steps li { margin-bottom: 7px; }
+
+  /* ---------- WH grid ---------- */
+  .whgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0 0 16px; }
+  .whcell {
+    border: 1px solid var(--line); border-radius: 9px; padding: 11px 12px; background: var(--surface);
+    break-inside: avoid;
+  }
+  .whcell .w { font-size: 15px; font-weight: 800; color: var(--accent); margin-bottom: 3px; }
+  .whcell .q { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 700; margin-bottom: 5px; }
+  .whcell p { font-size: 11.5px; margin: 0; }
+
+  /* ---------- ladder ---------- */
+  .ladder { display: grid; gap: 8px; margin: 0 0 16px; }
+  .rung { display: grid; grid-template-columns: 54px 1fr; gap: 12px; align-items: start;
+    border: 1px solid var(--line); border-radius: 9px; padding: 10px 12px; break-inside: avoid; }
+  .rung .lvl { font-weight: 800; color: var(--accent); font-size: 12px; }
+  .rung .lvl small { display: block; color: var(--muted); font-weight: 700; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .rung .body b { font-weight: 750; }
+  .rung .body { font-size: 11.8px; }
+
+  /* ---------- misc ---------- */
+  .pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 10.5px;
+    font-weight: 700; background: var(--accent-soft); color: var(--accent-2); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .card { border: 1px solid var(--line); border-radius: 9px; padding: 12px 14px; break-inside: avoid; }
+  .card .k { font-size: 10px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  hr.soft { border: none; border-top: 1px solid var(--line); margin: 20px 0; }
+  .foot { margin-top: 26px; padding-top: 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10.5px; }
+  .avoid { break-inside: avoid; }
+
+  /* ---------- step walkthrough ---------- */
+  .stepbox { border: 1px solid var(--line); border-left: 4px solid var(--accent);
+    border-radius: 9px; padding: 12px 14px 4px; margin: 0 0 14px; }
+  .stepbox .hd { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; break-after: avoid; }
+  .stepbox .sn { flex: none; width: 25px; height: 25px; border-radius: 50%; background: var(--accent);
+    color: #fff; font-weight: 800; font-size: 12.5px; display: flex; align-items: center; justify-content: center; }
+  .stepbox .st { font-weight: 800; font-size: 13.5px; color: var(--ink); line-height: 1.15; }
+  .stepbox .sm { font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+  .flowline { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0 0 14px; font-size: 10.5px; break-inside: avoid; }
+  .flowline .chip { background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px; font-weight: 700; }
+  .flowline .chip.on { background: var(--accent-soft); border-color: #cfe6dd; color: var(--accent-2); }
+  .flowline .chip.warn { background: var(--red-soft); border-color: #efc9c5; color: var(--red); }
+  .flowline .ar { color: var(--muted); font-weight: 800; }
+</style>
+</head>
+<body>
+<div class="doc">
+
+<!-- ============================ COVER ============================ -->
+<section class="cover">
+  <div class="kicker">Onboarding · QA Agéntico MAGIIS · de 0 a experto</div>
+  <h1>Onboarding QA — del repo al chat</h1>
+  <p class="lead">
+    Documento de estudio para dominar el rol de QA en un framework agéntico. Primero la foto grande
+    (infraestructura, objetivos, alcance, impacto). Después los procesos internos y el paso a paso
+    operativo en el chat. Luego las metodologías que sostienen el criterio, y por último el toolkit
+    (skills, commands, MCPs) e instalación. Todo enmarcado en un método de aprendizaje <strong>WH</strong>
+    — Qué · Por qué · Quién · Cuándo · Dónde · Cómo — para aplicarlo en el día a día.
+  </p>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Para quién</th><th>Ámbito</th><th>Objetivo del documento</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>QA que arranca con el framework (de cero a autónomo)</td>
+          <td>Carrier · entorno UAT · plataforma MAGIIS</td>
+          <td>Entender el sistema, saber operarlo paso a paso y desarrollar criterio propio</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="sec">Cómo leer este documento</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Parte</th><th>Contenido</th><th>Qué te llevás</th></tr></thead>
+      <tbody>
+        <tr><td><strong>0 · Cómo aprender</strong></td><td>El método WH y la escalera 0→experto</td><td>Un sistema para estudiar y trabajar</td></tr>
+        <tr><td><strong>1 · La foto grande</strong></td><td>Infra, objetivos, KPIs, 7 etapas, DoD, diccionario</td><td>Entendés el porqué y el qué</td></tr>
+        <tr><td><strong>2 · Procesos internos</strong></td><td>Las etapas/skills de QA y qué produce cada una</td><td>Sabés qué proceso corre cuándo</td></tr>
+        <tr><td><strong>3 · Paso a paso</strong></td><td>Operar en el chat, criterio por etapa, MX-6024, trifuerza</td><td>Sabés cómo hacerlo</td></tr>
+        <tr><td><strong>4 · Metodologías</strong></td><td>IQL, test design, defect mgmt, DoR/DoD, ROI, pirámide, Xray</td><td>El criterio técnico detrás de cada acción</td></tr>
+        <tr><td><strong>5 · Skills</strong></td><td>Qué hace cada skill, cómo se invoca, casos de uso</td><td>Sabés qué herramienta usar</td></tr>
+        <tr><td><strong>6 · Commands + MCPs</strong></td><td>Comandos utilitarios y servidores MCP</td><td>Automatizás tareas repetidas</td></tr>
+        <tr><td><strong>7 · Instalación y entorno</strong></td><td>Setup paso a paso, proyectos, hooks, SDK/memoria</td><td>Dejás el puesto listo para trabajar</td></tr>
+        <tr><td><strong>8 · Sprint de punta a punta</strong></td><td>Una release de 3 tickets: del análisis al GO/NO-GO, con un bug reportado al Dev</td><td>Ves el loop completo que corrés cada sprint</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================ PART 0 — METHOD ============================ -->
+<section class="part">
+  <div class="parthead">
+    <div class="eyebrow">Parte 0</div>
+    <h1>Cómo aprender esto</h1>
+    <p>El método WH y la escalera de 0 a experto. Léelo primero: es el sistema con el que vas a estudiar el resto del documento y con el que vas a trabajar cada día.</p>
+  </div>
+
+  <h2 class="sec">0.1 · El método WH (las preguntas que un QA senior siempre se hace)</h2>
+  <p class="lead-sm">
+    Ante cualquier ticket, feature o bug, un QA con criterio no salta a "clickear". Primero se hace seis
+    preguntas. Ese es el método <strong>WH</strong>. Aplicalo como checklist mental en cada etapa: si podés
+    responder las seis, entendés el problema; si te falta una, ahí está el gap que tenés que cerrar (preguntando al PO/Dev o leyendo el contexto).
+  </p>
+  <div class="whgrid">
+    <div class="whcell"><div class="w">What</div><div class="q">Qué</div><p>¿Qué cambió / qué se prueba? El feature, el AC, el endpoint, la entidad afectada.</p></div>
+    <div class="whcell"><div class="w">Why</div><div class="q">Por qué</div><p>¿Por qué importa? Regla de negocio, riesgo, impacto en el usuario o en el dinero.</p></div>
+    <div class="whcell"><div class="w">Who</div><div class="q">Quién</div><p>¿Qué rol/portal lo usa? Carrier, contractor, owner, pax, driver. Y qué rol lo dispara.</p></div>
+    <div class="whcell"><div class="w">When</div><div class="q">Cuándo</div><p>¿En qué etapa está el feature? (define Bug vs Defect). ¿Qué estados/transiciones cruza?</p></div>
+    <div class="whcell"><div class="w">Where</div><div class="q">Dónde</div><p>¿En qué capa vive la verdad? UI, API o DB. ¿Qué entorno? (default: UAT/staging).</p></div>
+    <div class="whcell"><div class="w">How</div><div class="q">Cómo</div><p>¿Cómo lo pruebo y cuánto? Técnica (EP/BVA/estados), trifuerza, y el ROI de automatizarlo.</p></div>
+  </div>
+  <div class="note">
+    <div class="lbl">Cómo se usa en el día a día</div>
+    <p>Abrís un ticket → recorrés las seis preguntas en voz alta (o en el chat) → las que no podés responder son tu lista de gaps. El agente te ayuda a responderlas leyendo el código y el contexto; vos validás y decidís. Ese recorrido ES el Shift-Left: pensar antes de ejecutar.</p>
+  </div>
+
+  <h2 class="sec">0.2 · WH aplicado a las etapas del flujo</h2>
+  <div class="tbl tight">
+    <table>
+      <thead><tr><th>Etapa</th><th>Pregunta que domina</th><th>Qué respondés</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Planning (ATP)</strong></td><td>What · Why</td><td>Qué dicen los AC y por qué importan → derivo los casos</td></tr>
+        <tr><td><strong>Datos de prueba</strong></td><td>Who · Where</td><td>Qué rol y qué dato en qué entorno hacen válido el caso</td></tr>
+        <tr><td><strong>Ejecución (trifuerza)</strong></td><td>Where · How</td><td>En qué capa está la verdad y cómo la corroboro (UI→API→DB)</td></tr>
+        <tr><td><strong>Reporte (ATR)</strong></td><td>When · Why</td><td>En qué etapa está el feature (Bug/Defect) y por qué bloquea</td></tr>
+        <tr><td><strong>Automatización</strong></td><td>How (much)</td><td>Cuánto vale automatizarlo → ROI: Candidate / Manual / Deferred</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="sec">0.3 · La escalera 0 → experto</h2>
+  <p class="lead-sm">No se aprende todo de una. Estos son los cinco peldaños; ubicate en uno y apuntá al siguiente. Cada peldaño agrega criterio, no solo tareas.</p>
+  <div class="ladder">
+    <div class="rung"><div class="lvl">N0<small>Observar</small></div><div class="body">Entendés la <b>foto grande</b> (Parte 1): qué es el framework, los 3 repos, las 7 etapas, dónde encaja QA. Todavía no ejecutás; leés y preguntás.</div></div>
+    <div class="rung"><div class="lvl">N1<small>Operar guiado</small></div><div class="body">Disparás una skill por chat (<code class="inl">/sprint-testing MX-XXXX</code>), aprobás en los gates y seguís el paso a paso (Parte 3). El agente propone, vos leés y confirmás.</div></div>
+    <div class="rung"><div class="lvl">N2<small>Ejecutar el flujo</small></div><div class="body">Corrés el ciclo completo de un ticket sin ayuda: ATP → trifuerza UI/API/DB → ATR → bug con payload. Reconocés cuándo un PASS de UI esconde un bug de DB.</div></div>
+    <div class="rung"><div class="lvl">N3<small>Criterio propio</small></div><div class="body">Aplicás las <b>metodologías</b> (Parte 4): explotás 1 AC en N casos por técnica, clasificás Bug/Defect/Improvement bien, y decidís el ROI de automatización.</div></div>
+    <div class="rung"><div class="lvl">N4<small>Diseñar cobertura</small></div><div class="body">Agrupás tickets en features, armás un ATP de release, evaluás GO/NO-GO a nivel feature y mantenés la consistencia Xray/TMS del release.</div></div>
+    <div class="rung"><div class="lvl">N5<small>Experto</small></div><div class="body">Orquestás: instalás/adaptás el framework a un proyecto nuevo, evolucionás skills y fixtures, y enseñás el criterio al resto del equipo.</div></div>
+  </div>
+  <div class="note blue">
+    <div class="lbl">Regla de oro del aprendizaje</div>
+    <p>Una IA propone, el QA senior decide. El objetivo no es que el agente trabaje por vos, sino que vos aportes el criterio que el agente no tiene: negocio, riesgo y contexto. Subís de peldaño cuando dejás de preguntar "¿cómo se hace?" y empezás a preguntar "¿esto está bien probado?".</p>
+  </div>
+</section>
+
+<!-- ============================ PART 1 ============================ -->
+<section class="part">
+  <div class="parthead">
+    <div class="eyebrow">Parte 1</div>
+    <h1>La foto grande</h1>
+    <p>Infraestructura, objetivos, alcance, resultado e impacto. El porqué y el qué antes del cómo.</p>
+  </div>
+
+  <h2 class="sec">1.1 · Qué es y cómo está armado (infraestructura)</h2>
+  <p>
+    El framework de QA agéntico es un <strong>sistema operativo de QA</strong>: convierte un ticket de Jira
+    en pruebas documentadas y cobertura, con <em>skills</em> (paquetes de instrucciones para la IA)
+    especializadas por etapa. No es una app; <strong>orquesta</strong> las apps MAGIIS que ya existen.
+  </p>
+  <p>El workspace tiene 3 tipos de repositorio, y no se mezclan:</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Rol</th><th>Repos</th><th>Qué es</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Cockpit</strong></td><td class="mono">agentic-qa-boilerplate</td><td>Donde te sentás y hablás por chat: skills, doctrina, .context, ATP/ATR</td></tr>
+        <tr><td><strong>Ejecución</strong></td><td class="mono">magiis-playwright · magiis-carrier-v2-e2e · magiis-api-e2e</td><td>Donde vive y corre el código de test (UI y API)</td></tr>
+        <tr><td><strong>Contexto (solo lectura)</strong></td><td class="mono">magiis-be · magiis-fe-carrier-v2</td><td>El código que se lee para entender qué probar; no se toca</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">
+    <div class="lbl">Regla de oro de la infra</div>
+    <p>El clon de la app es CONTEXTO, nunca se mezcla con la automatización. Los tests corren contra ambientes DESPLEGADOS (UAT), no contra código local. Stack: Playwright + KATA/CATA (Component Action Test Architecture) + TypeScript + Bun + Allure + Jira/Xray, con Claude asistiendo.</p>
+  </div>
+
+  <h2 class="sec">1.2 · Objetivos, alcance, resultado e impacto</h2>
+  <h3 class="sub">Objetivos — los 5 KPIs del proceso MAGIIS que este trabajo mueve</h3>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>KPI</th><th>Meta</th><th>Qué mide</th></tr></thead>
+      <tbody>
+        <tr><td>Defect Escape Rate</td><td>&lt; 5%</td><td>bugs que se escapan a producción</td></tr>
+        <tr><td>Cobertura de pruebas</td><td>&ge; 80%</td><td>código nuevo cubierto</td></tr>
+        <tr><td>Despliegues exitosos</td><td>&gt; 95%</td><td>sin rollback en 24h</td></tr>
+        <tr><td>Tickets con DoD</td><td>100%</td><td>cierre solo si cumple la Definición de Hecho</td></tr>
+        <tr><td>Adopción IA (Claude)</td><td>&ge; 90%</td><td>tickets asistidos por IA</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    <strong>Alcance:</strong> arranca en el portal <strong>Carrier</strong> sobre <strong>UAT</strong>
+    (pre-producción). Foco funcional: comportamiento, reglas de negocio, estados y flujos multi-rol.
+    <strong>Fuera de alcance inicial:</strong> las pruebas unitarias/integración del backend (dueño = Dev),
+    y el testing nativo mobile (requiere Appium).
+  </p>
+  <h3 class="sub">Resultado e impacto esperado</h3>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Resultado</th><th>Impacto</th></tr></thead>
+      <tbody>
+        <tr><td>Trazabilidad Historia → ATP → ATR → bug en Xray</td><td>Auditoría y evidencia de qué se probó y por qué</td></tr>
+        <tr><td>Menos defectos escapados (Shift-Left + gate)</td><td>Menos bugs en prod, más confianza del cliente</td></tr>
+        <tr><td>El agente ejecuta la trifuerza y documenta</td><td>Menos trabajo manual, QA enfocado en criterio</td></tr>
+        <tr><td>Regresión por riesgo (ROI)</td><td>Cobertura donde importa, sin automatizar de más</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="sec">1.3 · Dónde encaja QA en el proceso MAGIIS (7 etapas)</h2>
+  <p>
+    El proceso MAGIIS tiene 7 etapas de ticket a producción. QA no testea solo al final: es
+    <strong>dueño de la Etapa 6 (Review+QA, con veto)</strong> y <strong>co-dueño de la Etapa 2
+    (Diseño / Shift-Left)</strong>. La Etapa 5 (unitarias &ge; 80%) es del Dev.
+  </p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Etapa</th><th>Dueño</th><th>Rol de QA</th></tr></thead>
+      <tbody>
+        <tr><td>2 · Diseño</td><td>Tech Lead</td><td>Co-dueño: revisa criterios de aceptación (AC) + mockup</td></tr>
+        <tr><td>5 · Pruebas</td><td>Dev</td><td>unitarias/integración es del Dev; QA lo verifica en el DoD</td></tr>
+        <tr><td>6 · Review + QA</td><td>QA</td><td>DUEÑO con veto: funcional, regresión, multi-marca, seguridad</td></tr>
+        <tr><td>7 · Release</td><td>DevOps</td><td>aporta el veredicto GO / NO-GO</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="sec">1.4 · Dev + QA = Definition of Done completo</h2>
+  <p>
+    Desarrollo ya usa un agente de IA (<code class="inl">magiis-claude-agent</code>) que audita el
+    CÓDIGO (estático). Nosotros validamos el COMPORTAMIENTO. <strong>No se pisan, se complementan.</strong>
+  </p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Bloque del DoD</th><th>Quién lo cubre</th><th>Cómo</th></tr></thead>
+      <tbody>
+        <tr><td><strong>CÓDIGO</strong></td><td>Dev · magiis-claude-agent</td><td>Auditoría estática: hardcode, seguridad, ejes A-H, en cada MR</td></tr>
+        <tr><td><strong>PRUEBAS</strong></td><td>QA · este framework</td><td>Trifuerza UI/API/DB, ATP → ATR, regresión, en UAT</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">
+    <div class="lbl">El valor que aporta QA</div>
+    <p>El code smell que QA no ve lo atrapa el audit; el bug de comportamiento/negocio/integración que el audit no ve lo atrapa QA. Juntos completan la Etapa 6 y el DoD al 100%. Nos montamos sobre lo que Dev ya construyó.</p>
+  </div>
+
+  <h2 class="sec">1.5 · Conceptos base (diccionario)</h2>
+  <div class="tbl tight">
+    <table>
+      <thead><tr><th>Término</th><th>Qué significa (en simple)</th></tr></thead>
+      <tbody>
+        <tr><td><strong>AC</strong></td><td>Acceptance Criteria: lo que la historia debe cumplir (Given/When/Then)</td></tr>
+        <tr><td><strong>ATP</strong></td><td>Acceptance Test Plan: el plan — qué casos vamos a probar</td></tr>
+        <tr><td><strong>ATR</strong></td><td>Acceptance Test Results: el reporte firmado — qué pasó (es el gate)</td></tr>
+        <tr><td><strong>Smoke</strong></td><td>Prueba de humo: chequeo rápido de que lo básico funciona</td></tr>
+        <tr><td><strong>Trifuerza</strong></td><td>Validar en 3 capas: UI (pantalla) + API (servicios) + DB (datos)</td></tr>
+        <tr><td><strong>ROI</strong></td><td>Return On Investment: criterio de qué vale la pena automatizar</td></tr>
+        <tr><td><strong>DoR / DoD</strong></td><td>Definición de Listo (entrada) / Definición de Hecho (cierre)</td></tr>
+        <tr><td><strong>KATA / CATA</strong></td><td>Component Action Test Architecture: acciones reutilizables para automatizar</td></tr>
+        <tr><td><strong>TMS / Xray</strong></td><td>Sistema de gestión de pruebas; el nuestro es Xray sobre Jira</td></tr>
+        <tr><td><strong>IQL</strong></td><td>Integrated Quality Lifecycle: el ciclo de calidad Early/Mid/Late-Game</td></tr>
+        <tr><td><strong>Skill / Command / MCP</strong></td><td>Instrucciones para la IA / comando utilitario / servidor que conecta la IA a una herramienta</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================ PART 2 ============================ -->
+<section class="part">
+  <div class="parthead">
+    <div class="eyebrow">Parte 2</div>
+    <h1>Los procesos internos de QA</h1>
+    <p>Las etapas/skills y qué produce cada una. Este es el "qué corre cuándo" del framework.</p>
+  </div>
+
+  <h2 class="sec">2.1 · Las etapas del flujo (una skill por etapa)</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Etapa / Skill</th><th>Cuándo</th><th>Qué hace y qué produce</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">0 · shift-left-testing</td><td>Pre-sprint</td><td>Refina AC del backlog, arma ATP borrador, preguntas gap a PO/Dev</td></tr>
+        <tr><td class="mono">1-3 · sprint-testing</td><td>In-sprint (por ticket)</td><td>Planning → Execution → Reporting: smoke + trifuerza → ATP y ATR</td></tr>
+        <tr><td class="mono">4 · test-documentation</td><td>Post-QA</td><td>Aplica ROI, documenta en Xray, trazabilidad US-ATP-ATR-TC</td></tr>
+        <tr><td class="mono">5 · test-automation</td><td>Post-sprint</td><td>E2E + API con KATA/Playwright; automatiza solo lo Candidate</td></tr>
+        <tr><td class="mono">6 · regression-testing</td><td>Pre-release</td><td>Corre la suite, clasifica fallos, veredicto GO / NO-GO</td></tr>
+        <tr><td class="mono">Setup · discovery + adapt</td><td>Una vez</td><td>Reverse-engineer del repo → contexto; conecta el framework al stack</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">
+    <div class="lbl">Cómo se encadenan (fases)</div>
+    <p>SETUP (una vez): discovery + adapt-framework. LOOP POR RELEASE: Shift-Left (pre) → Sprint Testing (in) → Test Documentation (post-QA) → Automatización (post-sprint) → Regresión (pre-release). Cada fase alimenta a la siguiente; los hallazgos vuelven al ticket.</p>
+  </div>
+
+  <h2 class="sec">2.2 · La pirámide de pruebas (quién hace qué)</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Nivel</th><th>%</th><th>Dueño</th></tr></thead>
+      <tbody>
+        <tr><td>E2E / UAT</td><td>5%</td><td>QA (este framework, KATA)</td></tr>
+        <tr><td>Integración</td><td>15%</td><td>Dev + QA (contratos / API)</td></tr>
+        <tr><td>Componentes</td><td>30%</td><td>Dev</td></tr>
+        <tr><td>Unitarias</td><td>50%</td><td>Dev</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="muted" style="font-size:11.5px">QA aporta la cima (E2E/UAT) y colabora en integración/API. La base (unit/componentes) es responsabilidad del Dev y QA la verifica en el DoD.</p>
+
+  <h2 class="sec">2.3 · La constancia (registro físico) y dónde ver ATP/ATR</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Artefacto</th><th>Dónde vive</th><th>Cómo lo ves</th></tr></thead>
+      <tbody>
+        <tr><td><strong>ATP</strong></td><td>Xray: Test Plan</td><td>En Jira + .md sincronizado en .context/PBI/…</td></tr>
+        <tr><td><strong>ATR</strong></td><td>Xray: Test Execution (resultado por Test)</td><td>En Jira + .md sincronizado</td></tr>
+        <tr><td><strong>Matriz de casos</strong></td><td>Archivo XLSX (documentación manual)</td><td>Archivo físico en tu carpeta QA / SharePoint</td></tr>
+        <tr><td><strong>Evidencia</strong></td><td>Carpeta evidence/ del ticket + adjuntos</td><td>Capturas, request/response, video</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note blue">
+    <div class="lbl">Herramienta Xray: bun xray (decisión MAGIIS)</div>
+    <p>La matriz XLSX documenta QUÉ ejecutar (registro físico). El agente la lee como insumo y con <code class="inl">bun xray</code> (xray-cli, GraphQL) crea el Test Plan (ATP), los Tests, el Test Execution (ATR), setea estados y adjunta evidencia — sin import manual. En Carrier/MG (sin Xray) el ATP/ATR van como comentarios en la historia.</p>
+  </div>
+</section>
+
+<!-- ============================ PART 3 ============================ -->
+<section class="part">
+  <div class="parthead">
+    <div class="eyebrow">Parte 3</div>
+    <h1>El paso a paso operativo</h1>
+    <p>Operar en el chat, criterio por etapa y la trifuerza detallada. Este es el "cómo" del día a día.</p>
+  </div>
+
+  <h2 class="sec">3.1 · Tu puesto de trabajo</h2>
+  <p>
+    Una ventana IDE en <code class="inl">agentic-qa-boilerplate</code> + el chat de Claude Code = tu puesto.
+    Todo se dispara por chat; la consola la maneja el agente por debajo. Vos <strong>aprobás en los gates</strong>
+    y aportás criterio. No se crea un proyecto aparte.
+  </p>
+
+  <h2 class="sec">3.2 · El flujo por ticket, fase por fase (con prompt y criterio)</h2>
+
+  <h3 class="sub">Fase 1 — Planning (ATP)</h3>
+  <p>Leés el ticket, entendés los AC y derivás los casos. 1 AC no trivial → varios casos (partición válida, inválidos, bordes, estados).</p>
+  <div class="prompt"><div class="plbl">Prompt para el chat</div><pre>/sprint-testing MX-6024
+(o: "Leé MX-6024 y armá el ATP con los casos
+y sus criterios; mostrame el plan antes de ejecutar.")</pre></div>
+  <div class="note"><div class="lbl">Criterio QA en esta etapa</div><p>Explotar cada AC en casos por técnica (EP, BVA, State-Transition para estados de viaje, Decision Table). Sumar multi-moneda/idioma/compañía si aplica. NO conformarse con el happy path.</p></div>
+
+  <h3 class="sub">Fase 2 — Datos de prueba</h3>
+  <p>Ubicás o creás en UAT el dato que el caso necesita (ej. un viaje con otherCosts). Anotás los IDs.</p>
+  <div class="prompt"><div class="plbl">Prompt para el chat</div><pre>Ayudame a preparar el dato en UAT para el caso:
+necesito un viaje con otherCosts. Dame el travelId.</pre></div>
+  <div class="note"><div class="lbl">Criterio QA en esta etapa</div><p>Elegir datos representativos (rol, país/moneda). Un dato mal elegido invalida el caso. Registrar los IDs para la evidencia.</p></div>
+
+  <h3 class="sub">Fase 3 — Ejecución (trifuerza)</h3>
+  <p>Ejecutás cada caso en las 3 capas, con la UI como puerta de entrada funcional. Detalle completo en 3.4.</p>
+  <div class="prompt"><div class="plbl">Prompt para el chat</div><pre>Ejecutemos la trifuerza del TC1: primero la UI en
+UAT, después corroborá por API y por DB. Guardá
+la evidencia de cada capa.</pre></div>
+  <div class="note"><div class="lbl">Criterio QA en esta etapa</div><p>La UI valida el COMPORTAMIENTO (lo que ve el usuario). API y DB CORROBORAN. Un PASS de UI con DB inconsistente = bug. No cerrar un caso sin las 3 capas cuando hay mutación de datos.</p></div>
+
+  <h3 class="sub">Fase 4 — Reporte (ATR) y aprobación</h3>
+  <p>Registrás el resultado por caso, con evidencia, y das el veredicto. Aplica el gate.</p>
+  <div class="prompt"><div class="plbl">Prompt para el chat</div><pre>Armá el ATR con PASS/FAIL por caso + evidencia,
+creá el Test Execution en Xray con bun xray y
+poné los estados. Si hay FAIL, adjuntá el payload.</pre></div>
+  <div class="note"><div class="lbl">Criterio QA en esta etapa</div><p>Gate: 0 críticos, mayores &le; 2. Si algo falla, el bug lleva el PAYLOAD completo (request+response+contexto) para reproducibilidad. El ATR firmado es lo que habilita el cierre.</p></div>
+
+  <h2 class="sec">3.3 · Ejemplo trabajado — MX-6024</h2>
+  <p>
+    <strong>Bug:</strong> al editar un viaje que tiene otherCosts, el guardado devuelve <code class="inl">404 ACTION_NOT_ALLOWED</code>.
+    <strong>Reproducción:</strong> recalculateTripPrice=true + updateOthersCosts=false + otherCosts no vacíos. No falla si el viaje no tiene otherCosts.
+    Endpoint: <code class="inl">PUT /carriers/{id}/travels/{travelId}/update</code>.
+  </p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Caso</th><th>Escenario</th><th>Esperado (tras el fix)</th></tr></thead>
+      <tbody>
+        <tr><td><strong>TC1 — repro (UI)</strong></td><td>Editar la nota de un viaje CON otherCosts</td><td>Guarda OK (sin 404)</td></tr>
+        <tr><td><strong>TC2 — no-regresión</strong></td><td>Editar un viaje SIN otherCosts</td><td>Guarda OK (200)</td></tr>
+        <tr><td><strong>TC3 — variante</strong></td><td>updateOthersCosts=true con otherCosts</td><td>Guarda OK (200)</td></tr>
+        <tr><td><strong>TC4 — borde</strong></td><td>otherCosts vacío</td><td>Guarda OK (200)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="sec">3.4 · Cómo aplicar la trifuerza, paso a paso</h2>
+  <p>La trifuerza valida el mismo caso en 3 capas. <strong>Orden: UI primero</strong> (comportamiento), luego API y DB corroboran.</p>
+
+  <h4 class="mini">Capa 1 — UI (puerta de entrada funcional)</h4>
+  <div class="tbl tight">
+    <table>
+      <thead><tr><th>Paso</th><th>Qué hacés</th><th>Qué observás / criterio</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Abrir la app en UAT (apps-uat.magiis.com/carrier) y loguearte con el rol (ROLE_CARRIER)</td><td>¿El login y el portal cargan para ese rol?</td></tr>
+        <tr><td>2</td><td>Navegar al flujo del AC (abrir el viaje con otherCosts)</td><td>¿Los datos del viaje se ven correctos?</td></tr>
+        <tr><td>3</td><td>Ejecutar la acción del caso (editar la nota y Guardar)</td><td>¿La acción concluye? ¿aparece error o guarda OK?</td></tr>
+        <tr><td>4</td><td>Capturar pantalla del resultado</td><td>Evidencia visual del comportamiento</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><div class="lbl">Criterio — capa UI</div><p>La pregunta es: ¿el comportamiento que ve el usuario coincide con el AC? Un mensaje de error crudo (ej. un 404 técnico) al usuario es un hallazgo aunque el dato termine guardándose.</p></div>
+
+  <h4 class="mini">Capa 2 — API (corrobora el contrato)</h4>
+  <pre class="code"><span class="cmt">bun run api:login staging          # token UAT (rol Carrier)
+# luego, con el travelId de prueba y OK explícito:</span>
+source .auth/tokens.env && curl -X PUT \
+  -H "Authorization: Bearer $API_TOKEN_CARRIER_STAGING" \
+  "$API_BASE_URL/carriers/{id}/travels/{travelId}/update" \
+  -d '&lt;payload de reproducción&gt;'</pre>
+  <div class="tbl tight">
+    <table>
+      <thead><tr><th>Qué revisás</th><th>Criterio</th></tr></thead>
+      <tbody>
+        <tr><td>Status code</td><td>200 esperado (antes 404). ¿Coincide con el AC?</td></tr>
+        <tr><td>Body de la respuesta</td><td>¿Conforme al contrato/schema? ¿sin exponer errores internos?</td></tr>
+        <tr><td>Manejo de error</td><td>Un 4xx/5xx debe traer un mensaje de negocio, no un stacktrace</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><div class="lbl">Criterio — capa API</div><p>La UI puede 'tapar' un error; la API muestra la verdad del contrato. Guardá SIEMPRE request + response como evidencia. Si el caso FALLA, el payload completo es obligatorio en el bug.</p></div>
+
+  <h4 class="mini">Capa 3 — DB (corrobora el estado real)</h4>
+  <p style="font-size:12px">Solo cuando el caso muta datos. Se consulta Oracle (cliente externo / proyecto api-e2e) para verificar que el estado quedó consistente.</p>
+  <div class="tbl tight">
+    <table>
+      <thead><tr><th>Qué revisás</th><th>Criterio</th></tr></thead>
+      <tbody>
+        <tr><td>La fila afectada (antes/después)</td><td>¿El cambio persistió? ¿los campos quedaron correctos?</td></tr>
+        <tr><td>Consistencia / rollback</td><td>¿No quedó a medias ni marcado para rollback?</td></tr>
+        <tr><td>Integridad relacionada</td><td>¿Las tablas dependientes (otherCosts) quedaron coherentes?</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note amber"><div class="lbl">Criterio — capa DB y cierre de la trifuerza</div><p>Un PASS de UI + API con la DB inconsistente sigue siendo un BUG. La trifuerza cierra solo cuando las 3 capas cuentan la misma historia. Recién ahí el caso es PASS de verdad.</p></div>
+
+  <h2 class="sec">3.5 · Análisis de la release — un ATP por feature (varios tickets)</h2>
+  <p>
+    A veces varios tickets pertenecen al MISMO cambio/feature: una Story de backend + una Story de frontend
+    + un bug encontrado + un ticket de mejora. En ese caso NO se hace un ATP por ticket: se hace
+    <strong>un solo ATP a nivel feature</strong> y <strong>un solo Test Execution</strong> que valida todos esos tickets juntos dentro de la release.
+  </p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Artefacto Xray</th><th>Rol en la feature</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Test Plan</strong></td><td>El ATP de la feature (contenedor); agrupa lo de la release</td></tr>
+        <tr><td><strong>Test Set</strong></td><td>Agrupación de los tests por feature / componente afectado</td></tr>
+        <tr><td><strong>Test</strong></td><td>Cada caso; se linkea (is tested by) al/los ticket(s) que cubre: Story BE, Story FE, Bug, Mejora</td></tr>
+        <tr><td><strong>Test Execution</strong></td><td>El ATR ÚNICO: una corrida que valida los N tickets de la feature</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><div class="lbl">Criterio QA senior — el agrupamiento es tuyo</div><p>Vos decidís qué tickets forman una feature: mismo cambio funcional, mismo componente, dependencia BE-FE, o bug/mejora derivados de ese cambio. Un ticket independiente va en su propio ATP. El GO/NO-GO se evalúa a nivel FEATURE/RELEASE, no ticket suelto: un crítico abierto en cualquiera de los tickets del grupo bloquea la feature.</p></div>
+
+  <h2 class="sec">3.6 · Biblioteca de prompts por etapa</h2>
+  <p class="lead-sm">Prompts listos para copiar. Ajustá los IDs a tu caso.</p>
+  <div class="grid2">
+    <div>
+      <h4 class="mini">A · Contexto y análisis de la release</h4>
+      <div class="prompt"><div class="plbl">Escanear la release</div><pre>Analiza la release actual: qué tickets entran,
+agrúpalos por feature/cambio y marca cuáles son
+BE, FE, bug y mejora. Propóneme el grouping de ATPs.</pre></div>
+      <h4 class="mini">B · Planning (ATP)</h4>
+      <div class="prompt"><div class="plbl">Un solo ticket</div><pre>Arma el ATP de MX-6024: explota los AC en casos
+por técnica (EP, BVA, State-Transition), con el
+resultado esperado por caso.</pre></div>
+      <div class="prompt"><div class="plbl">Retest de un bug</div><pre>MX-6024 es un bug en estado TEST. Arma el ATP de
+verificación del fix + la regresión alrededor del cambio.</pre></div>
+    </div>
+    <div>
+      <h4 class="mini">C · Ejecución (trifuerza)</h4>
+      <div class="prompt"><div class="plbl">Solo API (bug backend)</div><pre>Este caso es de API. Corre la validación por
+endpoint (api:login UAT + el PUT) y guarda
+request/response como evidencia.</pre></div>
+      <h4 class="mini">D · Reporte (ATR) y Xray</h4>
+      <div class="prompt"><div class="plbl">Fallo con payload</div><pre>El TC2 falló. Redacta el bug con el PAYLOAD completo
+(request + response + contexto: entorno, rol, IDs)
+y linkéalo al Test que falló.</pre></div>
+      <h4 class="mini">E · Cierre / GO — NO-GO</h4>
+      <div class="prompt"><div class="plbl">Veredicto de release</div><pre>Con los resultados de la feature, dame el veredicto
+GO / NO-GO de la release y qué exactamente lo
+bloquea (por ticket).</pre></div>
+    </div>
+  </div>
+
+  <h2 class="sec">3.7 · Checklist de aprobación (gate Etapa 6)</h2>
+  <ul class="clean">
+    <li>ATP publicado (Xray/Jira) y en la matriz XLSX</li>
+    <li>Casos ejecutados con evidencia en las 3 capas (UI/API/DB)</li>
+    <li>ATR firmado con veredicto; payload completo en cada FALLO</li>
+    <li>0 bugs críticos abiertos; mayores &le; 2</li>
+    <li>Test Execution creado en Xray con bun xray + estados seteados</li>
+    <li>Si es feature: 1 ATP + 1 Test Execution para todos los tickets; cada Test linkeado a su requirement</li>
+    <li>Transición Jira aplicada (Closed / blocked) en cada ticket del grupo</li>
+    <li>Aporte al veredicto GO / NO-GO de la release (a nivel feature)</li>
+  </ul>
+  <div class="note"><div class="lbl">Regla final</div><p>'Hecho' = en producción, monitoreado y entregando valor. Si un solo check del DoD falla, el ticket NO está hecho. QA valida todo; una IA propone, el QA senior decide.</p></div>
+</section>
+
+<!-- ============================ PART 4 ============================ -->
+<section class="part">
+  <div class="parthead">
+    <div class="eyebrow">Parte 4</div>
+    <h1>Las metodologías</h1>
+    <p>El criterio técnico detrás de cada acción. Estas son las metodologías ya definidas en la documentación del repo: qué son, sus reglas y cómo aplicarlas.</p>
+  </div>
+
+  <h2 class="sec">4.1 · IQL — el ciclo de calidad (Early / Mid / Late-Game)</h2>
+  <p class="lead-sm">
+    IQL (Integrated Quality Lifecycle) reemplaza al STLC clásico: la calidad no es una fase final,
+    es un ciclo continuo integrado al desarrollo, en 3 grandes momentos. Las skills mapean a estos momentos.
+  </p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Momento</th><th>Rol / foco</th><th>Qué pasa</th><th>Skills</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Early-Game</strong></td><td>QA Analyst · Prevención</td><td>Análisis de requisitos, refinamiento de AC, testing exploratorio temprano, priorización por riesgo</td><td class="mono">shift-left-testing · sprint-testing (Stage 1)</td></tr>
+        <tr><td><strong>Mid-Game</strong></td><td>QA Automation · Detección</td><td>Documentación de TCs, assessment de automatización (ROI), código KATA, verificación en CI, code review</td><td class="mono">test-documentation · test-automation · regression-testing</td></tr>
+        <tr><td><strong>Late-Game</strong></td><td>QA + SRE · Observación</td><td>Monitoreo, canary, A/B, RUM, chaos engineering, feedback loop <span class="pill">2026</span></td><td class="mono">(observabilidad)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note blue"><div class="lbl">Modelo de colaboración</div><p>QA Analyst = el "qué / por qué" (navegante). QA Automation Engineer = el "cómo / dónde" (conductor). Enfoques integrados: Shift-Left, Shift-Right, Risk-Based, Continuous, Agile, Exploratory, BDD (Given/When/Then) y AI-Driven.</p></div>
+
+  <h2 class="sec">4.2 · Test Design Doctrine (cómo derivar casos de los AC)</h2>
+  <p class="lead-sm">La doctrina vinculante que gobierna <em>qué probar</em>. Es lo que separa "verificar" de "probar de verdad". Cárgala antes de derivar cualquier cobertura.</p>
+  <h3 class="sub">Los 5 principios</h3>
+  <ul class="clean">
+    <li><strong>P1 — Verificar AC no es testing.</strong> Confirmar que la historia cumple sus AC valida el mínimo; "pasar" ≠ "probar". Parar en "todos los AC en verde" es quedarse en el happy path.</li>
+    <li><strong>P2 — Los AC son el piso, no el techo.</strong> Cobertura real = conformidad-AC (piso) + riesgo-más-allá-del-AC (bordes, errores, estados, anomalías).</li>
+    <li><strong>P3 — Criterio ≠ test case.</strong> El AC es una aserción de negocio (qué debe ser verdad); el test case es una exploración concreta (cómo eso aguanta o se rompe con datos/variantes/contexto).</li>
+    <li><strong>P4 — Relación 1:N (explode-default).</strong> 1 AC → N test cases. El default es explotar (mínimo: partición válida + inválida + boundary). Colapsar a un solo caso exige justificación escrita ("trivially atomic").</li>
+    <li><strong>P5 — El riesgo vive FUERA del criterio.</strong> Los defectos se agrupan donde el AC calla: boundaries, excepciones, concurrencia, orden, fallo de dependencia, timeouts, doble submit, rollback. Sin casos risk-beyond-AC, la cobertura está incompleta.</li>
+  </ul>
+  <h3 class="sub">Técnicas formales y sus triggers (cuando dispara el trigger, la técnica es obligatoria)</h3>
+  <div class="tbl tight">
+    <table>
+      <thead><tr><th>Técnica</th><th>Trigger (cuándo es obligatoria)</th><th>Qué genera</th></tr></thead>
+      <tbody>
+        <tr><td><strong>EP</strong> · Equivalence Partitioning</td><td>SIEMPRE que haya un input</td><td>Un caso por partición válida + uno por cada razón distinta de invalidez (largo ≠ formato ≠ vacío)</td></tr>
+        <tr><td><strong>BVA</strong> · Boundary Value Analysis</td><td>Rango/límite: número, longitud, colección, fecha, paginación, cuota</td><td>min-1 | min | min+1 … max-1 | max | max+1 + zero/empty/null/overflow</td></tr>
+        <tr><td><strong>State-Transition</strong></td><td>Entidad con estados: status, ciclo de vida, workflow (ej. estados de viaje)</td><td>Transiciones válidas + inválidas + entrada/salida/terminal + re-entrancia</td></tr>
+        <tr><td><strong>Decision Table</strong></td><td>2+ condiciones que interactúan (rol × flag × estado)</td><td>Un caso por regla superviviente; colapsa imposibles/equivalentes</td></tr>
+        <tr><td><strong>Pairwise</strong></td><td>3+ factores combinables (≥2 valores c/u)</td><td>Cada par de valores cubierto al menos una vez</td></tr>
+        <tr><td><strong>Error Guessing</strong> (charter)</td><td>Capa de experiencia, time-boxed</td><td>empty submit, doble click, back-button, paste de &lt;script&gt;/SQL, Unicode, token expirado, network drop</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><div class="lbl">WH — cómo lo aplicás</div><p><b>What</b>: el input/estado/condición del AC. <b>How</b>: elegís la técnica por su trigger. <b>How much</b>: parametrizás (mismas precondiciones+acciones, varían los datos) para no inflar artefactos — un AC de retiro de dinero con ~20 casos → 3-5 artefactos parametrizados. El riesgo prioriza (riesgo = probabilidad × impacto), nunca trunca en silencio: todo drop por scope se declara.</p></div>
+
+  <h2 class="sec">4.3 · Defect Management Doctrine (clasificar y reportar)</h2>
+  <p class="lead-sm">Cómo se clasifica un issue de calidad, qué campos lleva y dónde se parenta. El error más común es confundir Bug con Defect.</p>
+  <h3 class="sub">Bug / Defect / Improvement — por la etapa del FEATURE, no por dónde lo encontraste</h3>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Tipo</th><th>¿Viola un AC?</th><th>¿Etapa del feature?</th><th>En una frase</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Bug</strong></td><td>Sí</td><td>YA en producción</td><td>Se escapó al gate — un defecto que llegó al usuario final</td></tr>
+        <tr><td><strong>Defect</strong></td><td>Sí</td><td>Pre-release (Staging o abajo)</td><td>Contenido, no escapado — salida normal del sprint testing</td></tr>
+        <tr><td><strong>Improvement</strong></td><td>No rompe AC</td><td>—</td><td>El test-beyond-AC reveló una mejora o un AC sub-especificado</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note amber"><div class="lbl">La cláusula decisiva</div><p>La clasificación sigue el <b>stage del feature</b>, no el entorno donde lo viste. Reproducir en localhost/qa un feature recién mergeado = <b>Defect</b>. Un fallo en un feature ya en prod, visto en Staging = <b>Bug</b>.</p></div>
+  <h3 class="sub">Severidad → Prioridad (auto-derivada)</h3>
+  <div class="tbl tight">
+    <table>
+      <thead><tr><th>Severidad</th><th>crítica</th><th>mayor</th><th>moderada</th><th>menor</th><th>trivial</th></tr></thead>
+      <tbody><tr><td><strong>Prioridad</strong></td><td>Highest</td><td>High</td><td>Medium</td><td>Low</td><td>Lowest</td></tr></tbody>
+    </table>
+  </div>
+  <h3 class="sub">Modelo 3-axis + campos obligatorios</h3>
+  <ul class="clean">
+    <li><strong>Parent → QA process epic</strong> (el bucket QA que lo trackea): "QA Defect Management" para bug/defect/improvement. Nunca un epic de producto.</li>
+    <li><strong>Issue link → Story/feature origen</strong> (de qué vino): trazabilidad vía problem/causes/blocks/test.</li>
+    <li><strong>Components → módulo de producto afectado</strong> (qué parte rompió): obligatorio, 1 component = 1 módulo.</li>
+    <li><strong>QA Assignee</strong>: te asignás a vos mismo; regla never-overwrite (read-before-write).</li>
+  </ul>
+  <p class="muted" style="font-size:11.5px">Campos obligatorios: Summary <code class="inl">&lt;EPIC&gt;: &lt;COMPONENT&gt;: &lt;qué falló&gt;</code>, repro, resultado actual, resultado esperado, severidad, prioridad (auto), components, error type, entorno, QA assignee, evidencia, parent (QA epic), source link.</p>
+
+  <h2 class="sec">4.4 · DoR / DoD — los contratos de entrada y salida</h2>
+  <div class="grid2">
+    <div class="card">
+      <div class="k">DoR-QA · entrada</div>
+      <p style="font-size:11.8px;margin:0 0 6px">Un ticket no entra a QA si no cumple:</p>
+      <ul class="clean" style="margin:0">
+        <li>Tipo claro + AC medibles en Given/When/Then (insumo #1 del ATP)</li>
+        <li>Mockup aprobado (UI) + validación multi-moneda/idioma/marca</li>
+        <li>Impacto: entidades/esquema, campos/migraciones, webhooks, endpoints, feature flag (probar ON/OFF)</li>
+        <li>Ambiente: build en qa/uat con flag ON + datos + rol/credenciales</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="k">DoD · salida (QA es dueño de "Pruebas")</div>
+      <ul class="clean" style="margin:0">
+        <li>Cobertura ≥ 80% código nuevo; unit + integración verdes en CI</li>
+        <li>QA funcional firmado; multi-moneda/idioma; multi-compañía (white-label)</li>
+        <li><b>Bugs críticos = 0, mayores ≤ 2</b></li>
+        <li>Feature flag documentado, migraciones aplicadas, plan de rollback, observabilidad</li>
+      </ul>
+    </div>
+  </div>
+  <div class="note red"><div class="lbl">Regla de oro</div><p>Nada pasa a prod sin AC validado. Si UNA check del DoD falla, el ticket NO está hecho. "Hecho" = en producción, monitoreado, entregando valor.</p></div>
+
+  <h2 class="sec">4.5 · Shift-Left · Trifuerza · ROI</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Metodología</th><th>Qué es</th><th>Regla clave</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Shift-Left</strong></td><td>Prevenir defectos en requisitos/diseño (cada defecto cuesta ~10× más en cada etapa siguiente)</td><td>Produce AC refinados + gap-spotting + ATP DRAFT; transiciona backlog → shift_left_qa → estimation</td></tr>
+        <tr><td><strong>Trifuerza</strong></td><td>Probar cada historia en 3 capas simultáneas: UI (E2E) + API (backend) + DB (integridad)</td><td>Smoke primero como gate Go/No-Go; un PASS de UI/API con DB inconsistente sigue siendo BUG</td></tr>
+        <tr><td><strong>ROI</strong></td><td>Decidir QUÉ automatizar por riesgo × repetición, no todo</td><td>3 veredictos: Candidate / Manual / Deferred</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="tbl tight">
+    <table>
+      <thead><tr><th>Veredicto ROI</th><th>Cuándo</th><th>Destino</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Candidate</strong></td><td>Alto riesgo + se re-ejecuta (repetible)</td><td>Va a regresión → se automatiza (Stage 5)</td></tr>
+        <tr><td><strong>Manual</strong></td><td>Vale probarlo a mano, no justifica automatizar</td><td>Terminal</td></tr>
+        <tr><td><strong>Deferred</strong></td><td>No aporta a regresión</td><td>Se registra y se difiere (terminal)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="sec">4.6 · Consistencia Xray/TMS + nomenclatura (nivel release)</h2>
+  <p class="lead-sm">Reglas nacidas de la retro de la release 17080/v1.72.6. Cada Test debe cumplir 3 eslabones: estar en una ejecución (ATR), conectado a la issue, y conectado a la automatización si aplica.</p>
+  <div class="tbl tight">
+    <table>
+      <thead><tr><th>Regla</th><th>Qué exige</th></tr></thead>
+      <tbody>
+        <tr><td><strong>R1 · fixVersion</strong></td><td>En todo artefacto (Test/ATP/ATR) desde su creación; sin esto es invisible en el board</td></tr>
+        <tr><td><strong>R2 · un solo nombre</strong></td><td>Un único nombre de fixVersion por release; prohibido alias (17080 y "v1.72.6 Web" a la vez)</td></tr>
+        <tr><td><strong>R3 · linkeo Test↔issue</strong></td><td>Cada issue funcional tiene ≥1 Test linkeado</td></tr>
+        <tr><td><strong>R4 · granularidad</strong></td><td>1 ATP por issue (back+front → 2 ATP); 1 ATR por ATP y por entorno</td></tr>
+        <tr><td><strong>R5 · ninguna ATR vacía</strong></td><td>Test Execution con 0 runs es hueco; cargar runs o cerrar como N/A</td></tr>
+        <tr><td><strong>R6 · runs terminados</strong></td><td>Nada queda en TODO al cerrar; se ejecuta o se marca BLOCKED con motivo</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><div class="lbl">Enforcement — release gate</div><p>El comando <code class="inl">bun run xray:gate --version … --tag … --project MX</code> corre los checks COVERAGE (R3), VERSION (R1/R2) y EMPTY_EXEC (R5); sale con error si algo falla. La escalera de planificación (Naming Codex) unifica títulos: <code class="inl">{ACRONYM}: {scope-id}: {descriptor}</code> — MTP (Epic) · FTP/FTR (Feature) · STP/STR (Sprint) · ATP/ATR (Story).</p></div>
+
+  <h2 class="sec">4.7 · Quality Gate de release — GO / CAUTION / NO-GO</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Veredicto</th><th>Condición</th><th>Acción</th></tr></thead>
+      <tbody>
+        <tr><td><strong>GO</strong></td><td>≥ 95% pass · 0 críticos</td><td>Ship</td></tr>
+        <tr><td><strong>CAUTION</strong></td><td>85–95% pass</td><td>Investigar → release condicional tras review</td></tr>
+        <tr><td><strong>NO-GO</strong></td><td>&lt; 85% pass · o cualquier crítico</td><td>Bloquear</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="muted" style="font-size:11.5px"><strong>Clasificación de fallos:</strong> Regression (defecto real, bloquea) · Flaky (test no determinístico → se arregla el test) · Known (bug ya fileado) · Environment (infra: DB caída/token/red) · New Test (no estabilizado). 5 flaky no bloquean; 1 regression sí.</p>
+</section>
+
+<!-- ============================ PART 5 ============================ -->
+<section class="part">
+  <div class="parthead">
+    <div class="eyebrow">Parte 5</div>
+    <h1>El toolkit — Skills</h1>
+    <p>Qué hace cada skill, cómo se invoca y un caso de uso MAGIIS. Una skill es un paquete de instrucciones que la IA carga cuando la necesita.</p>
+  </div>
+
+  <h2 class="sec">5.1 · Qué es una skill y cómo se invoca</h2>
+  <p>
+    Una <strong>skill</strong> es conocimiento empaquetado: cuando escribís su trigger (o el comando
+    <code class="inl">/nombre-skill</code>), la IA carga esas instrucciones y las sigue en vez de improvisar.
+    No tenés que memorizar el <em>cómo</em>: lo tiene la skill. Vos elegís <em>qué</em> skill y aportás criterio.
+    Las skills de workflow QA son las 6 etapas del flujo; el resto son de soporte (Jira, git, browser, review).
+  </p>
+
+  <h2 class="sec">5.2 · Skills de workflow QA (las 6 etapas)</h2>
+  <div class="tbl tight">
+    <table>
+      <thead><tr><th>Skill</th><th>Qué hace</th><th>Cómo se invoca</th><th>Caso de uso MAGIIS</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">shift-left-testing</td><td>Stage 0: refina AC de un batch de Stories, detecta gaps, arma ATP borrador y transiciona backlog → shift_left_qa → estimation</td><td class="mono">/shift-left-testing</td><td>Refinar las Stories del owner antes de sprint planning y marcarlas shift-left-reviewed</td></tr>
+        <tr><td class="mono">sprint-testing</td><td>Stages 1-3: QA manual por ticket (Planning + Execution + Reporting); smoke + trifuerza UI/API/DB</td><td class="mono">/sprint-testing MX-XXXX</td><td>Testear una Story de vuelos del carrier: smoke + validar getFlights de AeroAPI en UAT</td></tr>
+        <tr><td class="mono">test-documentation</td><td>Stage 4: prioriza por ROI y documenta TCs en Xray; veredictos Candidate/Manual/Deferred + trazabilidad</td><td class="mono">/test-documentation</td><td>Documentar los TCs del flujo Stripe/3DS y decidir cuáles automatizar</td></tr>
+        <tr><td class="mono">test-automation</td><td>Stage 5: Plan → Code → Review de tests KATA sobre Playwright + TypeScript (solo lo Candidate)</td><td class="mono">/test-automation</td><td>Convertir exploración del flujo V2 en specs Playwright verdes en magiis-playwright</td></tr>
+        <tr><td class="mono">regression-testing</td><td>Stage 6: corre suites vía CI, clasifica fallos, calcula pass-rate y emite GO/CAUTION/NO-GO</td><td class="mono">/regression-testing</td><td>Consolidar la regresión de los 9 tickets de fixVersion 17080 y emitir el veredicto</td></tr>
+        <tr><td class="mono">agentic-qa-onboard</td><td>Tour de orientación + front-desk didáctico; explica en lenguaje simple y abre presentaciones visuales por skill</td><td class="mono">/agentic-qa-onboard</td><td>Un QA nuevo pide "explícame cómo funciona sprint-testing" antes de tocar un ticket</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="sec">5.3 · Skills de soporte y utilidad</h2>
+  <div class="tbl tight">
+    <table>
+      <thead><tr><th>Skill</th><th>Qué hace</th><th>Cómo se invoca</th><th>Caso de uso</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">acli</td><td>CLI oficial de Atlassian: crear/ver/transicionar/linkear/bulk work items de Jira desde terminal</td><td class="mono">/acli</td><td>Transicionar en bulk los Bugs del sprint y parentarlos al epic de QA-process</td></tr>
+        <tr><td class="mono">xray-cli</td><td>Test management en Xray Cloud: Tests, Test Plans, Test Executions, importar resultados, estados</td><td class="mono">/xray-cli · bun xray</td><td>Formalizar el release como ATP + ATR por feature para fixVersion 17080</td></tr>
+        <tr><td class="mono">git-flow-master</td><td>Operador Git end-to-end: branch, commit, push, PR/MR, conflictos; auto-detecta la estrategia</td><td>auto en git / "abrir PR"</td><td>Abrir el PR de specs nuevos en magiis-playwright respetando la convención de ramas</td></tr>
+        <tr><td class="mono">playwright-cli</td><td>Browser CLI: screenshots, tracing, video, sesiones, mock de requests <span class="pill">community</span></td><td class="mono">/playwright-cli</td><td>Capturar trace/screenshot de un bug visual en el dashboard del owner</td></tr>
+        <tr><td class="mono">bug-screenshot-annotation</td><td>Convierte un screenshot en evidencia anotada (círculos, flechas, callouts, badge BUG) 100% local</td><td>"anota este bug"</td><td>Marcar el offset de fecha mal calculado en un gráfico de la app carrier</td></tr>
+        <tr><td class="mono">project-discovery</td><td>Onboarda un repo: discovery de 4 fases → PRD, SRS, glosario, business-data-map, fixtures</td><td class="mono">/project-discovery</td><td>Reverse-engineering del backend/DB Oracle para generar el .context/</td></tr>
+        <tr><td class="mono">framework-development</td><td>Evoluciona el boilerplate: bases KATA, fixtures, cli/, scripts/, deps</td><td class="mono">/framework-development</td><td>Agregar la base KATA MobileBase (Appium) para app pax/driver</td></tr>
+        <tr><td class="mono">judgment-day</td><td>Review adversarial de doble juez ciego + fix + re-juzgado; gate pre-PR opcional</td><td class="mono">/judgment-day</td><td>Revisar un diff grande de fixtures KATA compartidas antes del PR</td></tr>
+        <tr><td class="mono">agentic-qa-core</td><td>Skill fundacional: hostea doctrina compartida (briefing, dispatch, orquestación); no se invoca directo</td><td>auto (cargada por otras)</td><td>Provee el briefing template que sprint-testing inyecta a cada subagente</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="sec">5.4 · Mapa skill → etapa MAGIIS</h2>
+  <div class="tbl tight">
+    <table>
+      <thead><tr><th>Etapa MAGIIS</th><th>Skill</th><th>Entrega</th></tr></thead>
+      <tbody>
+        <tr><td>2 · Diseño (Shift-Left)</td><td class="mono">/shift-left-testing</td><td>AC refinados + ATP DRAFT</td></tr>
+        <tr><td>6 · Review + QA</td><td class="mono">/sprint-testing</td><td>ATP + ATR + bugs + gate 0 críticos</td></tr>
+        <tr><td>post-QA</td><td class="mono">/test-documentation</td><td>TCs de regresión + ROI</td></tr>
+        <tr><td>5/6 · Automatización</td><td class="mono">/test-automation</td><td>E2E + API KATA</td></tr>
+        <tr><td>7 · Release</td><td class="mono">/regression-testing</td><td>GO / NO-GO</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================ PART 6 ============================ -->
+<section class="part">
+  <div class="parthead">
+    <div class="eyebrow">Parte 6</div>
+    <h1>El toolkit — Commands + MCPs</h1>
+    <p>Comandos utilitarios de un solo propósito, y los servidores MCP que conectan la IA a herramientas externas.</p>
+  </div>
+
+  <h2 class="sec">6.1 · Commands</h2>
+  <p class="lead-sm">Un <strong>command</strong> es una utilidad de un solo paso (no un workflow completo como una skill). Se invocan con <code class="inl">/nombre</code> y muchos aceptan un argumento (ticket, path o módulo).</p>
+  <div class="tbl tight">
+    <table>
+      <thead><tr><th>Command</th><th>Qué hace</th><th>Caso de uso</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">/adapt-framework</td><td>Adapta la arquitectura KATA (tests, api/schemas, config, CI, MCP) a un proyecto ya descubierto; flujo idempotente de 10 fases con gate de aprobación</td><td>Cablear AuthApi + LoginPage de MAGIIS contra endpoints reales y crear el primer {Entity}Api/Page</td></tr>
+        <tr><td class="mono">/sync-ai-memory</td><td>Sincroniza los docs AI-críticos (README, CLAUDE.md, docs/**) contra .context/ y package.json</td><td>Tras renombrar un script, propagar el cambio a README + onboarding sin drift</td></tr>
+        <tr><td class="mono">/business-data-map</td><td>Genera el mapa de entidades, flujos end-to-end y máquinas de estado (el archivo de contexto más valioso)</td><td>Mapear el ciclo de vida de un viaje (trip) con sus triggers/webhooks</td></tr>
+        <tr><td class="mono">/business-feature-map</td><td>Inventario de features con matriz CRUD por entidad, integraciones, flags y matriz de riesgo</td><td>Catalogar features del owner y marcar pagos/auth como HIGH-risk</td></tr>
+        <tr><td class="mono">/business-api-map</td><td>Mapa business-first del modelo de auth/permisos + 3-7 journeys críticos como cadenas de llamadas</td><td>Trazar el journey de checkout Stripe como cadena Client→Auth→Handler→DB/External</td></tr>
+        <tr><td class="mono">/master-test-plan</td><td>Roadmap de testing derivado del negocio: risk map, silent killers, checklist pre-release</td><td>Rankear los flujos frágiles (pagos, settlement, dispatch) y armar el checklist</td></tr>
+        <tr><td class="mono">/break-down-tests</td><td>Desglose en lenguaje plano de qué hacen los tests automatizados (por archivo, ATC, ticket o módulo)</td><td>Explicar en una PR qué valida cada ATC de la suite de vuelos</td></tr>
+        <tr><td class="mono">/fix-traceability</td><td>Repara links rotos US-ATP-ATR-TC en el TMS: audita, propone plan, aplica y verifica</td><td>Reconectar TCs huérfanos al ATP/ATR de una Story del carrier</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="sec">6.2 · MCPs — los conectores de la IA</h2>
+  <p class="lead-sm">
+    Un <strong>MCP</strong> (Model Context Protocol) es un servidor que le da a la IA acceso a una herramienta
+    externa (Jira, browser, DB, docs). Regla del repo: <strong>CLI primero</strong> (menos tokens); el MCP es
+    fallback o para lo que la CLI no cubre. Se configuran en <code class="inl">.mcp.json</code> (Claude Code) y
+    <code class="inl">opencode.jsonc</code> (OpenCode) con las credenciales del <code class="inl">.env</code>.
+  </p>
+  <div class="tbl tight">
+    <table>
+      <thead><tr><th>MCP</th><th>Para qué</th><th>Regla</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">context7</td><td>Docs oficiales de librerías/frameworks (React, Playwright, Prisma…)</td><td>Obligatorio para docs de librería (más actual que web search)</td></tr>
+        <tr><td class="mono">tavily</td><td>Búsqueda web: fixes de comunidad, troubleshooting, "cómo resolver X"</td><td>Obligatorio para búsqueda web general</td></tr>
+        <tr><td class="mono">playwright</td><td>Automatización de browser, screenshots</td><td>Fallback de /playwright-cli</td></tr>
+        <tr><td class="mono">dbhub</td><td>Consultas a DB, validación de datos</td><td>Primario para la capa DB (Oracle = cliente externo)</td></tr>
+        <tr><td class="mono">openapi</td><td>Lectura de schemas de API (endpoints, contratos)</td><td>Solo lectura de schema; la ejecución autenticada va por curl</td></tr>
+        <tr><td class="mono">postman</td><td>Colecciones, mocks, monitores de API</td><td>Soporte de API testing</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================ PART 7 ============================ -->
+<section class="part">
+  <div class="parthead">
+    <div class="eyebrow">Parte 7</div>
+    <h1>Instalación y entorno</h1>
+    <p>Setup paso a paso, qué proyectos necesitás para automatizar, los hooks que protegen el repo y el "SDK" que hace correr todo.</p>
+  </div>
+
+  <h2 class="sec">7.1 · Instalación paso a paso</h2>
+  <h3 class="sub">Prerrequisitos</h3>
+  <div class="tbl tight">
+    <table>
+      <thead><tr><th>Herramienta</th><th>Versión</th><th>Por qué</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Bun</strong></td><td>&ge; 1.0.0</td><td>Runtime de todos los scripts (install, test, bun xray)</td></tr>
+        <tr><td><strong>Agent CLI</strong></td><td>latest</td><td>Claude Code o OpenCode — el setup busca ~/.claude o ~/.config/opencode</td></tr>
+        <tr><td>git · tar</td><td>—</td><td>git init + extracción del template; requeridos por Husky</td></tr>
+        <tr><td>gentle-ai</td><td>&ge; 1.26.5</td><td>Instala engram (memoria persistente). Quasi-requerido</td></tr>
+        <tr><td>CLIs por-skill</td><td>lazy</td><td>gh · acli · playwright-cli · resend · jq (se necesitan cuando corre la skill)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h3 class="sub">Comandos en orden</h3>
+  <pre class="code"><span class="cmt"># 1. Clonar y entrar</span>
+git clone https://github.com/upex-galaxy/agentic-qa-boilerplate.git
+cd agentic-qa-boilerplate
+
+<span class="cmt"># 2. Dependencias</span>
+bun install
+
+<span class="cmt"># 3. Navegador de Playwright (solo Chromium)</span>
+bun run pw:install
+
+<span class="cmt"># 4. Variables de entorno — copiar y luego llenar</span>
+cp .env.example .env
+
+<span class="cmt"># 5. (opcional) Tour visual — bloqueante, cerrar con Ctrl-C antes de seguir</span>
+bun run onboarding
+
+<span class="cmt"># 6. Installer interactivo (gentle-ai + engram, skills, MCPs, .env, direnv)
+#    = bun cli/doctor.ts --preflight && bun cli/install.ts</span>
+bun run setup
+
+<span class="cmt"># 7. Validar la instalación (read-only, no edita nada)</span>
+bun run setup:doctor</pre>
+  <div class="note"><div class="lbl">Qué hace cada pieza</div><p><b>doctor.ts --preflight</b>: verifica Bun ≥ 1.0.0 y que @inquirer/prompts resuelva (gate mínimo). <b>install.ts</b> (5 fases): DETECTION (repo + gentle-ai + agente) → INSTALLATION (bun install, pw:install, engram, community skills) → CONFIGURATION (.env + direnv) → VERIFICATION (CLIs externos) → INITIAL CONFIG (agents:setup, login Atlassian, sync de catálogos Jira). Es idempotente: re-correrlo saltea lo ya hecho.</p></div>
+  <div class="note amber"><div class="lbl">.env — variables clave</div><p>El installer solo pregunta el set crítico día-0: <code class="inl">ATLASSIAN_URL / EMAIL / API_TOKEN</code> (Jira/acli/xray), <code class="inl">RESEND_API_KEY</code>, <code class="inl">TAVILY_API_KEY</code>. El resto se llena luego: <code class="inl">TEST_ENV</code> (local|staging), credenciales <code class="inl">LOCAL_/STAGING_USER_*</code>, Xray (<code class="inl">XRAY_CLIENT_ID/SECRET/PROJECT_KEY</code> si TMS=xray), <code class="inl">API_BASE_URL</code>, <code class="inl">DBHUB_*</code>. En Windows: saltear direnv y usar <code class="inl">bun run claude</code> / <code class="inl">bun run opencode</code> (autoload del .env).</p></div>
+  <p class="muted" style="font-size:11.5px">Para arrancar un proyecto NUEVO (no contribuir al boilerplate), el atajo es <code class="inl">bunx create-agentic-qa@latest &lt;nombre&gt;</code>: descarga el template, limpia el git, renombra, corre bun install y lanza el setup.</p>
+
+  <h2 class="sec">7.2 · Los proyectos que QA necesita para automatizar</h2>
+  <p class="lead-sm">La automatización MAGIIS es multi-repo: un <strong>padre</strong> (cockpit) orquesta, los <strong>hijos</strong> ejecutan, y los repos de <strong>contexto</strong> se leen. Los hijos viven FUERA de OneDrive (OneDrive rompe tsc/runner).</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Rol</th><th>Proyecto</th><th>Qué contiene</th><th>Stack</th></tr></thead>
+      <tbody>
+        <tr><td rowspan="1"><strong>Padre / cockpit</strong></td><td class="mono">agentic-qa-boilerplate<br>(repo.magiis/magiis-qa)</td><td>Skills, doctrina, .context, ATP/ATR. Stages 0-4 (Shift-Left, Sprint, Docs, ROI)</td><td>Bun + KATA</td></tr>
+        <tr><td rowspan="3"><strong>Hijos / ejecución</strong></td><td class="mono">magiis-playwright</td><td>Flujo V2 / gateway (UI). Stages 5-6 (código + regresión CI)</td><td>Playwright · pnpm</td></tr>
+        <tr><td class="mono">magiis-carrier-v2-e2e</td><td>Carrier V2 (UI), POM + TestBase</td><td>Playwright · npm</td></tr>
+        <tr><td class="mono">magiis-api-e2e</td><td>API E2E + performance k6 (runner híbrido)</td><td>Playwright + k6 · pnpm</td></tr>
+        <tr><td rowspan="2"><strong>Contexto (solo lectura)</strong></td><td class="mono">magiis-be</td><td>Backend — se lee para entender endpoints, reglas, entidades</td><td>—</td></tr>
+        <tr><td class="mono">magiis-fe-carrier-v2</td><td>Frontend carrier — se lee para entender la UI a probar</td><td>—</td></tr>
+        <tr><td><strong>Futuros</strong> <span class="pill">tech debt</span></td><td class="mono">mobile-pax · mobile-driver</td><td>App pax y app driver (mobile nativo) — bloqueadas por la base KATA MobileBase (Appium)</td><td>Appium</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><div class="lbl">Cómo se pone en marcha un hijo</div><p>Cada repo hijo se onboarda con: <code class="inl">bun run setup</code> → <code class="inl">/project-discovery</code> (reverse-engineer → .context) → <code class="inl">/adapt-framework</code> (cablea KATA al stack). El padre orquesta la regresión de todos (meta-CI) hacia un único GO/NO-GO; los reportes Allure se agregan en un portal privado.</p></div>
+
+  <h2 class="sec">7.3 · Hooks</h2>
+  <h3 class="sub">Hooks de git (Husky) — corren solos en cada commit/push</h3>
+  <div class="tbl tight">
+    <table>
+      <thead><tr><th>Hook</th><th>Qué corre</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">pre-commit</td><td>1) secret-scan (bloquea credenciales reales) · 2) lint-staged · 3) types:check + vars:check + skills:check · 4) kata:manifest:check y skills:registry:check (condicionales, si tocaste esos archivos)</td></tr>
+        <tr><td class="mono">pre-push</td><td>Los chequeos full-repo que pre-commit no hace: format:check + lint:check + vars:env:check + skills:registry:check + kata:manifest:check</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note red"><div class="lbl">Regla — nunca --no-verify</div><p>Si un gate falla, se regenera, no se saltea. Manifest stale → <code class="inl">bun run kata:manifest &amp;&amp; git add kata-manifest.json</code>. Registry stale → <code class="inl">bun run skills:registry &amp;&amp; git add .claude/skills/REGISTRY.md</code>.</p></div>
+  <h3 class="sub">Hooks de Claude Code (a nivel de tu entorno)</h3>
+  <p style="font-size:12px">
+    El <strong>repo no define</strong> hooks de Claude Code (<code class="inl">.claude/settings.json</code> solo tiene permisos y env).
+    Los hooks que ves en tu sesión vienen de tu configuración global <code class="inl">~/.claude</code>:
+    <strong>SessionStart</strong> (carga la memoria de engram al abrir) y <strong>UserPromptSubmit</strong>
+    (el prompt-improver que evalúa si tu pedido es claro). Son personales, no del proyecto.
+  </p>
+
+  <h2 class="sec">7.4 · ¿Hay SDK? La capa que hace correr todo</h2>
+  <p>
+    No hay un <strong>Claude Agent SDK</strong> embebido como dependencia del repo (no está en <code class="inl">package.json</code>).
+    El "SDK" operativo del framework son tres capas que ya usás sin darte cuenta:
+  </p>
+  <div class="tbl tight">
+    <table>
+      <thead><tr><th>Capa</th><th>Qué es</th><th>Para qué</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Runtime</strong></td><td>Claude Code (o OpenCode) — el cliente agéntico donde escribís</td><td>Ejecuta las skills, corre tools, orquesta subagentes</td></tr>
+        <tr><td><strong>Memoria</strong></td><td>engram (instalado por gentle-ai, preset minimal) vía MCP <code class="inl">plugin:engram</code></td><td>Recuerda decisiones/bugs/convenciones entre sesiones (mem_save, mem_search)</td></tr>
+        <tr><td><strong>Conectores</strong></td><td>6 MCPs: context7 · tavily · playwright · dbhub · openapi · postman</td><td>Dan a la IA acceso a docs, web, browser, DB y APIs</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note blue"><div class="lbl">En una frase</div><p>El framework no es una app con SDK propio: es <b>Claude Code como runtime + engram como memoria + 6 MCPs como conectores + las skills como cerebro de proceso</b>. Vos aportás el criterio; esa pila hace el trabajo mecánico.</p></div>
+</section>
+
+<!-- ============================ PART 8 ============================ -->
+<section class="part">
+  <div class="parthead">
+    <div class="eyebrow">Parte 8</div>
+    <h1>Un sprint de punta a punta</h1>
+    <p>El loop completo que corrés en CADA sprint, sobre una release real de 3 tickets — incluye encontrar un error, reportárselo al Dev y re-testear tras el fix. Cambian los tickets, no los pasos.</p>
+  </div>
+
+  <h2 class="sec">8.1 · El tablero de la release (ejemplo: Sprint 31)</h2>
+  <p class="lead-sm">
+    Te asignan una release con 3 tickets. Lo primero es leer QUÉ entra y decidir si es una feature integrada
+    o tickets sueltos. Acá los tres tocan lo mismo — el <strong>descuento de contractor en la tarifa del viaje</strong>
+    — así que forman <strong>una sola feature</strong> (ver Parte 3.5) y se validan juntos.
+  </p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Ticket</th><th>Tipo</th><th>Qué aporta a la feature</th><th>Estado inicial</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">MX-7101</td><td>Story BE</td><td>Aplicar el descuento de contractor al recalcular la tarifa del viaje</td><td>Ready For QA</td></tr>
+        <tr><td class="mono">MX-7102</td><td>Story FE</td><td>Mostrar el descuento y el total ajustado en el detalle del viaje (carrier v2)</td><td>Ready For QA</td></tr>
+        <tr><td class="mono">MX-7103</td><td>Bug (retest)</td><td>El total no incluía otherCosts al aplicar descuento — fix a verificar</td><td>TEST</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note blue"><div class="lbl">WH de arranque (30 segundos antes de tocar nada)</div><p><b>What</b>: descuento de contractor sobre la tarifa. <b>Why</b>: toca dinero → riesgo alto. <b>Who</b>: rol contractor dispara, carrier lo ve. <b>When</b>: feature pre-release (UAT) → los hallazgos serán <b>Defect</b>, no Bug. <b>Where</b>: la verdad del monto vive en API + DB (UI solo muestra). <b>How</b>: EP + BVA sobre el monto, Decision Table por rol×moneda×flag, trifuerza en cada caso.</p></div>
+
+  <h2 class="sec">8.2 · Los 10 pasos, en orden</h2>
+
+  <div class="stepbox">
+    <div class="hd"><div class="sn">0</div><div><div class="st">Recibir y sincronizar la release</div><div class="sm">Etapa 6 · entra a QA</div></div></div>
+    <p>Traés los 3 tickets a tu contexto local para leer AC, comentarios e impacto. Verificás el DoR (¿AC medibles? ¿mockup? ¿flag? ¿entidades/endpoints?). Si algún ticket no cumple, se devuelve con preguntas gap — no se testea a ciegas.</p>
+    <div class="prompt"><div class="plbl">Prompt para el chat</div><pre>/sprint-testing MX-7101 MX-7102 MX-7103
+Sincronizá los 3 tickets, explicame la feature en simple y
+decime si cumplen el DoR (AC, mockup, flag, impacto). Marcá gaps.</pre></div>
+  </div>
+
+  <div class="stepbox">
+    <div class="hd"><div class="sn">1</div><div><div class="st">Analizar la release y agrupar</div><div class="sm">criterio del QA</div></div></div>
+    <p>Decidís el agrupamiento: ¿1 feature o 3 ATP sueltos? Como BE+FE+bug tocan el mismo cambio, es <strong>1 ATP de feature + 1 Test Execution</strong>, con cada Test linkeado a su ticket. El GO/NO-GO se evaluará a nivel feature.</p>
+    <div class="prompt"><div class="plbl">Prompt para el chat</div><pre>Analizá la release: agrupá estos 3 tickets por feature/cambio,
+marcá BE/FE/bug y propóneme el grouping de ATP. Leé el contexto
+(.context + repos be/fe) y decime qué componentes toca y el riesgo.</pre></div>
+  </div>
+
+  <div class="stepbox">
+    <div class="hd"><div class="sn">2</div><div><div class="st">Planning — armar el ATP (explotar los AC)</div><div class="sm">Test Design Doctrine</div></div></div>
+    <p>Derivás los casos por técnica: 1 AC → N casos. No te quedás en el happy path; sumás bordes, inválidos, estados y la combinación rol×moneda (Decision Table).</p>
+    <div class="tbl tight">
+      <table>
+        <thead><tr><th>Caso</th><th>Técnica</th><th>Escenario</th><th>Esperado</th></tr></thead>
+        <tbody>
+          <tr><td>TC1</td><td>Happy path</td><td>Contractor aplica 10% a un viaje de $100 (COP)</td><td>Total = $90, descuento visible</td></tr>
+          <tr><td>TC2</td><td>BVA</td><td>Descuento 0% y 100% (bordes)</td><td>0% = sin cambio · 100% = total 0, nunca negativo</td></tr>
+          <tr><td>TC3</td><td>EP inválido</td><td>Descuento &gt; 100% o negativo</td><td>Rechazo con mensaje de negocio</td></tr>
+          <tr><td>TC4</td><td>Decision Table</td><td>Rol contractor × moneda USD × flag ON</td><td>Descuento único, total correcto</td></tr>
+          <tr><td>TC5</td><td>Integración</td><td>Descuento + viaje CON otherCosts (retest MX-7103)</td><td>Total = tarifa − desc + otherCosts</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note"><div class="lbl">Criterio</div><p>TC4 y TC5 son los que "no pediría el AC" pero es donde vive el riesgo (dinero + combinación). Ese es el trabajo real de QA.</p></div>
+  </div>
+
+  <div class="stepbox">
+    <div class="hd"><div class="sn">3</div><div><div class="st">Preparar los datos en UAT</div><div class="sm">Who · Where</div></div></div>
+    <p>Ubicás/creás los datos que cada caso necesita y anotás los IDs para la evidencia: un viaje $100 COP, uno en USD, uno con otherCosts, un contractor con permiso de descuento.</p>
+    <div class="prompt"><div class="plbl">Prompt para el chat</div><pre>Preparame en UAT los datos para el ATP: un viaje $100 COP,
+uno en USD y uno CON otherCosts, todos accesibles por un
+contractor con permiso de descuento. Dame los travelId.</pre></div>
+  </div>
+
+  <div class="stepbox">
+    <div class="hd"><div class="sn">4</div><div><div class="st">Ejecutar — smoke gate y trifuerza</div><div class="sm">UI → API → DB</div></div></div>
+    <p>Primero el <strong>smoke</strong>: ¿login, portal y detalle del viaje cargan? Si falla, se detiene y se reporta (no se gasta en testing profundo). Si pasa, ejecutás cada caso en las 3 capas.</p>
+    <div class="prompt"><div class="plbl">Prompt para el chat</div><pre>Corré el smoke de la feature. Si pasa, ejecutá la trifuerza del
+TC1 al TC5: UI en UAT, corroborá por API y por DB, y guardá la
+evidencia (captura + request/response + fila DB) de cada capa.</pre></div>
+  </div>
+
+  <div class="stepbox">
+    <div class="hd"><div class="sn">5</div><div><div class="st">Encontrar el error y aislarlo</div><div class="sm">¿bug real?</div></div></div>
+    <p>
+      En <strong>TC4</strong> (contractor + USD + flag ON) la UI muestra el total con el descuento aplicado…
+      pero al corroborar por API el <code class="inl">amount</code> viene con el descuento aplicado <strong>dos veces</strong>,
+      y en DB la fila del viaje quedó con un total menor al esperado. La UI "tapaba" el error.
+    </p>
+    <p>Antes de reportar, aislás: ¿es dato, ambiente, permiso o bug real? Reproducís 2 veces, confirmás que solo pasa con moneda USD, y descartás dato malo. <strong>Es un bug real.</strong> Como la feature está pre-release (UAT), se clasifica <strong>Defect</strong> (no Bug).</p>
+    <div class="note amber"><div class="lbl">Criterio — el PASS falso</div><p>Un PASS de UI con API/DB inconsistentes sigue siendo un hallazgo. La trifuerza es justo para atrapar esto: sin la capa API/DB, TC4 se habría cerrado en verde por error.</p></div>
+  </div>
+
+  <div class="stepbox">
+    <div class="hd"><div class="sn">6</div><div><div class="st">Reportar el Defect al Dev (con payload)</div><div class="sm">Defect Management Doctrine</div></div></div>
+    <p>Redactás el reporte reproducible y se lo asignás al Dev encargado. Clasificación <strong>Defect</strong>, severidad <strong>crítica</strong> (afecta dinero) → prioridad <strong>Highest</strong>. Se parenta al epic <em>QA Defect Management</em>, se linkea a MX-7101 (Story origen) y lleva el component del módulo.</p>
+    <pre class="code">Tipo:        Defect  (feature pre-release en UAT)
+Summary:     Tarifa de viaje: Descuento: descuento aplicado 2x con moneda USD
+
+Pasos:
+  1. Login como contractor (permiso de descuento) en UAT
+  2. Abrir un viaje en USD (travelId=88231) y aplicar 10% de descuento
+  3. Guardar y observar el total en UI vs API vs DB
+
+Resultado esperado:  total = tarifa - 10%  (una sola vez)
+Resultado obtenido:  UI muestra -10%, pero API/DB aplican -10% dos veces
+
+Ambiente:    UAT · carrier v2 · rol contractor · moneda USD · flag descuento ON
+Severidad:   crítica   ->  Prioridad: Highest   (afecta cálculo de dinero)
+Componente:  tarifa-viaje
+Parent:      QA Defect Management        Link (causes): MX-7101 (Story BE)
+QA Assignee: <vos>                       Assignee (fix): <Dev de MX-7101>
+
+Payload (reproducción por API):
+  PUT $API_BASE_URL/carriers/{id}/travels/88231/update
+  body: { "discountPercent": 10, "currency": "USD", "recalculateTripPrice": true }
+  response 200 -> "amount": 81.00   (esperado 90.00)
+
+Evidencia:  capturas UI + request/response + query DB (antes/después) adjuntos</pre>
+    <div class="prompt"><div class="plbl">Prompt para el chat</div><pre>Redactá el Defect de este hallazgo con el payload completo,
+clasificalo (Defect, severidad crítica), asignámelo como QA
+Assignee, ponelo bajo el epic QA Defect Management, linkealo a
+MX-7101 y asignale el fix al Dev de esa Story. Adjuntá la evidencia.</pre></div>
+    <div class="note"><div class="lbl">Aviso al Dev (fuera de Jira)</div><p>Además del ticket, avisás por Teams al Dev encargado: link del Defect + una línea de contexto ("descuento 2x solo en USD, bloquea la feature, payload en el ticket"). El ticket es la fuente de verdad; el ping evita que el fix espere.</p></div>
+  </div>
+
+  <div class="stepbox">
+    <div class="hd"><div class="sn">7</div><div><div class="st">Handoff y espera del fix</div><div class="sm">estados Jira</div></div></div>
+    <p>La feature no cierra con un crítico abierto: el gate lo bloquea. El Dev toma el Defect, corrige y lo devuelve a QA. Vos seguís con el resto de los casos que no dependen del fix (no te quedás quieto).</p>
+    <div class="flowline">
+      <span class="chip on">Ready For QA</span><span class="ar">→</span>
+      <span class="chip on">In Testing</span><span class="ar">→</span>
+      <span class="chip warn">Defect abierto</span><span class="ar">→</span>
+      <span class="chip">In Progress (Dev)</span><span class="ar">→</span>
+      <span class="chip on">Ready For QA</span><span class="ar">→</span>
+      <span class="chip on">In Testing</span>
+    </div>
+  </div>
+
+  <div class="stepbox">
+    <div class="hd"><div class="sn">8</div><div><div class="st">Re-testear el fix + regresión alrededor</div><div class="sm">retest</div></div></div>
+    <p>Con el Defect en "Ready For QA", verificás el fix en las 3 capas y corrés la regresión alrededor del cambio (que arreglar USD no rompió COP ni otherCosts). Recién cuando las 3 capas cuentan la misma historia, el caso es PASS de verdad y el Defect pasa a Closed.</p>
+    <div class="prompt"><div class="plbl">Prompt para el chat</div><pre>El Defect volvió con fix. Re-testeá TC4 en UI/API/DB y corré la
+regresión: TC1 (COP) y TC5 (otherCosts) no deben romperse. Si todo
+pasa, cerrá el Defect y actualizá el ATR.</pre></div>
+  </div>
+
+  <div class="stepbox">
+    <div class="hd"><div class="sn">9</div><div><div class="st">ATR y veredicto GO / NO-GO de la release</div><div class="sm">el gate</div></div></div>
+    <p>Armás el ATR único de la feature con PASS/FAIL por caso + evidencia, creás el Test Execution en Xray con <code class="inl">bun xray</code> y linkeás cada Test a su ticket. Aplicás el gate: <strong>0 críticos, mayores ≤ 2</strong>. Con el Defect cerrado → <strong>GO</strong>.</p>
+    <div class="prompt"><div class="plbl">Prompt para el chat</div><pre>Armá el ATR de la feature (PASS/FAIL + evidencia), creá el Test
+Execution en Xray con bun xray, linkeá cada Test a MX-7101/7102/7103
+y dame el veredicto GO/NO-GO con lo que lo bloquearía (por ticket).</pre></div>
+  </div>
+
+  <div class="stepbox">
+    <div class="hd"><div class="sn">10</div><div><div class="st">Cerrar y dejar la trazabilidad</div><div class="sm">DoD</div></div></div>
+    <p>Transicionás cada ticket (Tested/Closed), confirmás la trazabilidad Historia → ATP → ATR → Defect en Xray, y evaluás qué casos son <strong>Candidate</strong> para automatizar (TC4 y TC5 protegen dinero → van a regresión). Cerrás la sesión con las evidencias y los niveles de la pirámide tocados.</p>
+    <div class="flowline">
+      <span class="chip on">In Testing</span><span class="ar">→</span>
+      <span class="chip on">Tested</span><span class="ar">→</span>
+      <span class="chip on">Closed</span>
+      <span style="margin-left:10px" class="chip">Defect: Open → In Progress → Ready For QA → Closed</span>
+    </div>
+  </div>
+
+  <h2 class="sec">8.3 · Por qué esto se repite en cada sprint</h2>
+  <p class="lead-sm">
+    Este no es un caso especial: es EL loop de sprint del framework. Cambia el contenido de los tickets,
+    pero los 10 pasos y la skill que los ejecuta son siempre los mismos. Por eso el criterio se vuelve un hábito.
+  </p>
+  <div class="tbl tight">
+    <table>
+      <thead><tr><th>Paso</th><th>Skill / herramienta</th><th>Metodología que aplica</th></tr></thead>
+      <tbody>
+        <tr><td>0-1 · Recibir y agrupar</td><td class="mono">/sprint-testing · /acli</td><td>DoR-QA · análisis de release (feature vs ticket)</td></tr>
+        <tr><td>2 · ATP</td><td class="mono">/sprint-testing</td><td>Test Design Doctrine (EP/BVA/Decision Table, 1:N)</td></tr>
+        <tr><td>3-4 · Datos + trifuerza</td><td class="mono">/playwright-cli · curl · dbhub</td><td>Trifuerza UI/API/DB · smoke gate</td></tr>
+        <tr><td>5-6 · Hallazgo + reporte</td><td class="mono">/acli · bug-screenshot-annotation</td><td>Defect Management (clasificación + 3-axis + severidad→prioridad)</td></tr>
+        <tr><td>7-8 · Handoff + retest</td><td class="mono">/acli</td><td>Estados Jira · regresión alrededor del cambio</td></tr>
+        <tr><td>9 · ATR + veredicto</td><td class="mono">/xray-cli (bun xray)</td><td>Consistencia Xray R1-R6 · gate GO/NO-GO</td></tr>
+        <tr><td>10 · Cierre</td><td class="mono">/test-documentation</td><td>DoD · trazabilidad · ROI (Candidate/Manual/Deferred)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><div class="lbl">Regla del loop</div><p>Un ticket suelto = los mismos pasos con 1 ATP en vez de uno de feature. Una release de 10 tickets = varios grupos de feature, cada uno con su ATP/ATR, y un GO/NO-GO consolidado. La forma no cambia; escala.</p></div>
+</section>
+
+<!-- ============================ PART 8 ============================ -->
+<section class="part">
+  <div class="parthead">
+    <div class="eyebrow">Parte 8</div>
+    <h1>Un sprint de punta a punta</h1>
+    <p>El loop completo con una release de 3 tickets: del análisis al GO/NO-GO, incluyendo un error que encontrás, reportás al Dev y re-verificás tras el fix. Cambian los tickets; los pasos no.</p>
+  </div>
+
+  <h2 class="sec">8.1 · El tablero — Release "Sprint 31"</h2>
+  <p class="lead-sm">Te asignan una release con 3 tickets. Primer reflejo: no testear ticket por ticket a ciegas, sino leer la release completa y ver cómo se relacionan.</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Ticket</th><th>Tipo</th><th>Qué pide</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">MX-7101</td><td>Story BE</td><td>Al aplicar un código de descuento del contractor, el backend recalcula la tarifa total del viaje</td></tr>
+        <tr><td class="mono">MX-7102</td><td>Story FE (carrier v2)</td><td>Mostrar en el detalle del viaje el descuento aplicado y el nuevo total</td></tr>
+        <tr><td class="mono">MX-7103</td><td>Bug (estado TEST)</td><td>Retest: el total no descontaba cuando el viaje tenía otherCosts</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><div class="lbl">Lectura WH de la release</div><p><b>What</b>: una misma feature — "descuento de contractor en la tarifa". <b>Why</b>: toca dinero (alto riesgo). <b>Who</b>: contractor aplica, carrier ve. <b>Where</b>: BE calcula, FE muestra, DB persiste → trifuerza obligatoria. Los 3 tickets son <b>una feature</b>: 1 ATP, 1 Test Execution (§3.5), GO/NO-GO a nivel feature.</p></div>
+
+  <h2 class="sec">8.2 · Paso a paso del QA</h2>
+
+  <div class="stepbox">
+    <div class="hd"><div class="sn">0</div><div><div class="st">Recepción y sincronización</div><div class="sm">Etapa 6 entra · skill: sprint-testing</div></div></div>
+    <p>Traés los tickets a tu contexto local y dejás que el agente te explique la feature en simple antes de tocar nada. Verificás el DoR: ¿los AC están en Given/When/Then? ¿hay mockup? ¿el impacto lista entidades/endpoints/flag?</p>
+    <div class="prompt"><div class="plbl">Prompt</div><pre>/sprint-testing MX-7101 MX-7102 MX-7103
+"Sincronizá los 3, explicame la feature en simple y
+decime si cumplen el DoR. Marcá gaps si faltan AC."</pre></div>
+  </div>
+
+  <div class="stepbox">
+    <div class="hd"><div class="sn">1</div><div><div class="st">Análisis de release y agrupamiento</div><div class="sm">Criterio QA senior · el grouping es tuyo</div></div></div>
+    <p>Decidís que los 3 tickets forman <strong>una feature</strong> (mismo cambio funcional, dependencia BE-FE, bug derivado del mismo cálculo). Por lo tanto: un solo ATP de feature y un solo Test Execution que los valida juntos.</p>
+    <div class="prompt"><div class="plbl">Prompt</div><pre>Estos 3 son la misma feature "descuento de contractor
+en la tarifa". Proponé el grouping: 1 ATP de feature,
+Tests linkeados a cada requirement, 1 Test Execution.</pre></div>
+  </div>
+
+  <div class="stepbox">
+    <div class="hd"><div class="sn">2</div><div><div class="st">Planning — ATP (explotar los AC)</div><div class="sm">What · Why · Test Design Doctrine</div></div></div>
+    <p>Explotás cada AC en casos por técnica: 1 AC → N casos. No te quedás en el happy path.</p>
+    <div class="tbl tight">
+      <table>
+        <thead><tr><th>Caso</th><th>Escenario</th><th>Técnica</th><th>Esperado</th></tr></thead>
+        <tbody>
+          <tr><td>TC1</td><td>Descuento válido en viaje simple</td><td>EP (válida)</td><td>Total = tarifa − descuento</td></tr>
+          <tr><td>TC2</td><td>Descuento en viaje CON otherCosts</td><td>EP + riesgo (MX-7103)</td><td>Descuenta sobre el total correcto</td></tr>
+          <tr><td>TC3</td><td>Código inexistente / vencido</td><td>EP (inválida)</td><td>Rechazo con mensaje de negocio</td></tr>
+          <tr><td>TC4</td><td>Descuento = 0% y = 100%</td><td>BVA (bordes)</td><td>0% no cambia; 100% total = 0</td></tr>
+          <tr><td>TC5</td><td>Contractor-admin en USD vs MXN</td><td>Decision Table (rol × moneda)</td><td>Descuento aplicado una sola vez</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="prompt"><div class="plbl">Prompt</div><pre>Armá el ATP de feature: explotá los AC de MX-7101/7102
+por técnica (EP, BVA, Decision Table rol×moneda) con el
+esperado por caso. Mostrame el plan antes de ejecutar.</pre></div>
+  </div>
+
+  <div class="stepbox">
+    <div class="hd"><div class="sn">3</div><div><div class="st">Datos de prueba en UAT</div><div class="sm">Who · Where</div></div></div>
+    <p>Ubicás/creás en UAT los datos que cada caso necesita: un contractor con código de descuento válido, un viaje con otherCosts, y un contractor-admin en USD (para TC5). Anotás los IDs para la evidencia.</p>
+    <div class="prompt"><div class="plbl">Prompt</div><pre>Preparame en UAT: (a) viaje simple con código válido,
+(b) viaje con otherCosts, (c) contractor-admin en USD.
+Dame los IDs y cómo los creaste.</pre></div>
+  </div>
+
+  <div class="stepbox">
+    <div class="hd"><div class="sn">4</div><div><div class="st">Ejecución — smoke + trifuerza</div><div class="sm">Where · How · gate Go/No-Go</div></div></div>
+    <p>Primero el <strong>smoke</strong> como gate: si el flujo base no carga, parás y reportás. Si pasa, ejecutás cada caso en las 3 capas: UI (comportamiento) → API (contrato) → DB (persistencia). TC1-TC4 pasan. Al llegar a <strong>TC5</strong>, algo no cuadra.</p>
+    <div class="prompt"><div class="plbl">Prompt</div><pre>Corré el smoke primero. Si pasa, ejecutá TC1..TC5 con
+trifuerza: UI en UAT, corroborá por API y por DB.
+Guardá evidencia por capa.</pre></div>
+  </div>
+
+  <div class="stepbox">
+    <div class="hd"><div class="sn">5</div><div><div class="st">Hallazgo — aislar, confirmar y clasificar el error</div><div class="sm">When · Why · Defect Management Doctrine</div></div></div>
+    <p>En TC5 (contractor-admin, USD) la UI muestra el total correcto, pero al corroborar por <strong>API + DB</strong> ves que el descuento se restó <strong>dos veces</strong>: la fila persistida tiene un total menor al esperado. Un PASS de UI con DB inconsistente = bug.</p>
+    <p><strong>Aislás la causa</strong> antes de reportar: ¿dato? ¿ambiente? ¿selector? ¿backend? → reproducís por API pura y confirmás que es <strong>backend</strong>. <strong>Clasificás</strong>: el feature está pre-release (en UAT, aún no en prod) → es un <strong>Defect</strong>, no un Bug. Severidad <strong>mayor</strong> (afecta dinero) → Prioridad <strong>High</strong> (auto-derivada).</p>
+    <div class="flowline">
+      <span class="chip on">UI: total OK</span><span class="ar">→</span>
+      <span class="chip warn">API/DB: −2× descuento</span><span class="ar">→</span>
+      <span class="chip">Aislar: es backend</span><span class="ar">→</span>
+      <span class="chip warn">Defect (pre-release)</span>
+    </div>
+  </div>
+
+  <div class="stepbox">
+    <div class="hd"><div class="sn">6</div><div><div class="st">Reporte al Dev — el bug con payload completo</div><div class="sm">skill: acli / magiis-qa-bug-reporter</div></div></div>
+    <p>Redactás el Defect con los campos obligatorios y el <strong>payload completo</strong> (request + response + contexto) para que sea reproducible sin idas y vueltas. Lo parenteás a la QA process epic, lo linkeás a la Story origen y le ponés el component afectado.</p>
+    <pre class="code"><span class="cmt"># DEFECT — MX-7150</span>
+Tipo:        Defect (pre-release, feature en UAT)
+Summary:     Pricing: Discount: el descuento se aplica 2× (rol contractor-admin, USD)
+Componente:  pricing / trip-fare
+Severidad:   mayor    →  Prioridad: High
+Entorno:     UAT · carrier · rol contractor-admin · moneda USD
+
+Pasos:
+ 1. Login contractor-admin (USD) en apps-uat.magiis.com
+ 2. Abrir viaje {travelId} y aplicar código DESC10 (10%)
+ 3. Guardar y consultar el total por API/DB
+
+Esperado:    total = tarifa − 10%   (un solo descuento)
+Obtenido:    total = tarifa − 20%   (descuento aplicado dos veces)
+
+Payload (repro):
+  PUT $API_BASE_URL/contractors/{id}/travels/{travelId}/apply-discount
+  req:  {"code":"DESC10","currency":"USD"}
+  resp: 200 {"fare":100,"discount":20,"total":80}   # discount debería ser 10
+
+DB:          trips.total = 80  (inconsistente; esperado 90)
+Evidencia:   evidence/MX-7150/ (ui.png, api-req-resp.json, db-before-after.sql)
+Trazabilidad: parent = "QA Defect Management" · is caused by MX-7101 · Story MX-7102
+Asignado a:  Dev encargado (MX-7101)   ·   QA Assignee: vos</pre>
+    <div class="prompt"><div class="plbl">Prompt</div><pre>Redactá el Defect MX-7150 con el payload completo,
+severidad mayor→High, component pricing, parent "QA
+Defect Management", link "is caused by" a MX-7101 y
+asignalo al Dev de MX-7101. Adjuntá la evidencia.</pre></div>
+  </div>
+
+  <div class="stepbox">
+    <div class="hd"><div class="sn">7</div><div><div class="st">Handoff y aviso al Dev</div><div class="sm">Blocking del ticket · comunicación</div></div></div>
+    <p>El Defect bloquea la feature (crítico/mayor abierto = NO-GO). Transicionás la Story afectada de vuelta a desarrollo y avisás al Dev encargado por el canal del equipo (Teams) con el link del Defect — no esperás a que lo descubra en el board.</p>
+    <div class="flowline">
+      <span class="chip">Ready For QA</span><span class="ar">→</span>
+      <span class="chip on">In Testing</span><span class="ar">→</span>
+      <span class="chip warn">Defect abierto</span><span class="ar">→</span>
+      <span class="chip">In Progress (Dev)</span>
+    </div>
+    <div class="note amber"><div class="lbl">Aviso al Dev (mensaje tipo)</div><p>"MX-7150 (Defect, High): el descuento se aplica 2× para contractor-admin en USD. Reproducible por API — payload y evidencia en el ticket. Bloquea la release Sprint 31. Te lo asigné, quedo para el retest cuando esté el fix."</p></div>
+  </div>
+
+  <div class="stepbox">
+    <div class="hd"><div class="sn">8</div><div><div class="st">Retest tras el fix + regresión alrededor</div><div class="sm">verificación del fix · no-regresión</div></div></div>
+    <p>El Dev sube el fix y pasa la Story a Ready For QA de nuevo. <strong>No solo re-corrés TC5</strong>: verificás el fix y además re-ejecutás los casos vecinos (TC1, TC2, TC4) para confirmar que el arreglo no rompió el cálculo en otras monedas/roles. Corroborás las 3 capas otra vez.</p>
+    <div class="prompt"><div class="plbl">Prompt</div><pre>MX-7150 tiene fix. Retesteá TC5 (trifuerza) y corré la
+regresión alrededor: TC1, TC2 (otherCosts) y TC4 (bordes)
+para descartar efectos colaterales. Actualizá el resultado.</pre></div>
+    <div class="flowline">
+      <span class="chip">In Progress (Dev)</span><span class="ar">→</span>
+      <span class="chip on">Ready For QA</span><span class="ar">→</span>
+      <span class="chip on">retest OK</span><span class="ar">→</span>
+      <span class="chip">Defect → Closed</span>
+    </div>
+  </div>
+
+  <div class="stepbox">
+    <div class="hd"><div class="sn">9</div><div><div class="st">ATR + veredicto GO / NO-GO de la release</div><div class="sm">skill: xray-cli · el gate</div></div></div>
+    <p>Con todos los casos en verde, armás el <strong>ATR único</strong> de la feature (PASS/FAIL por caso + evidencia), creás el Test Execution en Xray, seteás estados y linkeás cada Test a su requirement. Evaluás el gate a nivel <strong>feature</strong>: 0 críticos, mayores ≤ 2.</p>
+    <div class="prompt"><div class="plbl">Prompt</div><pre>Armá el ATR de la feature con PASS/FAIL + evidencia,
+creá el Test Execution en Xray con bun xray, linkeá cada
+Test a MX-7101/7102/7103 y dame el veredicto GO/NO-GO.</pre></div>
+    <div class="note"><div class="lbl">Veredicto</div><p>0 críticos, 0 mayores abiertos (el Defect MX-7150 se cerró tras el retest) → <b>GO</b>. Si el fix no hubiera llegado a tiempo, el mayor abierto forzaba <b>NO-GO</b> de toda la feature, no solo del ticket.</p></div>
+  </div>
+
+  <div class="stepbox">
+    <div class="hd"><div class="sn">10</div><div><div class="st">Cierre y trazabilidad</div><div class="sm">DoD · constancia</div></div></div>
+    <p>Transicionás cada ticket (Closed), dejás la constancia (ATP/ATR en Xray + matriz XLSX + evidencia), y verificás la trazabilidad: Historia → ATP → ATR → Defect → fix. Si un TC de alto riesgo es repetible, lo marcás <strong>Candidate</strong> para automatizarlo (Stage 4/5).</p>
+  </div>
+
+  <h2 class="sec">8.3 · Esto se repite en cada sprint</h2>
+  <p class="lead-sm">El mismo loop, sprint tras sprint. Lo único que cambia son los tickets; los pasos, las skills y el criterio son siempre los mismos. Así se ve la recurrencia:</p>
+  <div class="tbl tight">
+    <table>
+      <thead><tr><th>Paso del sprint</th><th>Skill / herramienta</th><th>Artefacto que dejás</th></tr></thead>
+      <tbody>
+        <tr><td>0-1 · Recepción + análisis de release</td><td class="mono">sprint-testing</td><td>Grouping de la feature</td></tr>
+        <tr><td>2 · Planning (explotar AC)</td><td class="mono">sprint-testing + test-design-doctrine</td><td>ATP</td></tr>
+        <tr><td>3-4 · Datos + trifuerza</td><td class="mono">dbhub · api:login · playwright-cli</td><td>Evidencia UI/API/DB</td></tr>
+        <tr><td>5-7 · Hallazgo + reporte + handoff</td><td class="mono">acli · defect-doctrine</td><td>Defect con payload + aviso al Dev</td></tr>
+        <tr><td>8 · Retest + regresión</td><td class="mono">sprint-testing</td><td>Resultado actualizado</td></tr>
+        <tr><td>9-10 · ATR + GO/NO-GO + cierre</td><td class="mono">xray-cli</td><td>ATR firmado + trazabilidad</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note blue"><div class="lbl">La validación</div><p>Este workflow no es un caso especial: es el ciclo de la <b>Etapa 6 (Review+QA)</b> que corrés en cada sprint (§1.3, §2.1). Encontrar un defecto, reportarlo con payload y re-verificar el fix es parte normal del loop — no una excepción. Una IA propone cada paso; vos aportás el criterio y decidís el GO/NO-GO.</p></div>
+</section>
+
+<!-- ============================ CLOSE ============================ -->
+<section class="part">
+  <div class="parthead">
+    <div class="eyebrow">Cierre</div>
+    <h1>Checklist de dominio 0 → experto</h1>
+    <p>Autoevaluación. Marcá lo que ya dominás; lo que falta es tu próximo peldaño.</p>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="k">N0-N1 · Fundamentos</div>
+      <ul class="clean" style="margin:0">
+        <li>Explico los 3 tipos de repo y por qué no se mezclan</li>
+        <li>Nombro las 7 etapas y dónde QA es dueño</li>
+        <li>Disparo /sprint-testing y apruebo en los gates</li>
+        <li>Uso el método WH ante un ticket nuevo</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="k">N2-N3 · Ejecución y criterio</div>
+      <ul class="clean" style="margin:0">
+        <li>Corro la trifuerza UI/API/DB y reconozco un PASS falso</li>
+        <li>Exploto 1 AC en N casos por técnica (EP/BVA/estados)</li>
+        <li>Clasifico Bug/Defect/Improvement por etapa del feature</li>
+        <li>Decido el ROI: Candidate / Manual / Deferred</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="k">N4 · Cobertura de release</div>
+      <ul class="clean" style="margin:0">
+        <li>Agrupo tickets en features y armo 1 ATP + 1 ATR</li>
+        <li>Aplico las reglas R1-R6 de consistencia Xray</li>
+        <li>Emito GO/CAUTION/NO-GO a nivel feature</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="k">N5 · Experto / orquestación</div>
+      <ul class="clean" style="margin:0">
+        <li>Onboardo un repo nuevo (discovery + adapt-framework)</li>
+        <li>Evoluciono skills/fixtures (framework-development)</li>
+        <li>Enseño el criterio al resto del equipo</li>
+      </ul>
+    </div>
+  </div>
+  <div class="note"><div class="lbl">La regla que resume todo</div><p>Verificar AC es el piso, no el techo. Una IA propone, el QA senior decide. 'Hecho' = en producción, monitoreado y entregando valor.</p></div>
+  <div class="foot">
+    Onboarding QA Agéntico — MAGIIS · Playwright + KATA + TypeScript + Bun + Allure + Jira/Xray · entorno UAT.
+    Fuentes: doctrina del repo (test-design · defect-management), .context/magiis-process, docs/methodology y docs/qa-standard.
+  </div>
+</section>
+
+</div>
+</body>
+</html>

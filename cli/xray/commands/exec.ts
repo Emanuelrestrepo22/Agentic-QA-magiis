@@ -6,7 +6,7 @@
 
 import type { Flags, TestExecutionResult, TestRunResult } from '../types/index.js';
 import { loadConfig } from '../lib/config.js';
-import { graphql, MUTATIONS, QUERIES } from '../lib/graphql.js';
+import { fetchAllAttachedTestIds, graphql, MUTATIONS, QUERIES } from '../lib/graphql.js';
 import { getLinkedTests, resolveIssueId, resolveIssueIds } from '../lib/jira.js';
 import { log } from '../lib/logger.js';
 import { getBoolFlag, getFlag, getFlagArray, requireFlag } from '../lib/parser.js';
@@ -204,7 +204,9 @@ export async function syncExecution(input: string, options: { apply: boolean } =
     );
   }
 
-  const xrayAttachedIds = (exec.tests?.results ?? []).map(t => t.issueId);
+  // Paginated: the single-page getTestExecution caps tests at 100 → undercounts
+  // membership on large execs (false "missing at Xray layer"). Fetch all.
+  const xrayAttachedIds = await fetchAllAttachedTestIds(QUERIES.getTestExecutionTestsPage, 'getTestExecution', issueId);
   const xraySet = new Set(xrayAttachedIds);
   const linkedSet = new Set(linked.map(l => l.id));
 

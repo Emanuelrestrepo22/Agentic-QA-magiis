@@ -26,6 +26,10 @@
       "command": "bunx",
       "args": ["-y", "@bytebase/dbhub@latest", "--config", "dbhub.toml"]
     },
+    "magiis-db": {
+      "type": "http",
+      "url": "${MAGIIS_DB_MCP_URL}"
+    },
     "openapi": {
       "command": "bunx",
       "args": ["-y", "@ivotoby/openapi-mcp-server", "--tools", "dynamic"],

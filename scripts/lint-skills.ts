@@ -68,7 +68,9 @@
  *
  *  13. SKILL-HARDCODED-CFID — `customfield_NNNN` literal id inside any skill
  *      markdown outside `HARDCODED_CFID_ALLOWED_SKILLS` (tool-owner allowlist:
- *      acli + xray-cli). Anti-pattern citations exempted. ERROR severity.
+ *      acli + xray-cli) or `HARDCODED_CFID_ALLOWED_FILES` (per-instance mapping
+ *      references, which exist to record workspace coupling).
+ *      Anti-pattern citations exempted. ERROR severity.
  *
  *  14. SKILL-LITERAL-TOOL — literal tool commands (`acli <subcommand>`,
  *      `xray <subcommand>`, `mcp__atlassian__`, `curl …/rest/api/3/…`) inside
@@ -143,6 +145,20 @@ const LITERAL_TOOL_ALLOWED_SKILLS = new Set<string>(['acli', 'xray-cli']);
  * document the underlying surface and need literal IDs to remain useful.
  */
 const HARDCODED_CFID_ALLOWED_SKILLS = new Set<string>(['acli', 'xray-cli']);
+
+/**
+ * Individual files exempt from SKILL-HARDCODED-CFID — per-INSTANCE mapping
+ * references whose whole purpose is to record the workspace coupling this rule
+ * normally guards against. The rule exists because literal IDs "break
+ * methodology portability"; an instance map is deliberately non-portable — it
+ * documents what ONE Jira instance actually exposes, including fields that are
+ * absent from (or wrong in) `.agents/jira-fields.json`, which `{{jira.<slug>}}`
+ * therefore cannot express. Exempting the file instead of its whole skill keeps
+ * the sibling doctrine under the rule. Paths are relative to `.claude/skills/`.
+ */
+const HARDCODED_CFID_ALLOWED_FILES = new Set<string>([
+  'agentic-qa-core/references/defect-management-mg-instance-map.md',
+]);
 
 /**
  * Files at the root of `.claude/skills/` (not inside any skill subdirectory)
@@ -223,6 +239,27 @@ function renderViolation(v: Violation): string {
 
 function exitCode(vs: Violation[]): 0 | 1 {
   return vs.some(v => v.severity === 'ERROR') ? 1 : 0;
+}
+
+// -----------------------------------------------------------------------------
+// Text I/O — CRLF-safe read helper
+// -----------------------------------------------------------------------------
+
+/**
+ * Reads a UTF-8 text file and normalizes CRLF -> LF.
+ *
+ * Every parser below line-splits on '\n' and several anchor on `$` per line
+ * (`^##...$`, `^## (.+)$`, `^name:...$`). JS '.' and '$' do not treat a lone
+ * '\r' as a line terminator to skip, so a stray '\r' before each '\n' silently
+ * defeats those anchors on every line of a CRLF file. .gitattributes pins
+ * `eol=lf` for this exact reason, but a checkout can still surface CRLF
+ * (Windows `core.autocrlf=true`, an editor's own EOL default, a worktree
+ * checked out before normalization applied) — normalizing once at the read
+ * site keeps every downstream parser correct regardless of the working
+ * tree's actual line-ending state.
+ */
+function readTextNormalized(path: string): string {
+  return readFileSync(path, 'utf8').replace(/\r\n/g, '\n');
 }
 
 // -----------------------------------------------------------------------------
@@ -463,7 +500,7 @@ function parseClaudeMdSkillsRegistry(claudeMdPath: string): {
   entries: ClaudeMdSkillEntry[]
   parseError?: string
 } {
-  const text = readFileSync(claudeMdPath, 'utf8');
+  const text = readTextNormalized(claudeMdPath);
   const lines = text.split('\n');
   const entries: ClaudeMdSkillEntry[] = [];
 
@@ -793,7 +830,7 @@ function scanSkillLines(
   const out: GrepFinding[] = [];
   for (const file of files) {
     let text: string;
-    try { text = readFileSync(file, 'utf8'); }
+    try { text = readTextNormalized(file); }
     catch { continue; }
     const lines = text.split('\n');
     for (let i = 0; i < lines.length; i++) {
@@ -822,7 +859,13 @@ function checkSkillHardcodedCfid(files: string[]): void {
   const re = /customfield_\d{4,}/;
   const allowed = (file: string) => {
     const slug = skillSlugForFile(file);
-    return slug !== null && HARDCODED_CFID_ALLOWED_SKILLS.has(slug);
+    if (slug !== null && HARDCODED_CFID_ALLOWED_SKILLS.has(slug)) { return true; }
+    // Same separator normalization as skillSlugForFile — SKILLS_DIR is built with
+    // path.join (backslashes on Windows) while the allowlist uses forward slashes.
+    const normFile = file.replace(/\\/g, '/');
+    const prefix = `${SKILLS_DIR.replace(/\\/g, '/')}/`;
+    return normFile.startsWith(prefix)
+      && HARDCODED_CFID_ALLOWED_FILES.has(normFile.slice(prefix.length));
   };
   const scoped = files.filter(f => !allowed(f));
   const hits = scanSkillLines(scoped, re, line => !isAntiPatternCitation(line));
@@ -877,7 +920,7 @@ function main(): void {
     console.error(`FATAL: ${INSTALL_TS} not found`);
     process.exit(1);
   }
-  const installText = readFileSync(INSTALL_TS, 'utf8');
+  const installText = readTextNormalized(INSTALL_TS);
   const install = parseInstallTs(installText);
 
   // ---- Build tier slug sets ----
@@ -928,7 +971,7 @@ function main(): void {
       continue;
     }
 
-    const content = readFileSync(skillMd, 'utf8');
+    const content = readTextNormalized(skillMd);
     // Extract body (everything after frontmatter) for STALE-PATH check.
     let body = content;
     if (body.startsWith('---')) {
@@ -997,7 +1040,7 @@ function main(): void {
       violation('ERROR', slug, 'expected workflow SKILL.md missing — anti-leak rule cannot be checked');
       continue;
     }
-    const content = readFileSync(skillMd, 'utf8');
+    const content = readTextNormalized(skillMd);
     if (hasAntiLeakViolation(content)) {
       violation('ERROR', slug, 'body contains `/sdd-` outside the "Forbidden invocations" section');
     }
@@ -1027,7 +1070,7 @@ function main(): void {
     for (const ref of readdirSync(refsDir)) {
       if (!ref.endsWith('.md')) { continue; }
       let refText: string;
-      try { refText = readFileSync(join(refsDir, ref), 'utf8'); }
+      try { refText = readTextNormalized(join(refsDir, ref)); }
       catch { continue; }
       violations.push(...checkStalePaths(skill.slug, skill.skillDir, refText, REPO_ROOT, `references/${ref}`));
     }

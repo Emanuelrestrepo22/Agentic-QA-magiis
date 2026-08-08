@@ -324,6 +324,15 @@ export const VAR_MANIFEST: VarSpec[] = [
     obtainHint: 'your project DB connection — set when adapting the framework.',
     note: 'DBHub MCP password. Local only; sensitive.',
   },
+  {
+    name: 'MAGIIS_DB_MCP_URL',
+    destinations: ['local'],
+    secret: false,
+    required: false,
+    critical: false,
+    obtainHint: 'the HTTPS endpoint of the remote DB MCP — ask the team that hosts it.',
+    note: 'Remote DB MCP endpoint, used as [DB_TOOL] on Oracle targets (DBHub cannot serve Oracle). Local only.',
+  },
 ];
 
 // ----------------------------------------------------------------------------

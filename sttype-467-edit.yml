@@ -1,0 +1,437 @@
+- generic [ref=e2]:
+    - banner [ref=e3]:
+        - generic [ref=e4]:
+            - button [ref=e5] [cursor=pointer]
+            - paragraph [ref=e11]:
+                - generic [ref=e12]:
+                    - text: UNITY
+                    - generic [ref=e13]: AR0103
+                - generic [ref=e14]:
+                    - text: Usuario
+                    - generic [ref=e15]: Remisería Futuro
+        - generic [ref=e16]:
+            - generic [ref=e17]:
+                - generic [ref=e18]:
+                    - link "Histórico de viajes" [ref=e19] [cursor=pointer]:
+                        - /url: '#/home/carrier/reports/travels-list'
+                    - link "Gestión de Viajes" [ref=e20] [cursor=pointer]:
+                        - /url: '#/home/carrier/travel/dashboard'
+                - link "Nuevo Viaje" [ref=e21] [cursor=pointer]:
+                    - /url: '#/home/carrier/travel/create'
+            - generic [ref=e22]:
+                - button [ref=e26] [cursor=pointer]:
+                    - generic [ref=e27]: 
+                - button "" [ref=e30] [cursor=pointer]
+                - button "ES" [ref=e34] [cursor=pointer]
+                - button "" [ref=e37] [cursor=pointer]
+    - generic [ref=e39]:
+        - navigation [ref=e41]:
+            - list [ref=e42]:
+                - listitem [ref=e43]:
+                    - link " Control Operaciones" [ref=e44] [cursor=pointer]:
+                        - /url: '#/home/carrier/dashboard'
+                        - generic [ref=e45]: 
+                        - text: Control Operaciones
+                - listitem [ref=e46]:
+                    - generic [ref=e47]: Análisis Gerencial
+                    - list:
+                        - listitem [ref=e49]:
+                            - link "Tablero Gerencial" [ref=e50] [cursor=pointer]:
+                                - /url: '#/home/carrier/owner-report'
+                        - listitem [ref=e52]:
+                            - link "Mapa de calor" [ref=e53] [cursor=pointer]:
+                                - /url: '#/home/carrier/owner-heat-map'
+                - listitem [ref=e55]:
+                    - generic [ref=e56]:
+                        - generic [ref=e57]: 
+                        - text: Viajes
+                    - list:
+                        - listitem [ref=e58]:
+                            - link "Nuevo Viaje" [ref=e59] [cursor=pointer]:
+                                - /url: '#/home/carrier/travel/create'
+                        - listitem [ref=e61]:
+                            - link "Cotizaciones" [ref=e62] [cursor=pointer]:
+                                - /url: '#/home/carrier/travel/quotes'
+                        - listitem [ref=e64]:
+                            - link "Gestión de Viajes" [ref=e65] [cursor=pointer]:
+                                - /url: '#/home/carrier/travel/dashboard'
+                        - listitem [ref=e67]:
+                            - link "Viajes Recurrentes" [ref=e68] [cursor=pointer]:
+                                - /url: '#/home/carrier/travel/recurring'
+                        - listitem [ref=e70]:
+                            - link "Carga de Manifiesto" [ref=e71] [cursor=pointer]:
+                                - /url: '#/home/carrier/travel/mappers'
+                - listitem [ref=e73]:
+                    - generic [ref=e74]:
+                        - generic [ref=e75]: 
+                        - text: Clientes
+                    - list:
+                        - listitem [ref=e76]:
+                            - link "Gestión Individuos" [ref=e77] [cursor=pointer]:
+                                - /url: '#/home/carrier/client/list'
+                        - listitem [ref=e79]:
+                            - link "Gestión Empresas" [ref=e80] [cursor=pointer]:
+                                - /url: '#/home/carrier/client/contractors'
+                - listitem [ref=e82]:
+                    - generic [ref=e83]:
+                        - generic [ref=e84]: 
+                        - text: Cierres de Caja
+                    - list:
+                        - listitem [ref=e85]:
+                            - link "Pendientes" [ref=e86] [cursor=pointer]:
+                                - /url: '#/home/carrier/pay/travels'
+                        - listitem [ref=e88]:
+                            - link "Realizadas" [ref=e89] [cursor=pointer]:
+                                - /url: '#/home/carrier/pay/surrenders-report'
+                - listitem [ref=e91]:
+                    - generic [ref=e92]:
+                        - generic [ref=e93]: 
+                        - text: Liquidaciones
+                    - list:
+                        - listitem [ref=e94]:
+                            - link "Empresas" [ref=e95] [cursor=pointer]:
+                                - /url: '#/home/carrier/liquidations/contractors/list'
+                        - listitem [ref=e97]:
+                            - link "Individuos" [ref=e98] [cursor=pointer]:
+                                - /url: '#/home/carrier/liquidations/passenger/list'
+                        - listitem [ref=e100]:
+                            - link "Choferes" [ref=e101] [cursor=pointer]:
+                                - /url: '#/home/carrier/liquidations/drivers/list'
+                        - listitem [ref=e103]:
+                            - link "Propietarios" [ref=e104] [cursor=pointer]:
+                                - /url: '#/home/carrier/liquidations/owners/list'
+                - listitem [ref=e106]:
+                    - generic [ref=e107]:
+                        - generic [ref=e108]: 
+                        - text: Cuentas Corrientes
+                    - list:
+                        - listitem [ref=e109]:
+                            - link "Cliente" [ref=e110] [cursor=pointer]:
+                                - /url: '#/home/carrier/checking-accounts/clients'
+                        - listitem [ref=e112]:
+                            - link "Choferes" [ref=e113] [cursor=pointer]:
+                                - /url: '#/home/carrier/checking-accounts/drivers'
+                        - listitem [ref=e115]:
+                            - link "Propietarios" [ref=e116] [cursor=pointer]:
+                                - /url: '#/home/carrier/checking-accounts/owners'
+                        - listitem [ref=e118]:
+                            - link "MAGIIS" [ref=e119] [cursor=pointer]:
+                                - /url: '#/home/carrier/checking-accounts/magiis'
+                - listitem [ref=e121]:
+                    - generic [ref=e122]:
+                        - generic [ref=e123]: 
+                        - text: Vehículos
+                    - list:
+                        - listitem [ref=e124]:
+                            - link "Gestión de Vehículos" [ref=e125] [cursor=pointer]:
+                                - /url: '#/home/carrier/vehicle/list'
+                - listitem [ref=e127]:
+                    - generic [ref=e128]:
+                        - generic [ref=e129]: 
+                        - text: Propietarios
+                    - list:
+                        - listitem [ref=e130]:
+                            - link "Gestión de Propietarios" [ref=e131] [cursor=pointer]:
+                                - /url: '#/home/carrier/owner/list'
+                - listitem [ref=e133]:
+                    - generic [ref=e134]:
+                        - generic [ref=e135]: 
+                        - text: Choferes
+                    - list:
+                        - listitem [ref=e136]:
+                            - link "Gestión de Choferes" [ref=e137] [cursor=pointer]:
+                                - /url: '#/home/carrier/driver/list'
+                - listitem [ref=e139]:
+                    - generic [ref=e140]:
+                        - generic [ref=e141]: 
+                        - text: Reportes
+                    - list:
+                        - listitem [ref=e142]:
+                            - link "Listado de Viajes" [ref=e143] [cursor=pointer]:
+                                - /url: '#/home/carrier/reports/travels-list'
+                        - listitem [ref=e145]:
+                            - link "Viajes Impagos" [ref=e146] [cursor=pointer]:
+                                - /url: '#/home/carrier/reports/unpaid-travels-list'
+                        - listitem [ref=e148]:
+                            - link "Resumen Diario" [ref=e149] [cursor=pointer]:
+                                - /url: '#/home/carrier/reports/daily'
+                        - listitem [ref=e151]:
+                            - link "Documentación Vencida y por Vencer" [ref=e152] [cursor=pointer]:
+                                - /url: '#/home/carrier/reports/documentation'
+                        - listitem [ref=e154]:
+                            - link "Ranking de Clientes" [ref=e155] [cursor=pointer]:
+                                - /url: '#/home/carrier/reports/ranking-clients'
+                        - listitem [ref=e157]:
+                            - link "Ranking de Vehículos" [ref=e158] [cursor=pointer]:
+                                - /url: '#/home/carrier/reports/ranking-vehicles'
+                        - listitem [ref=e160]:
+                            - link "Ranking de Choferes" [ref=e161] [cursor=pointer]:
+                                - /url: '#/home/carrier/reports/ranking-drivers'
+                        - listitem [ref=e163]:
+                            - link "Viajes por Segmentos" [ref=e164] [cursor=pointer]:
+                                - /url: '#/home/carrier/reports/segments-travels'
+                        - listitem [ref=e166]:
+                            - link "Transacciones con Tarjetas" [ref=e167] [cursor=pointer]:
+                                - /url: '#/home/carrier/reports/transaction-tracking'
+                        - listitem [ref=e169]:
+                            - link "Comisiones Agencia" [ref=e170] [cursor=pointer]:
+                                - /url: '#/home/carrier/reports/agency-commissions'
+                        - listitem [ref=e172]:
+                            - link "Corporativo - Centro de Costos y Empleados" [ref=e173] [cursor=pointer]:
+                                - /url: '#/home/carrier/reports/cost-center-report'
+                        - listitem [ref=e175]:
+                            - link "Empresa - Tipos de Servicio & Centro Costos" [ref=e176] [cursor=pointer]:
+                                - /url: '#/home/carrier/reports/corporate-services-type'
+                        - listitem [ref=e178]:
+                            - link "Cliente Individuo - Cta Cte" [ref=e179] [cursor=pointer]:
+                                - /url: '#/home/carrier/reports/individual-ca-travels'
+                        - listitem [ref=e181]:
+                            - link "Movimientos de Cobros" [ref=e182] [cursor=pointer]:
+                                - /url: '#/home/carrier/reports/cash-flow'
+                        - listitem [ref=e184]:
+                            - link "Movimientos de Pagos" [ref=e185] [cursor=pointer]:
+                                - /url: '#/home/carrier/reports/payment-flow'
+                        - listitem [ref=e187]:
+                            - link "Propinas" [ref=e188] [cursor=pointer]:
+                                - /url: '#/home/carrier/reports/tips'
+                        - listitem [ref=e190]:
+                            - link "Antigüedad de Deuda" [ref=e191] [cursor=pointer]:
+                                - /url: '#/home/carrier/reports/debt-aging'
+                        - listitem [ref=e193]:
+                            - link "Impuestos y Cargos" [ref=e194] [cursor=pointer]:
+                                - /url: '#/home/carrier/reports/taxes-and-fees'
+                        - listitem [ref=e196]:
+                            - link "Comisiones Configuradas" [ref=e197] [cursor=pointer]:
+                                - /url: '#/home/carrier/reports/configurated-commissions'
+                - listitem [ref=e199]:
+                    - generic [ref=e200]:
+                        - generic [ref=e201]: 
+                        - text: eAfiliados
+                    - list:
+                        - listitem [ref=e202]:
+                            - link "Mi Perfil ATC" [ref=e203] [cursor=pointer]:
+                                - /url: '#/home/carrier/affiliate/atc-profile'
+                        - listitem [ref=e205]:
+                            - link "Oferentes" [ref=e206] [cursor=pointer]:
+                                - /url: '#/home/carrier/affiliate/offering'
+                        - listitem [ref=e208]:
+                            - link "Solicitudes" [ref=e209] [cursor=pointer]:
+                                - /url: '#/home/carrier/affiliate/request'
+                        - listitem [ref=e211]:
+                            - link "One-Shot Solicitados" [ref=e212] [cursor=pointer]:
+                                - /url: '#/home/carrier/affiliate/os-agreement-requested'
+                        - listitem [ref=e214]:
+                            - link "One-Shot Recibidos" [ref=e215] [cursor=pointer]:
+                                - /url: '#/home/carrier/affiliate/os-agreement-received'
+                        - listitem [ref=e217]:
+                            - link "Cuentas Corrientes" [ref=e218] [cursor=pointer]:
+                                - /url: '#/home/carrier/affiliate/checking-account'
+                - listitem [ref=e220]:
+                    - generic [ref=e221]: GNET
+                    - list:
+                        - listitem [ref=e223]:
+                            - link "Farm Out" [ref=e224] [cursor=pointer]:
+                                - /url: '#/home/carrier/gnet/farm-out'
+                        - listitem [ref=e226]:
+                            - link "Farm In" [ref=e227] [cursor=pointer]:
+                                - /url: '#/home/carrier/gnet/farm-in'
+                        - listitem [ref=e229]:
+                            - link "Cuentas Corrientes" [ref=e230] [cursor=pointer]:
+                                - /url: '#/home/carrier/gnet/credit-accounts'
+                - listitem [ref=e232]:
+                    - link " MAGIIS Apps Store" [ref=e233] [cursor=pointer]:
+                        - /url: '#/home/carrier/integrations/list'
+                        - generic [ref=e234]: 
+                        - text: MAGIIS Apps Store
+                - listitem [ref=e235]:
+                    - generic [ref=e236]:
+                        - generic [ref=e237]: 
+                        - text: Configuración
+                    - list [ref=e1312]:
+                        - listitem [ref=e238]:
+                            - link "Preferencias Operativas" [ref=e239] [cursor=pointer]:
+                                - /url: '#/home/carrier/settings/parameters'
+                        - listitem [ref=e241]:
+                            - link "Tipos de Vehículos" [ref=e242] [cursor=pointer]:
+                                - /url: '#/home/carrier/settings/transportTypes'
+                        - listitem [ref=e244]:
+                            - link "Tipos de Servicios" [ref=e245] [cursor=pointer]:
+                                - /url: '#/home/carrier/settings/servicesType/list'
+                        - listitem [ref=e247]:
+                            - link "Impuestos y Cargos" [ref=e248] [cursor=pointer]:
+                                - /url: '#/home/carrier/settings/taxesAndFees'
+                        - listitem [ref=e250]:
+                            - link "Otros Costos" [ref=e251] [cursor=pointer]:
+                                - /url: '#/home/carrier/settings/otherCosts'
+                        - listitem [ref=e253]:
+                            - link "Personalización de e-mails" [ref=e254] [cursor=pointer]:
+                                - /url: '#/home/carrier/settings/email-templates'
+                        - listitem [ref=e256]:
+                            - link "Sucursales" [ref=e257] [cursor=pointer]:
+                                - /url: '#/home/carrier/settings/branches/list'
+                        - listitem [ref=e259]:
+                            - link "Zonas" [ref=e260] [cursor=pointer]:
+                                - /url: '#/home/carrier/settings/zones/list'
+                        - listitem [ref=e262]:
+                            - link "Areas" [ref=e263] [cursor=pointer]:
+                                - /url: '#/home/carrier/settings/areas/list'
+                        - listitem [ref=e265]:
+                            - link "Tarifadores" [ref=e266] [cursor=pointer]:
+                                - /url: '#/home/carrier/settings/travel-fare-list'
+                        - listitem [ref=e268]:
+                            - link "Precios Dinamicos" [ref=e269] [cursor=pointer]:
+                                - /url: '#/home/carrier/settings/travel-fare-rules'
+                        - listitem [ref=e271]:
+                            - link "Perfiles de Acceso" [ref=e272] [cursor=pointer]:
+                                - /url: '#/home/carrier/settings/profiles-access'
+                        - listitem [ref=e274]:
+                            - link "Usuarios" [ref=e275] [cursor=pointer]:
+                                - /url: '#/home/carrier/settings/profiles'
+        - main [ref=e277]:
+            - list [ref=e278]:
+                - generic [ref=e279]:
+                    - listitem [ref=e1777]: home
+                    - listitem [ref=e1778]: / Tipos de Servicios / Nuevo
+            - generic [ref=e1779]:
+                - heading " Editar Tipo de Servicio" [level=2] [ref=e1781]:
+                    - generic [ref=e1782]: 
+                    - text: Editar Tipo de Servicio
+                - generic [ref=e1784]:
+                    - generic [ref=e1785]:
+                        - generic [ref=e1786]:
+                            - generic [ref=e1787]: Nombre
+                            - textbox "Nombre" [ref=e1788]: v1.72.6
+                        - generic [ref=e1790]:
+                            - generic [ref=e1791]: Estado
+                            - generic [ref=e1792]:
+                                - generic [ref=e1793]: Inactivo
+                                - checkbox [checked] [ref=e1795]
+                                - generic [ref=e1798]: Activo
+                    - generic [ref=e1800]:
+                        - generic [ref=e1801]: Descripción
+                        - textbox "Descripción" [ref=e1802]: cmm
+                    - generic [ref=e1803]:
+                        - generic [ref=e1804]:
+                            - generic [ref=e1805]: Tipo de Viaje
+                            - group [ref=e1806]:
+                                - generic [ref=e1809] [cursor=pointer]:
+                                    - generic [ref=e1810]:
+                                        - generic [ref=e1811]: ✕
+                                        - text: Por Hora
+                                    - generic [ref=e1812]:
+                                        - generic [ref=e1813]: ✕
+                                        - text: Solo Ida
+                                    - generic [ref=e1814]:
+                                        - generic [ref=e1815]: ✕
+                                        - text: Ida y Vuelta
+                                    - textbox [ref=e1816]
+                        - generic [ref=e1818]:
+                            - generic [ref=e1819]: Paradas (Multiwaypoints)
+                            - generic [ref=e1820]:
+                                - checkbox [ref=e1822]
+                                - text: Desactivado
+                    - generic [ref=e1825]:
+                        - generic [ref=e1826]:
+                            - generic [ref=e1827]: Origen por Defecto
+                            - group [ref=e1828]:
+                                - generic [ref=e1831] [cursor=pointer]:
+                                    - generic [ref=e1832]: Dirección
+                                    - generic [ref=e1833]: ▼
+                        - generic [ref=e1834]:
+                            - generic [ref=e1835]: Destino por Defecto
+                            - group [ref=e1836]:
+                                - generic [ref=e1839] [cursor=pointer]:
+                                    - generic [ref=e1840]: Dirección
+                                    - generic [ref=e1841]: ▼
+                    - heading "Tipos de Vehículos" [level=3] [ref=e1843]
+                    - generic [ref=e1844]:
+                        - generic [ref=e1845]:
+                            - generic [ref=e1847]:
+                                - generic [ref=e1848]: Viajes a Demanda
+                                - generic [ref=e1849]: Incluir Todos
+                            - generic [ref=e1855]:
+                                - generic [ref=e1856]: Viajes Programados
+                                - generic [ref=e1857]: Incluir Todos
+                        - generic [ref=e1863]:
+                            - generic [ref=e1864]: Ingreso Cantidad de Pasajeros
+                            - generic [ref=e1865]:
+                                - checkbox [ref=e1867]
+                                - text: Desactivado
+                    - heading "Otros Costos" [level=3] [ref=e1871]
+                    - generic [ref=e1873]:
+                        - generic [ref=e1874]: Items Adicionales
+                        - generic [ref=e1875]: Incluir Todos
+                    - heading "APP PAX - Apariencia y Funcionalidad" [level=3] [ref=e1881]
+                    - generic [ref=e1886]:
+                        - checkbox [ref=e1888]
+                        - text: Ocultar en Pax
+                    - heading "Configuración y Seguridad del Cliente" [level=3] [ref=e1892]
+                    - generic [ref=e1895]:
+                        - generic [ref=e1896]: Cliente
+                        - group [ref=e1898]:
+                            - generic [ref=e1901] [cursor=pointer]:
+                                - generic [ref=e1902]: huge empire v1.72.6
+                                - generic [ref=e1905]: ✕
+                                - generic [ref=e1906]: ▼
+                    - generic [ref=e1909]:
+                        - generic [ref=e1910]: Tarifador
+                        - generic [ref=e1913] [cursor=pointer]:
+                            - generic [ref=e1914]: asasd
+                            - generic [ref=e1915]: ▼
+                    - generic [ref=e1916]:
+                        - generic [ref=e1918]:
+                            - generic [ref=e1919]: Forma de Pago
+                            - generic [ref=e1922] [cursor=pointer]:
+                                - generic [ref=e1923]: Efectivo
+                                - generic [ref=e1924]: ▼
+                        - generic [ref=e1925]:
+                            - generic [ref=e1926]: Plazo de pago
+                            - spinbutton "Plazo de pago" [ref=e1927]
+                    - generic [ref=e1928]:
+                        - generic [ref=e1930]:
+                            - generic [ref=e1931]: Control de Acceso a Colaboradores
+                            - generic [ref=e1932]:
+                                - text: Todos
+                                - checkbox "Control de Acceso a Colaboradores" [checked] [ref=e1934]
+                                - text: Seleccionados
+                        - generic [ref=e1939]:
+                            - button "Configuración" [ref=e1940] [cursor=pointer]
+                            - generic [ref=e1941]:
+                                - generic [ref=e1942]: 
+                                - text: 2 Usuarios
+                    - heading "Configuración de Límite de Uso" [level=3] [ref=e1944]
+                    - generic [ref=e1945]:
+                        - generic [ref=e1948]:
+                            - text: Ilimitado
+                            - checkbox [checked] [ref=e1950]
+                            - text: Limitar
+                        - generic [ref=e1954]:
+                            - generic [ref=e1955]: Período
+                            - generic [ref=e1958] [cursor=pointer]:
+                                - generic [ref=e1959]: Diaria
+                                - generic [ref=e1960]: ▼
+                        - generic [ref=e1962]:
+                            - generic [ref=e1963]: Cantidad
+                            - spinbutton "Cantidad" [ref=e1964]: '2'
+                    - heading "Horario de Disponibilidad de Servicio" [level=3] [ref=e1966]
+                    - generic [ref=e1970]:
+                        - text: Siempre
+                        - checkbox [ref=e1972]
+                        - text: Días y Horarios
+                    - heading "Área de Cobertura" [level=3] [ref=e1976]
+                    - generic [ref=e1977]:
+                        - generic [ref=e1979]:
+                            - generic [ref=e1980]: Origen
+                            - generic [ref=e1981]: ▼
+                        - generic [ref=e1987]:
+                            - generic [ref=e1988]: Destino
+                            - generic [ref=e1989]: ▼
+                    - generic [ref=e1995]:
+                        - button "Cancelar" [ref=e1996] [cursor=pointer]
+                        - button "Actualizar" [ref=e1997] [cursor=pointer]
+                - generic:      
+        - complementary [ref=e1232]
+    - generic [ref=e1233]:
+        - heading "© Copyright 2018. MAGIIS. Todos los derechos reservados -" [level=6] [ref=e1234]
+        - heading "Versión 1.72.6 / v1.72.6 B" [level=6] [ref=e1235] [cursor=pointer]
+        - button "MELITA" [ref=e1238] [cursor=pointer]

@@ -133,6 +133,18 @@ dbhub.local.toml
 # ===== Skill-creator eval workspaces (local iteration artifacts, never committed) =====
 .claude/skills/*-workspace/
 
+# ===== Community skills (T3) — installed via the `skills` CLI, NOT committed =====
+# playwright-cli, playwright-best-practices, resend-cli land under .claude/skills/
+# via cli/install.ts Step 9 (--agent forces them there so Claude Code discovers
+# them). Per CLAUDE.md §5 they are reinstallable via the installer and are not part
+# of the repo contract; their vendored docs also carry example connection strings
+# that trip vars:check / the secret-scan hook. skills-lock.json is the CLI's local
+# registry (distinct from the force-tracked skills.lock.json below).
+.claude/skills/playwright-cli/
+.claude/skills/playwright-best-practices/
+.claude/skills/resend-cli/
+skills-lock.json
+
 # ===== Session / discovery scratch — QA evidence screenshots, diagnostic snapshots,
 # codegen recordings and sandbox probes generated during live testing. Real evidence
 # belongs under evidence/ (already ignored); these root-level / scratch artifacts are
@@ -154,13 +166,27 @@ tests/**/*.sandbox.ts
 !skills.lock.json
 !**/skills.lock.json
 
-# ===== Artefactos internos MAGIIS — NO publicar =====
+# ===== Artefactos internos MAGIIS — NO publicar (data de tickets/releases + estrategia interna) =====
 .context/magiis-process/
 .context/reports/
 .context/PBI/epics/
 .context/PBI/stories/
 .context/PBI/bugs/
 .context/PBI/auth/
+.context/PBI/tests/
+.context/PBI/test-sets/
+.context/PBI/test-plans/
+.context/PBI/test-executions/
+.context/PBI/preconditions/
+.context/PBI/defects/
+.context/PBI/improvements/
+.context/PBI/tech-stories/
+.context/PBI/tech-debts/
+# Internal trip-creation analysis (the canonical business-*.md maps stay tracked).
+.context/business/TESTPLAN-*.xlsx
+.context/business/TS-*.xlsx
+.context/business/trip-creation-assignment-coverage-analysis.md
+.context/business/trip-screen-parameter-scope.md
 /PLAN-IMPLEMENTACION-QA-MAGIIS.md
 /PRESENTACION-QA-MAGIIS.pptx
 /PRESENTACION-QA-MAGIIS.html

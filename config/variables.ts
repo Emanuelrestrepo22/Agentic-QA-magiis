@@ -60,6 +60,14 @@ const {
   // === Jira-specific operational params (NOT credentials) ===
   JIRA_TEST_STATUS_FIELD = 'customfield_10100', // Used: config.tms.jira.testStatusField
 
+  // === Oracle DB (TEST env) — usado por tests/utils/db/* para validación de datos ===
+  // Modo thin de oracledb (no requiere Oracle Instant Client). connectString = host:port/service.
+  ORACLE_HOST_TEST = '',
+  ORACLE_PORT_TEST = '1521',
+  ORACLE_SERVICE_TEST = '',
+  ORACLE_USER_TEST = '',
+  ORACLE_PASSWORD_TEST = '',
+
   // === Browser Configuration ===
   HEADLESS = 'true', // Used: config.browser.headless (playwright.config)
   DEFAULT_TIMEOUT = '30000', // Used: config.browser.defaultTimeout (playwright.config, ApiBase)
@@ -143,6 +151,25 @@ export const config = {
 
   // Test User (configure in .env)
   testUser: envData.user,
+
+  // Oracle DB (TEST) — validación de datos vía tests/utils/db/*. Additive block.
+  // Nota: la feature bajo prueba (Integraciones/Stripe) es del portal legacy en apps-test,
+  // por eso las creds DB son las de TEST (ORACLE_*_TEST), independientes de TEST_ENV.
+  db: {
+    oracleTest: {
+      host: ORACLE_HOST_TEST,
+      port: Number.parseInt(ORACLE_PORT_TEST, 10),
+      service: ORACLE_SERVICE_TEST,
+      user: ORACLE_USER_TEST,
+      password: ORACLE_PASSWORD_TEST,
+      get connectString(): string {
+        return `${ORACLE_HOST_TEST}:${ORACLE_PORT_TEST}/${ORACLE_SERVICE_TEST}`;
+      },
+      get isConfigured(): boolean {
+        return ORACLE_HOST_TEST !== '' && ORACLE_SERVICE_TEST !== '' && ORACLE_USER_TEST !== '';
+      },
+    },
+  },
 
   // TMS
   tms: {

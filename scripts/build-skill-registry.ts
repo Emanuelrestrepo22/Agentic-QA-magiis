@@ -126,11 +126,35 @@ function vlog(msg: string): void {
 // Skill discovery
 // -----------------------------------------------------------------------------
 
+/**
+ * Slugs of community skills installed via the `skills` CLI. They land under
+ * .claude/skills/<slug> (cli/install.ts Step 9 forces them there via --agent so
+ * Claude Code can discover them) but are gitignored and NOT part of the repo
+ * contract, so they must be excluded from the committed REGISTRY.md — otherwise
+ * the registry references skills a fresh clone does not have, and
+ * skills:registry:check fails until they are reinstalled. skills-lock.json at
+ * the repo root is the authoritative registry of which slugs are community.
+ */
+function communitySkillSlugs(): Set<string> {
+  const slugs = new Set<string>();
+  const lockPath = join(REPO_ROOT, 'skills-lock.json');
+  if (!existsSync(lockPath)) { return slugs; }
+  try {
+    const parsed = JSON.parse(readFileSync(lockPath, 'utf8')) as { skills?: Record<string, unknown> };
+    for (const slug of Object.keys(parsed.skills ?? {})) { slugs.add(slug); }
+  }
+  catch {
+    // Malformed lockfile — index everything rather than silently skipping.
+  }
+  return slugs;
+}
+
 function listSkillDirs(): string[] {
   if (!existsSync(SKILLS_DIR)) {
     console.error(`FATAL: ${relative(REPO_ROOT, SKILLS_DIR)} not found.`);
     process.exit(1);
   }
+  const community = communitySkillSlugs();
   const entries = readdirSync(SKILLS_DIR, { withFileTypes: true });
   const dirs: string[] = [];
   for (const e of entries) {
@@ -138,11 +162,38 @@ function listSkillDirs(): string[] {
     // symlinked from outside the repo, e.g. .claude/skills/playwright-cli ->
     // an external clone).
     if (!e.isDirectory() && !e.isSymbolicLink()) { continue; }
+    // Community skills are gitignored and reinstallable — never index them.
+    if (community.has(e.name)) { continue; }
     const skillPath = join(SKILLS_DIR, e.name, 'SKILL.md');
     if (existsSync(skillPath)) { dirs.push(e.name); }
   }
   dirs.sort();
   return dirs;
+}
+
+// -----------------------------------------------------------------------------
+// Text I/O — CRLF-safe read helper
+// -----------------------------------------------------------------------------
+
+/**
+ * Reads a UTF-8 text file and normalizes CRLF -> LF.
+ *
+ * `splitFrontmatter()` below checks `text.startsWith('---\n')` and looks for
+ * a closing `\n---\n` delimiter, and `bulletText()` anchors its bullet regex
+ * on `$` per line. Both assume LF-only line breaks: a lone trailing '\r' is
+ * not treated as part of a line terminator by a plain '\n'-boundary string
+ * check, and JS '.'/'$' do not skip it either. On a CRLF file this means the
+ * frontmatter delimiter is never found at all (every skill silently falls
+ * back to `frontmatter: {}`) and every bullet line fails to match (Strategy A
+ * silently falls back to Strategy B). .gitattributes pins `eol=lf` for this
+ * exact reason, but a checkout can still surface CRLF (Windows
+ * `core.autocrlf=true`, an editor's own EOL default, a worktree checked out
+ * before normalization applied) — normalizing once at the read site keeps
+ * every downstream parser (and the --check byte comparison) correct
+ * regardless of the working tree's actual line-ending state.
+ */
+function readTextNormalized(path: string): string {
+  return readFileSync(path, 'utf8').replace(/\r\n/g, '\n');
 }
 
 // -----------------------------------------------------------------------------
@@ -277,7 +328,7 @@ function distillPurpose(description: string | undefined): string {
 
 function processSkill(slug: string): SkillEntry {
   const skillPath = join(SKILLS_DIR, slug, 'SKILL.md');
-  const text = readFileSync(skillPath, 'utf8');
+  const text = readTextNormalized(skillPath);
   const { frontmatter, body } = splitFrontmatter(text);
 
   let strategy: Strategy = 'none';
@@ -388,7 +439,7 @@ function checkRegistry(freshOutput: string): number {
     console.error(`   Run: bun run skills:registry && git add ${relPath}`);
     return 1;
   }
-  const existing = readFileSync(CACHE_FILE, 'utf8');
+  const existing = readTextNormalized(CACHE_FILE);
   if (stripVolatile(freshOutput) === stripVolatile(existing)) {
     console.log(`✅ ${relPath} is up to date.`);
     return 0;

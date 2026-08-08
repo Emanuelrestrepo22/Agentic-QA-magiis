@@ -82,6 +82,33 @@ const SKIP_DIRS = new Set([
   '.agents', // never lint our own source-of-truth
 ]);
 
+// Community skills installed via the `skills` CLI live under .claude/skills/<slug>
+// but follow their OWN template conventions (e.g. resend-cli's handlebars {{NAME}}),
+// not this repo's {{VAR}} contract, so vars:check must not police their vendored
+// docs. The `skills` CLI would normally write to .agents/skills/ (already skipped),
+// but this repo's installer forces them into .claude/skills/ via --agent so Claude
+// Code can discover them (see cli/install.ts Step 9). skills-lock.json at the repo
+// root is the authoritative registry of which slugs are community-managed.
+const SKILLS_LOCK = join(REPO_ROOT, 'skills-lock.json');
+
+function readCommunitySkillDirs(): Set<string> {
+  const dirs = new Set<string>();
+  if (!existsSync(SKILLS_LOCK)) { return dirs; }
+  try {
+    const parsed = JSON.parse(readFileSync(SKILLS_LOCK, 'utf8')) as { skills?: Record<string, unknown> };
+    for (const slug of Object.keys(parsed.skills ?? {})) {
+      dirs.add(join(REPO_ROOT, '.claude', 'skills', slug));
+    }
+  }
+  catch {
+    // Malformed lockfile — lint everything rather than silently skipping.
+  }
+  return dirs;
+}
+
+// Absolute paths of community-skill directories to skip during the walk.
+const COMMUNITY_SKILL_DIRS = readCommunitySkillDirs();
+
 // Allowlist: identifiers that look like variables but are documentation strings
 // describing the syntax itself. Each entry is [variableName, fileSubstring] —
 // the linter ignores matches where both conditions hold.
@@ -470,6 +497,7 @@ function walkMarkdown(root: string, files: string[]): void {
 
     if (stat.isDirectory()) {
       if (SKIP_DIRS.has(name)) { continue; }
+      if (COMMUNITY_SKILL_DIRS.has(full)) { continue; }
       walkMarkdown(full, files);
     }
     else if (stat.isFile() && name.endsWith('.md')) {

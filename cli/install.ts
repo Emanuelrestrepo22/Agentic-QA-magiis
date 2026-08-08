@@ -15,7 +15,7 @@
  *     5-deps-install    Install dependencies (`bun install`)
  *     6-playwright      Install Playwright browsers (`bun run pw:install`)
  *     8-skills-gentle-ai Install engram via gentle-ai minimal preset (or skip)
- *     9-skills-community Install community skills via `bunx skills add`
+ *     9-skills-community Install community skills via the `skills` CLI (npx, bunx fallback)
  *
  *   PHASE 3 — CONFIGURATION
  *     10-mcp-env        Wire `.env` for MCP servers + offer direnv autoload
@@ -58,7 +58,7 @@
  *   INSTALL_FORCE_GENTLE_AI=1             Re-run gentle-ai engram install even if state shows it ran
  *   INSTALL_FORCE_COMMUNITY=1             Re-run community skill install even if state shows it ran
  *   INSTALL_FORCE_GITHUB=1                Re-run GitHub remote setup even if a remote is already wired
- *   INSTALL_SKIP_COMMUNITY=1              Skip `bunx skills add` step
+ *   INSTALL_SKIP_COMMUNITY=1              Skip the `skills add` step
  *   INSTALL_SKIP_JIRA=1                   Skip optional Jira bootstrap
  *   INSTALL_SKIP_API=1                    Skip optional API auth bootstrap
  *   INSTALL_SKIP_DIRENV=1                 Skip direnv autoload setup
@@ -247,7 +247,7 @@ interface CommunitySkill {
 }
 
 /**
- * Community skills installed at PROJECT level (`bunx skills add`).
+ * Community skills installed at PROJECT level (via the `skills` CLI).
  * Hosts third-party skills that are critical to this QA stack. They land in
  * .claude/skills/ alongside our committed skills — the boilerplate scaffolds
  * the full skill set into the consumer repo, so a fresh clone has everything
@@ -270,7 +270,7 @@ const PROJECT_LEVEL_SKILLS: ReadonlyArray<CommunitySkill> = [
 ];
 
 /**
- * Community skills installed at USER (global) level (`bunx skills add --global`).
+ * Community skills installed at USER (global) level (via the `skills` CLI, `--global`).
  * Useful across most projects regardless of stack. QA-tuned subset of the dev
  * universal layer — design/automation skills (n8n-skills, emil-design-eng,
  * ui-ux-pro-max) live only in the dev repo since QA does not author UI or
@@ -841,7 +841,8 @@ async function installSkillsViaGentleAi(
 }
 
 // ============================================================================
-// Phase 2 — Step 9 (9-skills-community): community skills via bunx skills CLI
+// Phase 2 — Step 9 (9-skills-community): community skills via the `skills` CLI
+// (npx primary, bunx fallback — see runSkillsCli for the Node >= 24 rationale)
 // ============================================================================
 
 function describeSkill(item: CommunitySkill): string {
@@ -849,6 +850,32 @@ function describeSkill(item: CommunitySkill): string {
     return item.package.split('/').slice(-2).join('/');
   }
   return item.skill;
+}
+
+/**
+ * Run the `skills` CLI, preferring `npx` with a `bunx` fallback.
+ *
+ * `bunx skills add` breaks the CLI on Node >= 24: bunx extracts `skills` to a
+ * temp dir whose dependency tree leaves the CLI's `yaml` import unresolvable
+ * (ERR_MODULE_NOT_FOUND: yaml/index.js). `npx` installs the tree correctly, so
+ * it is the primary runner; `bunx` remains a fallback for hosts without npm.
+ *
+ * `cliArgs` is the `skills` sub-command (e.g. `['add', <pkg>, ...]`) WITHOUT the
+ * leading binary/package token — each runner prepends its own.
+ */
+function runSkillsCli(cliArgs: string[]): { ok: boolean, stdout: string, stderr: string } {
+  const npx = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+  const runners: Array<[string, string[]]> = [
+    [npx, ['-y', 'skills@latest', ...cliArgs]],
+    ['bunx', ['skills', ...cliArgs]],
+  ];
+  let last: { ok: boolean, stdout: string, stderr: string } = { ok: false, stdout: '', stderr: '' };
+  for (const [bin, args] of runners) {
+    const result = tryRun(bin, args);
+    if (result.ok) { return result; }
+    last = result;
+  }
+  return last;
 }
 
 async function installCommunitySkills(
@@ -872,7 +899,7 @@ async function installCommunitySkills(
   }
 
   log.banner(`Community skills — ${label}`);
-  log.info(`This will run ${list.length} \`bunx skills add\` commands (${label}).`);
+  log.info(`This will run ${list.length} \`skills add\` commands via npx (bunx fallback) (${label}).`);
 
   const proceed = await maybeConfirm(`Install ${label} community skills?`, true);
   if (!proceed) {
@@ -897,11 +924,11 @@ async function installCommunitySkills(
     // Install into each selected agent's skills directory via `--agent`. Claude
     // Code only discovers skills under `.claude/skills/` (plus ~/.claude/skills/,
     // plugins, and --add-dir) — it NEVER scans `.agents/skills/`. Without an
-    // explicit `--agent`, `bunx skills add` writes only to `.agents/skills/` (the
+    // explicit `--agent`, `skills add` writes only to `.agents/skills/` (the
     // agent-agnostic store read by Copilot/OpenCode/Warp), so the skills stay
     // invisible to Claude Code. Passing the selected agents lands each skill where
     // that agent actually loads it.
-    const args = ['skills', 'add', item.package];
+    const args = ['add', item.package];
     if (item.skill && item.skill !== '*') {
       args.push('--skill', item.skill);
     }
@@ -915,7 +942,7 @@ async function installCommunitySkills(
 
     const s = tui.spinner();
     s.start(`Installing ${slug}…`);
-    const result = tryRun('bunx', args);
+    const result = runSkillsCli(args);
     if (result.ok) {
       s.stop(`Installed: ${slug}`);
       state.skills[stateKey] = 'installed';
@@ -2826,7 +2853,7 @@ async function main(): Promise<void> {
     }
   }
 
-  tui.section('Step 9: Installing community skills via bunx skills CLI');
+  tui.section('Step 9: Installing community skills via the skills CLI (npx, bunx fallback)');
   if (SKIP_COMMUNITY) {
     log.dim('  INSTALL_SKIP_COMMUNITY=1, skipping community skills.');
     for (const item of [...PROJECT_LEVEL_SKILLS, ...USER_LEVEL_SKILLS]) {

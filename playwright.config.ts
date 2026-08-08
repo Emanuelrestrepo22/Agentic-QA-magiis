@@ -161,6 +161,20 @@ export default defineConfig({
     },
 
     // ============================================
+    // Gateway Legacy - Portal legacy (magiis-fe / apps-test): Integraciones/Pasarelas.
+    // AISLADO: sin ui-setup ni storageState de carrier-v2. Login inline + URLs absolutas
+    // de apps-test. Ver tests/gateway-legacy/*.test.ts y docs/test-specs/.
+    // Usage: bun playwright test --project=gateway-legacy
+    // ============================================
+    {
+      name: 'gateway-legacy',
+      testMatch: '**/gateway-legacy/**/*.test.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+      },
+    },
+
+    // ============================================
     // Global Teardown - Runs LAST (reports, TMS sync)
     // Activated by `teardown` property on global-setup, NOT by dependencies
     // ============================================

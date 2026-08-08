@@ -220,7 +220,7 @@
     "*.env": "${capture}.env.*"
   },
   "explorer.compactFolders": false, // Mejor visibilidad de estructura
-  "explorer.confirmDelete": true,
+  "explorer.confirmDelete": false,
   "explorer.confirmDragAndDrop": true,
   // =====================
   // ? Git Settings
@@ -347,5 +347,10 @@
   // =====================
   // ? Postman Extension
   // =====================
-  "postman.settings.dotenv-detection-notification-visibility": false
+  "postman.settings.dotenv-detection-notification-visibility": false,
+  "python.testing.pytestArgs": [
+    "config"
+  ],
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true
 }

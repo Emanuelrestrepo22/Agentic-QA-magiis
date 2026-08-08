@@ -17,6 +17,19 @@ The mechanics of *writing the report body* (templates, repro steps, evidence
 capture) live in each skill's own references. **This file governs the upstream
 decisions: what type, what fields, who owns it, where it hangs.**
 
+> **Instance mapping — read alongside this file.** This doctrine describes the
+> *methodology*, which assumes issue types, fields, and process epics that a given
+> Jira instance may not actually expose. When the active instance diverges, the
+> divergence is recorded in a sibling **instance map**, and that map wins on
+> *mechanics* (which type, which field, which channel) while this file still wins
+> on *judgement* (how to classify, what a complete report contains).
+>
+> - **MG / MAGIIS** → `defect-management-mg-instance-map.md`. Load it **before
+>   filing anything in MG**: the `Defect` / `Improvement` types, `components`, and
+>   the "QA Defect Management" epic **do not exist there**, and a governance rule
+>   restricts QA to Xray entities — so the default report channel is a structured
+>   comment, not a new issue.
+
 ---
 
 ## Part 1 — Issue-type classification (Bug vs Defect vs Improvement)

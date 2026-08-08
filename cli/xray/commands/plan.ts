@@ -6,7 +6,7 @@
 
 import type { Flags, TestPlanResult } from '../types/index.js';
 import { loadConfig } from '../lib/config.js';
-import { graphql, MUTATIONS, QUERIES } from '../lib/graphql.js';
+import { fetchAllAttachedTestIds, graphql, MUTATIONS, QUERIES } from '../lib/graphql.js';
 import { getLinkedTests, resolveIssueId, resolveIssueIds } from '../lib/jira.js';
 import { log } from '../lib/logger.js';
 import { getBoolFlag, getFlag, requireFlag } from '../lib/parser.js';
@@ -131,7 +131,9 @@ export async function syncPlan(input: string, options: { apply: boolean } = { ap
     );
   }
 
-  const xrayAttachedIds = (planEntity.tests?.results ?? []).map(t => t.issueId);
+  // Paginated: the single-page getTestPlan caps tests at 100 → undercounts
+  // membership on large plans (false "missing at Xray layer"). Fetch all.
+  const xrayAttachedIds = await fetchAllAttachedTestIds(QUERIES.getTestPlanTestsPage, 'getTestPlan', issueId);
   const xraySet = new Set(xrayAttachedIds);
   const linkedSet = new Set(linked.map(l => l.id));
 

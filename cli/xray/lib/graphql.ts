@@ -80,6 +80,35 @@ export async function graphql<T = unknown>(
   return result.data as T;
 }
 
+/**
+ * Fetch ALL test issueIds attached to a Test Plan / Test Execution, paginating
+ * past Xray's 100-per-page cap using `tests.total`. The single-page queries
+ * (getTestPlan / getTestExecution) cap `tests` at 100, so they MUST NOT be used
+ * for membership math on entities with >100 tests (they undercount → false
+ * "missing at Xray layer"). Use this for sync/consistency checks instead.
+ */
+export async function fetchAllAttachedTestIds(
+  query: string,
+  rootField: 'getTestPlan' | 'getTestExecution',
+  issueId: string,
+): Promise<string[]> {
+  const ids: string[] = [];
+  let start = 0;
+  for (;;) {
+    const resp = await graphql<Record<string, { tests?: { total?: number, results?: { issueId: string }[] } } | null>>(
+      query,
+      { issueId, start },
+    );
+    const tests = resp[rootField]?.tests;
+    const page = tests?.results ?? [];
+    for (const t of page) { ids.push(t.issueId); }
+    const total = tests?.total ?? ids.length;
+    if (page.length === 0 || ids.length >= total) { break; }
+    start = ids.length;
+  }
+  return ids;
+}
+
 // ============================================================================
 // QUERIES
 // ============================================================================
@@ -201,6 +230,31 @@ export const QUERIES = {
             issueId
             jira(fields: ["key", "summary"])
           }
+        }
+      }
+    }
+  `,
+
+  // Paginated (start-offset) test membership — used by fetchAllAttachedTestIds
+  // for sync/consistency checks on plans/execs with >100 tests. Lightweight
+  // (issueId only); does NOT replace getTestPlan/getTestExecution (metadata).
+  getTestPlanTestsPage: `
+    query GetTestPlanTestsPage($issueId: String!, $start: Int!) {
+      getTestPlan(issueId: $issueId) {
+        tests(limit: 100, start: $start) {
+          total
+          results { issueId }
+        }
+      }
+    }
+  `,
+
+  getTestExecutionTestsPage: `
+    query GetTestExecutionTestsPage($issueId: String!, $start: Int!) {
+      getTestExecution(issueId: $issueId) {
+        tests(limit: 100, start: $start) {
+          total
+          results { issueId }
         }
       }
     }
@@ -405,10 +459,7 @@ export const MUTATIONS = {
       $steps: [CreateStepInput],
       $unstructured: String,
       $gherkin: String,
-      $projectKey: String!,
-      $summary: String!,
-      $description: String,
-      $labels: [String],
+      $jira: JSON!,
       $folderPath: String
     ) {
       createTest(
@@ -417,14 +468,7 @@ export const MUTATIONS = {
         unstructured: $unstructured,
         gherkin: $gherkin,
         folderPath: $folderPath,
-        jira: {
-          fields: {
-            summary: $summary,
-            description: $description,
-            labels: $labels,
-            project: { key: $projectKey }
-          }
-        }
+        jira: $jira
       ) {
         test {
           issueId
@@ -459,8 +503,8 @@ export const MUTATIONS = {
   `,
 
   deleteTestStep: `
-    mutation DeleteTestStep($issueId: String!, $stepId: String!) {
-      deleteTestStep(issueId: $issueId, stepId: $stepId)
+    mutation RemoveTestStep($stepId: String!) {
+      removeTestStep(stepId: $stepId)
     }
   `,
 
