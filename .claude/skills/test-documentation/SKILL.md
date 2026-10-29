@@ -335,6 +335,8 @@ Every documented TC must have a parent Regression Epic (single test repository f
 
 > **This Regression Epic IS the QA Test Repository process epic** (`agentic-qa-core/references/defect-management-doctrine.md` Part 4). Resolve it **found-or-created** by the configured name `qa.qa_epics.test_repository_epic.name` (**"QA Test Repository"**); on absence create it once, write the test-repository strategy into its description, and cache its key into `.agents/project.yaml` `qa.qa_epics.test_repository_epic.key`. It is a **QA process epic — never a product/dev epic, never unparented.** Per the three-axis model this parent says only "which QA bucket tracks the Test"; the Test's **product area travels on `components`** (Part 3) and its **Story coverage travels on the issue link** (Part 4) — never on this parent.
 
+> **In Modality jira-xray you do not set this parent yourself.** Every `[TMS_TOOL]` create sets it **at birth** from `qa.qa_epics` (single mapping table: `cli/xray/lib/hierarchy-model.ts`; syntax lives in `/xray-cli`). Your job is to keep those keys correct in `.agents/project.yaml`, and to close the phase with the orphan-audit gate that `/xray-cli` documents.
+
 > **Prerequisite**: Load `/acli` skill before executing commands below.
 
 ```

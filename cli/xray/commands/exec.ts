@@ -4,9 +4,11 @@
  * Commands: create, get, list, add-tests, remove-tests
  */
 
-import type { Flags, TestExecutionResult, TestRunResult } from '../types/index.js';
+import type { Flags, JiraFields, TestExecutionResult, TestRunResult } from '../types/index.js';
+import { ensureParentStuck, printBirthParent, resolveBirthParent } from '../lib/birth-parent.js';
 import { loadConfig } from '../lib/config.js';
 import { fetchAllAttachedTestIds, graphql, MUTATIONS, QUERIES } from '../lib/graphql.js';
+import { ISSUETYPE } from '../lib/hierarchy-model.js';
 import { getLinkedTests, resolveIssueId, resolveIssueIds } from '../lib/jira.js';
 import { log } from '../lib/logger.js';
 import { getBoolFlag, getFlag, getFlagArray, requireFlag } from '../lib/parser.js';
@@ -42,12 +44,22 @@ export async function create(flags: Flags): Promise<void> {
     : [];
   const testEnvironments = collectEnvironments(flags);
 
+  // 3-axis at birth — resolved offline, before any network call.
+  const birth = resolveBirthParent(flags, ISSUETYPE.testExecution, projectKey);
+
   log.dim(`Creating Test Execution in project ${projectKey}...`);
 
-  const result = await graphql<{ createTestExecution: { testExecution: { jira: { key: string, summary: string }, issueId: string } } }>(MUTATIONS.createTestExecution, {
-    projectKey,
+  const jiraFields: Record<string, unknown> = {
     summary,
     description,
+    project: { key: projectKey },
+  };
+  if (birth.parentKey) {
+    jiraFields.parent = { key: birth.parentKey };
+  }
+
+  const result = await graphql<{ createTestExecution: { testExecution: { jira: JiraFields, issueId: string } } }>(MUTATIONS.createTestExecution, {
+    jira: { fields: jiraFields },
     testIssueIds,
     testEnvironments,
   });
@@ -56,8 +68,13 @@ export async function create(flags: Flags): Promise<void> {
   log.success(`Test Execution created: ${exec.jira.key}`);
   console.log(`  Summary: ${exec.jira.summary}`);
   console.log(`  Issue ID: ${exec.issueId}`);
+  printBirthParent(birth);
   if (testEnvironments) {
     console.log(`  Environments: ${testEnvironments.join(', ')}`);
+  }
+
+  if (birth.parentKey && exec.jira.key) {
+    await ensureParentStuck(exec.jira.key, birth.parentKey, exec.jira.parent?.key ?? null);
   }
 }
 
@@ -168,12 +185,9 @@ export async function removeTests(flags: Flags): Promise<void> {
 
   log.dim(`Removing ${testIssueIds.length} tests from execution...`);
 
-  const result = await graphql<{ removeTestsFromTestExecution: { removedTests: string[] } }>(MUTATIONS.removeTestsFromTestExecution, {
-    issueId,
-    testIssueIds,
-  });
+  await graphql(MUTATIONS.removeTestsFromTestExecution, { issueId, testIssueIds });
 
-  log.success(`Removed ${result.removeTestsFromTestExecution.removedTests.length} tests`);
+  log.success(`Removed ${testIssueIds.length} tests`);
 }
 
 // ============================================================================

@@ -11,7 +11,8 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
-.playwright/user-data
+.playwright/user-data*
+.playwright/cli.config*.json
 .playwright/output
 **/evidence/
 

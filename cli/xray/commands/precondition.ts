@@ -9,9 +9,11 @@
  * — these commands expose them so operators no longer have to drop to raw GraphQL.
  */
 
-import type { Flags } from '../types/index.js';
+import type { Flags, JiraFields } from '../types/index.js';
+import { ensureParentStuck, printBirthParent, resolveBirthParent } from '../lib/birth-parent.js';
 import { loadConfig } from '../lib/config.js';
 import { graphql, MUTATIONS } from '../lib/graphql.js';
+import { ISSUETYPE } from '../lib/hierarchy-model.js';
 import { resolveIssueId, resolveIssueIds } from '../lib/jira.js';
 import { log } from '../lib/logger.js';
 import { getFlag, requireFlag } from '../lib/parser.js';
@@ -34,17 +36,27 @@ export async function create(flags: Flags): Promise<void> {
   const labels = labelsStr ? labelsStr.split(',').map(l => l.trim()) : undefined;
   const folderPath = getFlag(flags, 'folder');
 
+  // 3-axis at birth — resolved offline, before any network call.
+  const birth = resolveBirthParent(flags, ISSUETYPE.precondition, projectKey);
+
   log.dim(`Creating ${preconditionType} precondition in project ${projectKey}...`);
 
-  const result = await graphql<{ createPrecondition: { precondition: { issueId: string, preconditionType: { name: string }, jira: { key: string, summary: string } }, warnings: string[] } }>(
+  const jiraFields: Record<string, unknown> = {
+    summary,
+    description,
+    labels,
+    project: { key: projectKey },
+  };
+  if (birth.parentKey) {
+    jiraFields.parent = { key: birth.parentKey };
+  }
+
+  const result = await graphql<{ createPrecondition: { precondition: { issueId: string, preconditionType: { name: string }, jira: JiraFields }, warnings: string[] } }>(
     MUTATIONS.createPrecondition,
     {
       preconditionType: { name: preconditionType },
       definition,
-      projectKey,
-      summary,
-      description,
-      labels,
+      jira: { fields: jiraFields },
       folderPath,
     },
   );
@@ -56,6 +68,11 @@ export async function create(flags: Flags): Promise<void> {
   console.log(`  Summary: ${pre.jira.summary}`);
   console.log(`  Type: ${pre.preconditionType.name}`);
   console.log(`  Issue ID: ${pre.issueId}`);
+  printBirthParent(birth);
+
+  if (birth.parentKey && pre.jira.key) {
+    await ensureParentStuck(pre.jira.key, birth.parentKey, pre.jira.parent?.key ?? null);
+  }
 
   if (warnings && warnings.length > 0) {
     log.warn('Warnings:');

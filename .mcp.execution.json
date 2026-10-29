@@ -1,0 +1,4 @@
+{
+  "_comment": "Minimal MCP profile for EXECUTION-stage sessions (test cases already defined; the session only drives playwright-cli and reports with xray-cli, both via shell). Zero MCP servers on purpose: every connected server re-announces its tool roster on each reconnect and bills recurring context. Usage: claude --mcp-config .mcp.execution.json --strict-mcp-config  |  Full profile for analysis/design sessions stays in .mcp.json. NOTE: claude.ai account-level connectors (Gmail, Notion, Rovo, etc.) are NOT controlled by this file - disable them in claude.ai connector settings for execution sessions. Doctrine: .claude/skills/agentic-qa-core/references/execution-token-efficiency.md",
+  "mcpServers": {}
+}

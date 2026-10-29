@@ -308,6 +308,8 @@ The `{module}` segment under `tests/integration/` and `tests/e2e/` is the **busi
 
 Do not name a module folder after a UI section, a page, or a sprint (`tab-2/`, `Q3/`, `LoginScreen/`). The same `{module}` value is reused by the spec scaffolding (`{PREFIX}` abbreviation in `planning-playbook.md`) and by the Jira Component, so it must read as a product area.
 
+This is the portfolio-wide canon, not just this repo's preference: specs group by business domain with no suite-level directory in the path (no `smoke/`, `regression/`, `visual/`, `a11y/` as a top-level folder under the spec tree) — the suite is selected by tag at run time (§4), never derived from the file's path. A repo whose primary risk axis is not business domain (e.g. a pure-API repo grouping by read-only vs. mutation vs. chained-flow risk first) may vary this as a declared, evidence-backed exception. Full canon + variance table: `.context/ADR/ADR-0002-organizacion-de-tests-y-variantes-por-repo.md`.
+
 ---
 
 ## 4. Tagging Strategy

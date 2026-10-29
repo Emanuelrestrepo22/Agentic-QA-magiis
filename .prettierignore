@@ -94,6 +94,17 @@ docs/mcp/
 .playwright-mcp/
 
 # ===========================================
+# QA session state + scratch - generated, not source
+# ===========================================
+# .session/ holds per-skill session state (plan.md, progress.md, run states) and
+# is already gitignored (.gitignore:122) -- the same Prettier/gitignore gap the
+# runtime-artifacts block above documents. scratchpad/ is the local working area
+# for intermediate dumps. Neither is hand-authored source, and letting them reach
+# format:check makes the pre-push gate fail on transient files nobody owns.
+.session/
+scratchpad/
+
+# ===========================================
 # Xray backup artifacts - generated, gitignored
 # ===========================================
 # `bun xray backup export` writes JSON dumps and `restore` writes key-mapping

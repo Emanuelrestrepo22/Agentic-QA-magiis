@@ -43,10 +43,15 @@ const CSV_PATH = join(ROOT, '.context', 'magiis-process', 'atp-mg-import-NEW.csv
 const SET_MAP_PATH = join(ROOT, '.context', 'magiis-process', 'atp-set-map.json');
 const PROGRESS_PATH = join(ROOT, '.context', 'magiis-process', 'atp-bulk-progress.jsonl');
 
-// Target project is the ATP's project (MG). We deliberately do NOT read
-// XRAY_PROJECT_KEY from env — in this repo it is set to MX (other work) and
+// Target project is the ATP's project. We deliberately do NOT read
+// XRAY_PROJECT_KEY from env — it is env-scoped for other work (MG/TM vs MX) and
 // silently trusting it created 32 issues in the wrong project. Override only
 // via an explicit --project flag.
+//
+// PROJECT_KEY/TEST_PLAN_KEY stay 'MG'/'MG-178' on purpose (2026-08-13, Fase 2.3 of the
+// MG->TM rename): this campaign (the gateway release ATP) already ran, and MG-178 later
+// moved to TM-35 in the project migration (.agents/xray-key-migration.json). The guard
+// below already supports targeting a different project via --project for any NEW run.
 let PROJECT_KEY = 'MG';
 const TEST_PLAN_KEY = 'MG-178';
 const RELEASE_LABEL = 'atp-mg-gateway-release';

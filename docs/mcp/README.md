@@ -126,3 +126,13 @@ Run your agent and verify with:
 ## Documentation
 
 For complete setup guide, see: [`mcp-configuration-guide.md`](./mcp-configuration-guide.md)
+
+## Execution profile (token efficiency)
+
+Execution-stage sessions (test cases already defined; the session only drives `playwright-cli` and reports with `xray-cli`, both shell CLIs) need **zero MCP servers** — every connected server re-announces its tool roster on reconnect and bills recurring context. Launch those sessions with the minimal profile:
+
+```bash
+claude --mcp-config .mcp.execution.json --strict-mcp-config
+```
+
+`.mcp.json` (full roster) remains the profile for analysis/design sessions. Account-level claude.ai connectors are not governed by these files — disable them in claude.ai connector settings. Doctrine and measured numbers: [`execution-token-efficiency.md`](../../.claude/skills/agentic-qa-core/references/execution-token-efficiency.md).

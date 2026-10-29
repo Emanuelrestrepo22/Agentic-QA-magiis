@@ -198,7 +198,11 @@ async function scanDirectory(dirPath: string): Promise<string[]> {
   }
 
   const files: string[] = [];
-  const glob = new Bun.Glob('*.ts');
+  // Recursive: domain subfolders (e.g. tests/components/api/<domain>/*.ts) must
+  // not be invisible to the manifest — see ADR-0002 "Consequences" (component
+  // threshold). `**/*.ts` walks nested directories; the top-level scan keeps
+  // working identically because `**/*.ts` also matches files at `dirPath` root.
+  const glob = new Bun.Glob('**/*.ts');
 
   try {
     for await (const file of glob.scan({ cwd: dirPath, absolute: true })) {
@@ -287,9 +291,15 @@ async function generateManifest(): Promise<KataManifest> {
   // Deterministic ordering — Bun.Glob.scan order is filesystem-dependent.
   // Sorting here keeps `kata-manifest.json` byte-stable across machines so
   // `--check` stays meaningful and PR diffs stay reviewable.
-  manifest.components.api.sort((a, b) => a.name.localeCompare(b.name));
-  manifest.components.ui.sort((a, b) => a.name.localeCompare(b.name));
-  manifest.preconditions.sort((a, b) => a.name.localeCompare(b.name));
+  // Tiebreak on relativePath (not just name): now that the scan is recursive,
+  // two components in different domain subfolders can share the same class
+  // name — sorting by name alone would make their relative order
+  // filesystem-dependent again.
+  const byNameThenPath = (a: ComponentInfo | PreconditionInfo, b: ComponentInfo | PreconditionInfo) =>
+    a.name.localeCompare(b.name) || a.relativePath.localeCompare(b.relativePath);
+  manifest.components.api.sort(byNameThenPath);
+  manifest.components.ui.sort(byNameThenPath);
+  manifest.preconditions.sort(byNameThenPath);
   for (const component of [...manifest.components.api, ...manifest.components.ui]) {
     component.atcs.sort((a, b) => a.id.localeCompare(b.id));
   }

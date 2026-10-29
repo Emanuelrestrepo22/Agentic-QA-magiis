@@ -657,7 +657,7 @@ magiis-qa  (PARENT — repo.magiis/magiis-qa — KATA-flow orchestrator)
 │   • .claude/skills/ (6-stage pipeline)     • .context/ (master-test-plan, business maps)
 │   • Jenkins Shared Library (CI logic)      • .agents/ (Jira/Xray catalogs)
 │
-│  light-layer sync:  skills + .context via submodule/subtree/sparse (TD-7)
+│  light-layer sync:  `bun run propagate:children` (skills + .context/ADR — TD-7, done)
 │                     CI via Jenkins @Library('magiis-qa-ci')
 │
 ├── magiis-playwright       V2 flow (UI)          Playwright · pnpm/npm
@@ -700,7 +700,12 @@ MAGIIS hosts every repo on **GitLab** (group `repo.magiis`) and runs CI on **Jen
 
 ### Orchestration mechanisms
 
-- **Light-layer distribution** — the parent distributes only the agent layer: `.claude/skills/` + `.context/` (master-test-plan, business maps). The sync mechanism (git submodule / subtree / sparse-checkout from `repo.magiis/magiis-qa`) is **TD-7**. The `bun run up` full-framework updater is **not** used for these children (it is `gh`-only and assumes the bun/KATA shape). Each child keeps its own package manager, config, and test code.
+- **Light-layer distribution** — the parent distributes only the agent layer: `.claude/skills/` + `.context/ADR/` today (business maps + master-test-plan are candidates for a later scope bump). The `bun run up` full-framework updater does **not** apply to these children (it is `gh`-only and assumes the bun/KATA shape) — instead, **`bun run propagate:children`** (`scripts/propagate-to-children.ts`) is the real TD-7 mechanism: a plain file copy, dry-run by default, that reuses two patterns already proven in the full updater (`cli/update-boilerplate.ts` / `cli/lib/updater-core.ts`) — `PROTECTED_WATCHLIST` (here: `variantMarkers` per child — a declared convention doc such as `docs/architecture/CONVENTIONS.md` blocks silent overwrite for that child) and dry-run-unless-`--write` gating. Each child keeps its own package manager, config, and test code.
+  - `bun run propagate:children` — simulate for all three children (default, writes nothing).
+  - `bun run propagate:children --write` — apply for real.
+  - `bun run propagate:children --child magiis-carrier-v2-e2e [--write]` — scope to one child.
+  - Any destination file that already exists with content different from the parent's copy is **never overwritten** — it is reported as a respected variant (ADR-0002 "regla de convivencia": a documented, measured variant is not corrected in transit by an agent that finds it). A per-child `.parent-sync.lock.json` (written only in `--write` mode) records what was applied and when, so a second run is idempotent — nothing is re-proposed once a file matches.
+  - Out of scope for this mechanism: git submodule/subtree/sparse-checkout (rejected for now — a plain copy is simpler and the children do not need to track the parent's git history), CI wiring (Jenkins Shared Library, **TD-9**), and any surface beyond `.claude/skills/` + `.context/ADR/`.
 - **Meta-CI dispatch (Jenkins)** — a parent **orchestrator pipeline** triggers each child job (`build job: '<child>', wait: true, parameters: […]`) and consolidates a single GO / CAUTION / NO-GO. The shared CI logic lives in a **Jenkins Shared Library** in its own repo (e.g. `magiis-qa-ci` — a different name from the `magiis-qa` parent), so each child `Jenkinsfile` is a thin `@Library('magiis-qa-ci') _` import — the Jenkins-native analogue of a central sync for pipeline code.
 - **Aggregated Allure portal** — each child's Jenkins job publishes to one private, login-walled report portal via `scripts/ci/publish-allure-portal.ts` (Supabase / R2 / Vercel). The GitHub-Pages variant (`publish-allure-pages.ts`) does not apply on GitLab.
 - **Secrets** — GitHub Actions secrets → **Jenkins credentials** (`withCredentials` bindings); `.env` keys map 1:1.
@@ -711,7 +716,7 @@ MAGIIS hosts every repo on **GitLab** (group `repo.magiis`) and runs CI on **Jen
 ```bash
 # In the child repo — it keeps its own pnpm/npm/bun stack:
 # 1. Wire the shared agent layer from the parent (skills + .context/):
-#    git submodule / subtree / sparse-checkout of repo.magiis/magiis-qa  (mechanism = TD-7)
+#    bun run propagate:children --write --child <this-child>   (mechanism = TD-7, run from the parent)
 # 2. Import the shared CI logic in the child Jenkinsfile:
 #    @Library('magiis-qa-ci') _   ->   magiisQaPipeline(suite: 'e2e')
 # 3. Point QA context at the parent master-test-plan (reference it, do not copy).
@@ -732,7 +737,7 @@ Two MAGIIS mobile apps — **app pax** and **app driver** — are slated for aut
 | TD-4  | Device/emulator + mobile CI strategy        | Mobile CI needs real devices / a cloud farm (BrowserStack / Sauce) — heavier than headless Chrome | TD-2, TD-3                |
 | TD-5  | k6 hybrid-runner convention in `api-e2e`    | k6 perf runs outside the Playwright runner — needs a documented `perf/` layout + shared test data | api-e2e perf              |
 | TD-6  | Prod load-test guardrails                   | k6 against prod needs off-peak windows, synthetic accounts, rate-limit pacts, observability coord | api-e2e perf              |
-| TD-7  | Light-layer sync of skills + `.context/`    | pick + wire submodule / subtree / sparse-checkout from `repo.magiis/magiis-qa` (the `bun run up` updater is `gh`-only + full-sync — not used for light-layer children) | every child's shared agent layer |
+| TD-7  | ~~Light-layer sync of skills + `.context/`~~ **DONE** | `bun run propagate:children` (`scripts/propagate-to-children.ts`) copies `.claude/skills/` + `.context/ADR/`, dry-run by default, respects declared child variants (`docs/architecture/CONVENTIONS.md`-style markers), never overwrites, idempotent via `.parent-sync.lock.json` — see "Orchestration mechanisms" above | resolved — remaining gap is widening the copied scope (business maps, master-test-plan) if a child needs it |
 | TD-8  | GitLab merge requests in `git-flow-master`  | the git skill opens GitHub PRs via `gh`; MAGIIS reviews via GitLab MRs (`glab` / GitLab API)       | every child's review flow |
 | TD-9  | `Jenkinsfile` templates + Jenkins Shared Library | boilerplate ships `.github/workflows/*` (GitHub Actions); MAGIIS runs Jenkins and **bans GitLab CI** | CI in every repo          |
 | TD-10 | Jenkins credentials mapping                 | `.env` + GitHub-secrets model must map to the Jenkins credentials store (`withCredentials`)        | CI auth in every repo     |

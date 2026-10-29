@@ -916,10 +916,15 @@ export async function restore(flags: Flags): Promise<void> {
           {
             preconditionType: { name: pre.preconditionType },
             definition: pre.definition,
-            projectKey: targetProject,
-            summary: pre.summary,
-            description: pre.description,
-            labels: pre.labels,
+            // No `parent` here on purpose — see the note above restoreContainers().
+            jira: {
+              fields: {
+                summary: pre.summary,
+                description: pre.description,
+                labels: pre.labels,
+                project: { key: targetProject },
+              },
+            },
             folderPath: pre.folderPath,
           },
         );
@@ -1041,10 +1046,18 @@ export async function restore(flags: Flags): Promise<void> {
     try {
       const variables: Record<string, unknown> = {
         testType: { name: test.testType },
-        projectKey: targetProject,
-        summary: test.summary,
-        description: test.description,
-        labels: test.labels,
+        // `createTest` has always required `jira: JSON!`; this call site used to
+        // pass projectKey/summary/description/labels as top-level variables,
+        // which GraphQL rejected outright -- restore could never create a Test.
+        // No `parent` here on purpose — see the note above restoreContainers().
+        jira: {
+          fields: {
+            summary: test.summary,
+            description: test.description,
+            labels: test.labels,
+            project: { key: targetProject },
+          },
+        },
         folderPath: test.folderPath,
       };
 
@@ -1185,8 +1198,13 @@ export async function restore(flags: Flags): Promise<void> {
 
         if (!execIssueId) {
           const execResult = await graphql<{ createTestExecution: { testExecution: { issueId: string, jira: { key: string } } } }>(MUTATIONS.createTestExecution, {
-            projectKey: targetProject,
-            summary: exec.summary,
+            // No `parent` here on purpose — see the note above restoreContainers().
+            jira: {
+              fields: {
+                summary: exec.summary,
+                project: { key: targetProject },
+              },
+            },
             testIssueIds,
           });
           execIssueId = execResult.createTestExecution.testExecution.issueId;
@@ -1269,6 +1287,14 @@ async function associateTestExtras(
 }
 
 /** Restore a list of Test Plans or Test Sets. Returns the count restored. */
+/**
+ * NOTE on "3-axis at birth": restore deliberately does NOT set `parent` on any
+ * artifact it creates. Restore is a fidelity operation into an arbitrary
+ * `--target-project`, and forcing this instance's QA-process epics onto a
+ * restore into a scratch project would be wrong. Restore is therefore the one
+ * create path in this CLI that can still mint orphans, by design — run
+ * `bun run xray:hierarchy:check` afterwards as post-restore hygiene.
+ */
 async function restoreContainers(
   containers: BackupTestContainer[],
   label: string,
@@ -1305,9 +1331,14 @@ async function restoreContainers(
 
       if (!issueId) {
         const result = await graphql<Record<string, Record<string, { issueId: string, jira: { key: string } }>>>(ops.create, {
-          projectKey: targetProject,
-          summary: c.summary,
-          description: c.description,
+          // No `parent` here on purpose — see the note above this function.
+          jira: {
+            fields: {
+              summary: c.summary,
+              description: c.description,
+              project: { key: targetProject },
+            },
+          },
           testIssueIds: testIds,
         });
         const created = result[ops.createRoot]?.[ops.createField];

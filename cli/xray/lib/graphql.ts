@@ -452,6 +452,13 @@ export const QUERIES = {
 // MUTATIONS
 // ============================================================================
 
+// The five create* mutations all take `jira: JSON!` so callers can set `parent`
+// at creation time ("3-axis at birth" — every Xray artifact is born under its
+// QA-process epic, resolved through cli/xray/lib/hierarchy-model.ts). The older
+// typed-scalar form ($projectKey/$summary/$description/$labels) physically could
+// not express `parent`, which is how a corpus of orphans accumulated.
+// Each one also selects `parent` back, so the caller can confirm it stuck
+// without a second round trip.
 export const MUTATIONS = {
   createTest: `
     mutation CreateTest(
@@ -473,7 +480,7 @@ export const MUTATIONS = {
         test {
           issueId
           testType { name }
-          jira(fields: ["key", "summary"])
+          jira(fields: ["key", "summary", "parent"])
         }
         warnings
       }
@@ -491,13 +498,16 @@ export const MUTATIONS = {
     }
   `,
 
+  // Returns UpdateTestStepResult, NOT Step — it exposes only attachment deltas and
+  // warnings, never the step's id/action/data/result. Selecting those yields
+  // "Cannot query field ... on type UpdateTestStepResult". Re-read the step with
+  // getTest { steps { ... } } if the updated values are needed.
   updateTestStep: `
     mutation UpdateTestStep($stepId: String!, $step: UpdateStepInput!) {
       updateTestStep(stepId: $stepId, step: $step) {
-        id
-        action
-        data
-        result
+        addedAttachments
+        removedAttachments
+        warnings
       }
     }
   `,
@@ -542,29 +552,19 @@ export const MUTATIONS = {
     mutation CreatePrecondition(
       $preconditionType: UpdatePreconditionTypeInput!,
       $definition: String,
-      $projectKey: String!,
-      $summary: String!,
-      $description: String,
-      $labels: [String],
+      $jira: JSON!,
       $folderPath: String
     ) {
       createPrecondition(
         preconditionType: $preconditionType,
         definition: $definition,
         folderPath: $folderPath,
-        jira: {
-          fields: {
-            summary: $summary,
-            description: $description,
-            labels: $labels,
-            project: { key: $projectKey }
-          }
-        }
+        jira: $jira
       ) {
         precondition {
           issueId
           preconditionType { name }
-          jira(fields: ["key", "summary"])
+          jira(fields: ["key", "summary", "parent"])
         }
         warnings
       }
@@ -609,26 +609,18 @@ export const MUTATIONS = {
 
   createTestExecution: `
     mutation CreateTestExecution(
-      $projectKey: String!,
-      $summary: String!,
-      $description: String,
+      $jira: JSON!,
       $testIssueIds: [String],
       $testEnvironments: [String]
     ) {
       createTestExecution(
         testIssueIds: $testIssueIds,
         testEnvironments: $testEnvironments,
-        jira: {
-          fields: {
-            summary: $summary,
-            description: $description,
-            project: { key: $projectKey }
-          }
-        }
+        jira: $jira
       ) {
         testExecution {
           issueId
-          jira(fields: ["key", "summary"])
+          jira(fields: ["key", "summary", "parent"])
         }
         warnings
       }
@@ -646,24 +638,16 @@ export const MUTATIONS = {
 
   createTestPlan: `
     mutation CreateTestPlan(
-      $projectKey: String!,
-      $summary: String!,
-      $description: String,
+      $jira: JSON!,
       $testIssueIds: [String]
     ) {
       createTestPlan(
         testIssueIds: $testIssueIds,
-        jira: {
-          fields: {
-            summary: $summary,
-            description: $description,
-            project: { key: $projectKey }
-          }
-        }
+        jira: $jira
       ) {
         testPlan {
           issueId
-          jira(fields: ["key", "summary"])
+          jira(fields: ["key", "summary", "parent"])
         }
         warnings
       }
@@ -690,11 +674,11 @@ export const MUTATIONS = {
     }
   `,
 
+  // Returns a scalar String (no subfields), unlike its sibling updateTestRunStepStatus
+  // which returns UpdateTestRunStepStatusResult. A selection set here yields HTTP 400.
   updateTestRunStepComment: `
     mutation UpdateTestRunStepComment($testRunId: String!, $stepId: String!, $comment: String!) {
-      updateTestRunStepComment(testRunId: $testRunId, stepId: $stepId, comment: $comment) {
-        warnings
-      }
+      updateTestRunStepComment(testRunId: $testRunId, stepId: $stepId, comment: $comment)
     }
   `,
 
@@ -716,35 +700,26 @@ export const MUTATIONS = {
     }
   `,
 
+  // Returns a scalar String (no subfields) — same shape as removeTestsFromTestPlan.
+  // A selection set here makes Xray reject the whole request with HTTP 400.
   removeTestsFromTestExecution: `
     mutation RemoveTestsFromTestExecution($issueId: String!, $testIssueIds: [String!]!) {
-      removeTestsFromTestExecution(issueId: $issueId, testIssueIds: $testIssueIds) {
-        removedTests
-        warning
-      }
+      removeTestsFromTestExecution(issueId: $issueId, testIssueIds: $testIssueIds)
     }
   `,
 
   createTestSet: `
     mutation CreateTestSet(
-      $projectKey: String!,
-      $summary: String!,
-      $description: String,
+      $jira: JSON!,
       $testIssueIds: [String]
     ) {
       createTestSet(
         testIssueIds: $testIssueIds,
-        jira: {
-          fields: {
-            summary: $summary,
-            description: $description,
-            project: { key: $projectKey }
-          }
-        }
+        jira: $jira
       ) {
         testSet {
           issueId
-          jira(fields: ["key", "summary"])
+          jira(fields: ["key", "summary", "parent"])
         }
         warnings
       }
@@ -760,12 +735,11 @@ export const MUTATIONS = {
     }
   `,
 
+  // Returns a scalar String (no subfields) — same shape as the other removeTestsFrom* mutations.
+  // A selection set here makes Xray reject the whole request with HTTP 400.
   removeTestsFromTestSet: `
     mutation RemoveTestsFromTestSet($issueId: String!, $testIssueIds: [String!]!) {
-      removeTestsFromTestSet(issueId: $issueId, testIssueIds: $testIssueIds) {
-        removedTests
-        warning
-      }
+      removeTestsFromTestSet(issueId: $issueId, testIssueIds: $testIssueIds)
     }
   `,
 

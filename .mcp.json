@@ -44,6 +44,17 @@
       "headers": {
         "Authorization": "Bearer ${POSTMAN_API_KEY}"
       }
+    },
+    "appium-mcp-driver": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "appium-mcp@latest"],
+      "env": {
+        "ANDROID_HOME": "${APPIUM_ANDROID_HOME}",
+        "CAPABILITIES_CONFIG": "${APPIUM_CAPABILITIES_CONFIG}",
+        "SCREENSHOTS_DIR": "${APPIUM_SCREENSHOTS_DIR}",
+        "NO_UI": "false"
+      }
     }
   }
 }

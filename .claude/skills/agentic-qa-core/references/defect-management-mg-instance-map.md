@@ -14,6 +14,27 @@
 epics). Re-verify with the same calls before trusting this file after an
 instance-configuration change.
 
+> **Dual axis after the MG→TM Xray migration (2026-08-10, re-verified 2026-08-13).**
+> The Xray project moved from `MG` to `TM` — see `.agents/xray-key-migration.json`
+> in the hub. This file does **not** need to be split in two, because the axis is
+> clean: `Error`/`Historia`/`Tarea`/`Epic` (product issues) still live in **MG** —
+> everything below about the `Error` create screen, `components` being absent, and
+> `SubProject` being the module substitute is unchanged. Only the **QA process
+> epics** moved — they are Xray Epics, not product issues:
+>
+> | QA process epic | MG key (historical) | TM key (current) |
+> |---|---|---|
+> | QA Master Test Plan | `MG-134` | **`TM-34`** |
+> | QA Test Repository | `MG-135` | **`TM-20`** |
+> | QA Test Artifacts | `MG-509` | **`TM-1`** |
+> | QA Defect Management | — never existed | — **still does not exist in TM either** (verified live 2026-08-12: TM has exactly 3 Epics). Filing an `Error` still goes to **MG** regardless of this table — that axis never moved. |
+>
+> Re-verified 2026-08-13 that TM's `Error` issuetype (id `10004`, it exists there
+> too — same global scheme) has **identical** create-screen requirements to MG's:
+> `SubProject` (`customfield_10146`) required, `components` absent, `parent`
+> available. This is not evidence QA should file there — `mg-scope-xray-only`
+> still means product issues are filed in **MG**, per the table above.
+
 ---
 
 ## Part 0 — The governing constraint (read this first)
@@ -89,7 +110,7 @@ that.
 |---|---|
 | Issue types `Defect` / `Improvement` exist (Part 1) | **They do not.** Available types: `Epic` (10000), `Historia` (10001), `Tarea` (10002), `Subtarea` (10003), `Error` (10004), plus the Xray types `Xray Test` (10144), `Test Set` (10145), `Test Plan` (10146), `Test Execution` (10147), `Precondition` (10148), `Sub Test Execution` (10149). A pre-release defect goes as **`Error`** carrying the *Defect (pre-release)* classification **explicitly in the body**. |
 | `components` = affected product module, mandatory (Part 3) | **`components` is empty in MG** (`/project/MG/components` → 0) and is **not even on the `Error` create screen.** The real product-module axis is **`SubProject` (`customfield_10146`)**, and it is **required on create**. |
-| Parent to the QA process epic **"QA Defect Management"** (Part 4) | **That epic does not exist**, and per Part 0 it **must not be created.** The three that do exist: **QA Master Test Plan = MG-134**, **QA Test Repository = MG-135**, **QA Test Artifacts = MG-509**. |
+| Parent to the QA process epic **"QA Defect Management"** (Part 4) | **That epic does not exist**, and per Part 0 it **must not be created.** The three that do exist (now in **TM**, post-migration — see the dual-axis table above): **QA Master Test Plan = TM-34**, **QA Test Repository = TM-20**, **QA Test Artifacts = TM-1**. |
 | Mandatory field matrix — severity, actual/expected result, error_type, test_environment, qa_assignee, evidence (Part 5) | **None of them are on the `Error` create screen.** Required there: `project`, `issuetype`, `summary`, `reporter`, `SubProject`. Setting the rest needs a **REST `PUT` after create** (Part 6 mechanics) or the structured-comment fallback. |
 
 ### Part 1.1 — `Error` create screen, as actually configured
@@ -130,7 +151,7 @@ the module the issue *affects* — it just reads `SubProject` instead of
 renamed:
 
 ```
-parent      -> QA process epic   (in MG: only MG-134 / MG-135 / MG-509 exist)
+parent      -> QA process epic   (now in TM: only TM-34 / TM-20 / TM-1 exist)
 issue link  -> source Story      (traceability; unchanged)
 SubProject  -> product module    (replaces `components` in MG)
 ```
@@ -200,10 +221,13 @@ Then, post-create:
 - **`description`** carries the full doctrine Part-5 matrix (classification,
   actual/expected, severity, error type, environment, evidence) — those fields do
   not exist to be set.
-- **`parent`**: leave unset. The doctrine's Defect epic does not exist in MG and
-  Part 0 forbids creating it. **Do not invent a key, and do not repurpose
-  MG-134 / MG-135 / MG-509** — they hold Test Plans, Tests, and Test
-  Executions/Preconditions/Test Sets respectively, not quality issues.
+- **`parent`**: leave unset. The doctrine's Defect epic does not exist (checked
+  in both MG and TM) and Part 0 forbids creating it. **Do not invent a key, and
+  do not repurpose TM-34 / TM-20 / TM-1** (the migrated QA epics — era
+  MG-134/135/509) — they hold Test Plans, Tests, and Test
+  Executions/Preconditions/Test Sets respectively, not quality issues. They also
+  live in a **different project (TM)** than the `Error` you are filing (MG), so
+  cross-project `parent` would not even be a valid reparent target.
 - **`priority`** is settable at create; derive it from severity per doctrine
   Part 5.1 even though `severity` itself has no field.
 - Any further custom field would need REST `PUT /rest/api/3/issue/{KEY}` — but
@@ -230,7 +254,7 @@ Replaces the doctrine's Part-9 checklist while working in MG.
 [ ] FIELD  Severity + derived Priority + Error Type + Environment +
            Actual/Expected + Evidence present as comment SECTIONS? (Part 1.1)
 [ ] EPIC   Did NOT invent a "QA Defect Management" key and did NOT reparent to
-           MG-134/135/509? (Part 8)
+           TM-34/TM-20/TM-1 (era MG-134/135/509)? (Part 8)
 ```
 
 ---
@@ -267,7 +291,7 @@ Verify afterwards that the catalog gained a `SubProject` entry on
 [x] Looking for / creating a `Defect` or `Improvement` type        -> they do not exist (Part 1)
 [x] Setting `components` on an MG issue                            -> empty + not on screen; use SubProject
 [x] Creating a "QA Defect Management" epic to satisfy Part 4       -> forbidden by Part 0; leave parent unset
-[x] Guessing a key for the missing Defect epic                     -> only MG-134/135/509 exist
+[x] Guessing a key for the missing Defect epic                     -> only TM-34/TM-20/TM-1 exist (no 4th)
 [x] Transitioning or editing a Historia/Error as part of a QA run  -> read/comment only
 [x] Treating "report the bugs you find" as create authorization    -> per-case explicit yes required
 ```

@@ -100,6 +100,12 @@ export interface JiraFields {
   description?: string
   status?: string | { name: string }
   labels?: string[]
+  /**
+   * Epic Link. Written at creation time by the create commands ("3-axis at
+   * birth") and read straight back from the same response to confirm Xray did
+   * not drop it. Jira returns the whole parent issue, so only `key` is relied on.
+   */
+  parent?: { key?: string } | null
 }
 
 export interface PreconditionResult {

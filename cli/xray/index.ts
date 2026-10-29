@@ -18,6 +18,7 @@ import * as auth from './commands/auth.js';
 import * as backup from './commands/backup.js';
 
 import * as exec from './commands/exec.js';
+import { hierarchy } from './commands/hierarchy.js';
 import * as importCmd from './commands/import.js';
 import * as plan from './commands/plan.js';
 import * as precondition from './commands/precondition.js';
@@ -61,6 +62,9 @@ ${colors.bold}TEST MANAGEMENT${colors.reset}
                  --folder <path>        Folder path in Xray
                  --definition <text>    Definition (for Generic tests)
                  --gherkin <feature>    Gherkin feature (for Cucumber tests)
+                 --epic <key>           Override the QA-process epic (default:
+                                        resolved from .agents/project.yaml qa.qa_epics)
+                 --no-epic              Create with NO parent (deliberate orphan)
                  ${colors.yellow}NOTE: Manual steps are NOT created here.${colors.reset} Xray Cloud
                  does not persist steps passed on create — add each one
                  afterwards with 'test add-step' (see below).
@@ -77,6 +81,8 @@ ${colors.bold}TEST MANAGEMENT${colors.reset}
                      --action <text>    Step action (required)
                      --data <text>      Step test data
                      --result <text>    Expected result
+  test update-step   Rewrite a step IN PLACE, keeping its id (safe for tests that
+                     already have executions — remove-step breaks those runs)
   test remove-step   Remove a step from a test
                      --test <id>        Test issue ID (required)
                      --step <id>        Step ID to remove (required)
@@ -98,6 +104,9 @@ ${colors.bold}PRECONDITIONS${colors.reset}
                      --definition <text> Precondition definition / setup body
                      --labels <l1,l2>   Comma-separated labels
                      --folder <path>    Folder path in Xray
+                     --epic <key>       Override the QA-process epic (default:
+                                        resolved from .agents/project.yaml)
+                     --no-epic          Create with NO parent (deliberate orphan)
   precondition add-to-test Attach precondition(s) to a test
                      --test <id>        Test key or numeric issue ID (required)
                      --preconditions <k1,k2> Precondition keys/ids (required)
@@ -115,6 +124,9 @@ ${colors.bold}TEST EXECUTIONS${colors.reset}
                                         separated). Pins the execution to an
                                         environment (e.g. staging) so results are
                                         congruent across runs and comparable.
+                     --epic <key>       Override the QA-process epic (default:
+                                        resolved from .agents/project.yaml)
+                     --no-epic          Create with NO parent (deliberate orphan)
 
   exec get <id>      Get execution details with test runs
   exec list          List executions
@@ -176,6 +188,9 @@ ${colors.bold}TEST PLANS${colors.reset}
                      --project <key>    Project key (required)
                      --summary <text>   Plan summary (required)
                      --tests <id1,id2>  Test issue IDs to include
+                     --epic <key>       Override the QA-process epic (default:
+                                        resolved from .agents/project.yaml)
+                     --no-epic          Create with NO parent (deliberate orphan)
 
   plan list          List test plans
   plan add-tests     Add tests to an existing test plan
@@ -191,6 +206,9 @@ ${colors.bold}TEST SETS${colors.reset}
                      --project <key>    Project key (required)
                      --summary <text>   Test set summary (required)
                      --tests <id1,id2>  Test issue IDs to include
+                     --epic <key>       Override the QA-process epic (default:
+                                        resolved from .agents/project.yaml)
+                     --no-epic          Create with NO parent (deliberate orphan)
 
   set get <id>       Get test set details with tests
   set list           List test sets
@@ -265,6 +283,50 @@ ${colors.bold}REPAIR${colors.reset}
                      --project <key>    Project key (required, falls back to default)
                      --apply            Re-attach missing tests at the Xray layer
                      --limit <n>        Max issues to scan per type (default: 100)
+
+${colors.bold}HIERARCHY (Epic Link repair — Fase 3, remediation plan)${colors.reset}
+  hierarchy audit    Read-only. Reports orphaned Xray entities (parent == null)
+                     by issuetype, with membership evidence. Exit 1 with
+                     --strict if any orphan is found (CI gate).
+                     --project <key>    Project key (required)
+                     --out <file>       Write the full audit as JSON
+                     --strict           Exit 1 if orphans > 0
+
+  hierarchy snapshot Read-only. Full project snapshot (every field this tool
+                     cares about) — the pre-mutation rollback baseline.
+                     --project <key>    Project key (required)
+                     --out <file>       Output path (required)
+
+  hierarchy plan     Read-only. Resolves a lot's scope + destination, runs the
+                     ownership gate (hard stop on any third-party assignee),
+                     writes <out>.json (apply's input) and <out>.md (for
+                     human review).
+                     --project <key>    Project key (required)
+                     --lot <name>       Lot label (required, for the log/output names)
+                     --out <prefix>     Output path prefix (required)
+                     --keys <k1,k2>     Explicit key list (repeatable)
+                     --label <label>    Filter the orphan set by label
+                     --issuetype <id>   Filter by issuetype.id (repeatable)
+
+  hierarchy apply    Mutates. Sets 'parent' on every item in a plan file.
+                     Dry-run unless --apply is passed. Idempotent, circuit-
+                     broken, append-only JSONL log per write.
+                     --plan <file>      Plan .json from 'hierarchy plan' (required)
+                     --apply            Actually write (default: dry-run)
+                     --max-writes <n>   Hard cap, must be >= scope size
+                     --only <key>       Restrict to one key (rollback rehearsal)
+                     --pace-ms <n>      Delay between writes (default 150)
+
+  hierarchy rollback Mutates. Restores one issue's 'parent' to what a
+                     snapshot recorded (usually null).
+                     --snapshot <file>  snapshot .json (required)
+                     --only <key>       Key to roll back (required)
+                     --apply            Actually write (default: dry-run)
+
+  hierarchy verify   Read-only. Re-snapshots a baseline's keys and diffs every
+                     field except parent/updated — proves nothing else moved.
+                     --against <file>   snapshot .json to diff against (required)
+                     --out <file>       Write the diff report as JSON
 
 ${colors.bold}EXAMPLES${colors.reset}
   # Login
@@ -374,6 +436,9 @@ async function main(): Promise<void> {
           case 'remove-step':
             await test.removeStep(flags);
             break;
+          case 'update-step':
+            await test.updateStep(flags);
+            break;
           case 'update-gherkin':
             await test.updateGherkin(flags);
             break;
@@ -385,7 +450,7 @@ async function main(): Promise<void> {
             break;
           default:
             log.error(`Unknown test command: ${subcommand}`);
-            log.info('Available: create, get, list, add-step, remove-step, update-gherkin, update-definition, update-type');
+            log.info('Available: create, get, list, add-step, update-step, remove-step, update-gherkin, update-definition, update-type');
         }
         break;
 
@@ -561,6 +626,10 @@ async function main(): Promise<void> {
 
       case 'repair':
         await repairCmd.repair(flags);
+        break;
+
+      case 'hierarchy':
+        await hierarchy(subcommand, flags);
         break;
 
       default:

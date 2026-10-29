@@ -1,0 +1,789 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-12",
+  "purpose": "Frozen MG->TM key translation for every Xray identifier the automation code carries. Consumed by the ATC rename and by the legacy-key guards.",
+  "disclosure_note": "This file is deliberately limited to IDENTIFIER TRANSLATION. Issue summaries, functional areas, test levels and the drift narrative are NOT here: this repository pushes to a public remote, and per the .gitignore policy for .context/magiis-process/ and .context/reports/, MAGIIS ticket content is not published. A bare key table is inert without Jira credentials. The full detail lives locally, untracked, at the path in `detail_reference`.",
+  "detail_reference": ".context/magiis-process/atp-mg-tm-keymap-detail.md (untracked, local only)",
+  "migration": {
+    "from_project": "MG",
+    "to_project": "TM",
+    "completed": "2026-08-10",
+    "kind": "jira-native-project-migration",
+    "dual_axis": "Xray entities (Test / Test Set / Test Plan / Test Execution / Precondition) moved to TM. Product issues (Historia / Tarea / Epic / Error) stayed in MG. Verified live 2026-08-12: zero Xray issuetypes remain in MG, and the release-anchor Story still resolves inside MG. A legacy key is therefore NOT automatically a TM key -- check which axis it belongs to before translating."
+  },
+  "mechanisms": {
+    "A_key_redirect": {
+      "how": "GET /rest/api/3/issue/<legacy_key> follows Jira's key history and returns the current issue.",
+      "durability": "FRAGILE. Invisible to JQL and to text search; lost if Jira purges key history or the source project is deleted.",
+      "coverage": "26 of 27 ATC keys resolve; one returns 404 (see `orphans`)."
+    },
+    "B_tcid_label": {
+      "how": "The TM Test carries label `tcid:<tcid>`, so it is findable by JQL on labels alone.",
+      "durability": "DURABLE. Survives a key-history purge because the label is data on the issue.",
+      "coverage": "21 of 27. MEASURED, NOT ASSUMED -- five Tests carry no tcid label at all, listed in `label_backfill_candidates`. Mechanism B is preferred but is NOT complete today, so the rename still leans on A for those five."
+    },
+    "C_summary_prefix": {
+      "how": "The TM summary is prefixed with the source Story key and TC ordinal.",
+      "durability": "Corroborating only -- it identifies the source Story, not the Test's own legacy key."
+    }
+  },
+  "branches": {
+    "A": "test/oracle-hardening (worktree mgfix-gs) -- 29 @atc sites, 27 unique ids",
+    "B": "carrier/ebiz-matrix-standardization (worktree ebiz-matrix) -- 32 @atc sites, 26 unique ids"
+  },
+  "decision_legend": {
+    "auto": "Both branches agree on which method the key names. Safe to rename mechanically.",
+    "pending": "The branches disagree. Renaming would silently pick a branch, so the rename ABORTS on these rows until the doctrine is signed off.",
+    "resolved": "A pending row whose doctrine has been signed; carries resolved_by / resolved_on / resolution."
+  },
+  "rows": [
+    {
+      "legacy_key": "MG-141",
+      "tm_key": "TM-178",
+      "tcid": "TC-PAY-A-01",
+      "resolved_by": ["A", "B", "C"],
+      "decision": "pending",
+      "drift": true,
+      "atc_sites": {
+        "A": ["tests/components/api/VendorApi.ts:122"],
+        "B": [
+          "tests/components/api/VendorApi.ts:122",
+          "tests/components/ui/carrier/AppStoreGatewaysPage.ts:500"
+        ]
+      }
+    },
+
+    {
+      "legacy_key": "MG-143",
+      "tm_key": "TM-187",
+      "tcid": "TC-PAY-A-03",
+      "resolved_by": ["A", "C"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": { "A": [], "B": ["tests/components/ui/carrier/AppStoreGatewaysPage.ts:733"] }
+    },
+
+    {
+      "legacy_key": "MG-148",
+      "tm_key": "TM-176",
+      "tcid": "TC-PAY-C-01",
+      "resolved_by": ["A", "B", "C"],
+      "decision": "pending",
+      "drift": true,
+      "atc_sites": {
+        "A": [
+          "tests/components/ui/carrier/CarrierNewTravelPage.ts:68",
+          "tests/components/ui/contractor/ContractorNewTravelPage.ts:54"
+        ],
+        "B": [
+          "tests/components/api/CardApi.ts:99",
+          "tests/components/api/CardApi.ts:127",
+          "tests/components/ui/carrier/CarrierNewTravelPage.ts:105",
+          "tests/components/ui/contractor/ContractorNewTravelPage.ts:56"
+        ]
+      }
+    },
+
+    {
+      "legacy_key": "MG-149",
+      "tm_key": "TM-67",
+      "tcid": "TC-PAY-C-02",
+      "resolved_by": ["A", "B", "C"],
+      "decision": "pending",
+      "drift": true,
+      "atc_sites": {
+        "A": ["tests/components/api/CardApi.ts:96"],
+        "B": ["tests/components/api/CardApi.ts:157"]
+      }
+    },
+
+    {
+      "legacy_key": "MG-150",
+      "tm_key": "TM-71",
+      "tcid": "TC-PAY-C-03",
+      "resolved_by": ["A", "B", "C"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": { "A": ["tests/components/api/CardApi.ts:121"], "B": [] }
+    },
+
+    {
+      "legacy_key": "MG-152",
+      "tm_key": "TM-84",
+      "tcid": "TC-PAY-D-01",
+      "resolved_by": ["A", "C"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/components/ui/ThreeDsChallengePage.ts:116"],
+        "B": ["tests/components/ui/ThreeDsChallengePage.ts:116"]
+      }
+    },
+
+    {
+      "legacy_key": "MG-153",
+      "tm_key": "TM-87",
+      "tcid": "TC-PAY-D-02",
+      "resolved_by": ["A", "C"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/components/ui/ThreeDsChallengePage.ts:128"],
+        "B": ["tests/components/ui/ThreeDsChallengePage.ts:128"]
+      }
+    },
+
+    {
+      "legacy_key": "MG-154",
+      "tm_key": "TM-91",
+      "tcid": "TC-PAY-D-03",
+      "resolved_by": ["A", "B", "C"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/components/ui/carrier/CarrierTravelDetailPage.ts:106"],
+        "B": ["tests/components/ui/carrier/CarrierTravelDetailPage.ts:106"]
+      }
+    },
+
+    {
+      "legacy_key": "MG-155",
+      "tm_key": "TM-94",
+      "tcid": "TC-PAY-D-04",
+      "resolved_by": ["A", "B", "C"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/components/ui/ThreeDsChallengePage.ts:149"],
+        "B": ["tests/components/ui/ThreeDsChallengePage.ts:149"]
+      }
+    },
+
+    {
+      "legacy_key": "MG-158",
+      "tm_key": "TM-82",
+      "tcid": "TC-PAY-E-01",
+      "resolved_by": ["A", "B", "C"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/components/ui/carrier/CarrierTravelManagementPage.ts:57"],
+        "B": ["tests/components/ui/carrier/CarrierTravelManagementPage.ts:57"]
+      }
+    },
+
+    {
+      "legacy_key": "MG-160",
+      "tm_key": "TM-100",
+      "tcid": "TC-PAY-E-03",
+      "resolved_by": ["A", "B", "C"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/components/api/EpaymentApi.ts:88"],
+        "B": ["tests/components/api/EpaymentApi.ts:88"]
+      }
+    },
+
+    {
+      "legacy_key": "MG-161",
+      "tm_key": "TM-102",
+      "tcid": "TC-PAY-F-01",
+      "resolved_by": ["A", "B", "C"],
+      "decision": "pending",
+      "drift": true,
+      "atc_sites": {
+        "A": [
+          "tests/components/api/EpaymentApi.ts:114",
+          "tests/components/ui/carrier/CarrierNewTravelPage.ts:87"
+        ],
+        "B": [
+          "tests/components/api/EpaymentApi.ts:114",
+          "tests/components/api/EpaymentApi.ts:143",
+          "tests/components/ui/carrier/CarrierNewTravelPage.ts:124"
+        ]
+      }
+    },
+
+    {
+      "legacy_key": "MG-162",
+      "tm_key": "TM-105",
+      "tcid": "TC-PAY-F-02",
+      "resolved_by": ["A", "B", "C"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": { "A": ["tests/components/api/EpaymentApi.ts:139"], "B": [] }
+    },
+
+    {
+      "legacy_key": "MG-165",
+      "tm_key": "TM-120",
+      "tcid": "TC-PAY-G-01",
+      "resolved_by": ["A", "C"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": { "A": [], "B": ["tests/components/ui/carrier/AppStoreGatewaysPage.ts:577"] }
+    },
+
+    {
+      "legacy_key": "MG-166",
+      "tm_key": "TM-124",
+      "tcid": "TC-PAY-G-02",
+      "resolved_by": ["A", "B", "C"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/components/api/VendorApi.ts:85"],
+        "B": ["tests/components/api/VendorApi.ts:85"]
+      }
+    },
+
+    {
+      "legacy_key": "MG-169",
+      "tm_key": "TM-45",
+      "tcid": "TC-PAY-G-05",
+      "resolved_by": ["A", "C"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/components/ui/carrier/AppStoreGatewaysPage.ts:622"],
+        "B": ["tests/components/ui/carrier/AppStoreGatewaysPage.ts:642"]
+      }
+    },
+
+    {
+      "legacy_key": "MG-215",
+      "tm_key": "TM-237",
+      "tcid": "TC-PAY-CFG-05",
+      "resolved_by": ["A", "B", "C"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/components/ui/carrier/AppStoreGatewaysPage.ts:551"],
+        "B": ["tests/components/ui/carrier/AppStoreGatewaysPage.ts:567"]
+      }
+    },
+
+    {
+      "legacy_key": "MG-216",
+      "tm_key": "TM-130",
+      "tcid": "TC-PAY-CFG-06",
+      "resolved_by": ["A", "B", "C"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/components/ui/carrier/AppStoreGatewaysPage.ts:706"],
+        "B": ["tests/components/ui/carrier/AppStoreGatewaysPage.ts:726"]
+      }
+    },
+
+    {
+      "legacy_key": "MG-220",
+      "tm_key": "TM-151",
+      "tcid": "TC-PAY-CFG-10",
+      "resolved_by": ["A", "B", "C"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/components/ui/carrier/AppStoreGatewaysPage.ts:473"],
+        "B": ["tests/components/ui/carrier/AppStoreGatewaysPage.ts:487"]
+      }
+    },
+
+    {
+      "legacy_key": "MG-221",
+      "tm_key": "TM-154",
+      "tcid": "TC-PAY-CFG-11",
+      "resolved_by": ["A", "B", "C"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/components/ui/carrier/AppStoreGatewaysPage.ts:494"],
+        "B": ["tests/components/ui/carrier/AppStoreGatewaysPage.ts:510"]
+      }
+    },
+
+    {
+      "legacy_key": "MG-223",
+      "tm_key": "TM-138",
+      "tcid": "TC-PAY-CFG-13",
+      "resolved_by": ["A", "B", "C"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/components/ui/carrier/AppStoreGatewaysPage.ts:545"],
+        "B": ["tests/components/ui/carrier/AppStoreGatewaysPage.ts:561"]
+      }
+    },
+
+    {
+      "legacy_key": "MG-224",
+      "tm_key": "TM-141",
+      "tcid": "TC-PAY-CFG-14",
+      "resolved_by": ["A", "B", "C"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/components/ui/carrier/AppStoreGatewaysPage.ts:700"],
+        "B": ["tests/components/ui/carrier/AppStoreGatewaysPage.ts:720"]
+      }
+    },
+
+    {
+      "legacy_key": "MG-226",
+      "tm_key": "TM-158",
+      "tcid": "TC-PAY-CFG-16",
+      "resolved_by": ["A", "B", "C"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/components/ui/carrier/AppStoreGatewaysPage.ts:756"],
+        "B": ["tests/components/ui/carrier/AppStoreGatewaysPage.ts:777"]
+      }
+    },
+
+    {
+      "legacy_key": "MG-415",
+      "tm_key": "TM-375",
+      "tcid": "TC-PAY-EDIT-01",
+      "resolved_by": ["A", "B", "C"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/components/ui/carrier/CarrierTravelDetailPage.ts:59"],
+        "B": ["tests/components/ui/carrier/CarrierTravelDetailPage.ts:59"]
+      }
+    },
+
+    {
+      "legacy_key": "MG-416",
+      "tm_key": "TM-253",
+      "tcid": "TC-PAY-EDIT-02",
+      "resolved_by": ["A", "B", "C"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/components/ui/carrier/CarrierTravelDetailPage.ts:70"],
+        "B": ["tests/components/ui/carrier/CarrierTravelDetailPage.ts:70"]
+      }
+    },
+
+    {
+      "legacy_key": "MG-482",
+      "tm_key": "TM-453",
+      "tcid": "TC-PAY-C-05",
+      "resolved_by": ["A", "B", "C"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/components/ui/contractor/ContractorNewTravelPage.ts:94"],
+        "B": ["tests/components/ui/contractor/ContractorNewTravelPage.ts:95"]
+      }
+    },
+
+    {
+      "legacy_key": "MG-211",
+      "tm_key": "TM-218",
+      "tcid": "TC-PAY-CFG-01",
+      "resolved_by": ["A", "B"],
+      "decision": "auto",
+      "drift": false,
+      "note": "Registry constant (xray-keys.ts), not an @atc decorator -- consumed by parametrized factories via annotation, not by the decorator scan.",
+      "atc_sites": {
+        "A": ["tests/features/gateway-pg/data/xray-keys.ts:66"],
+        "B": ["tests/features/gateway-pg/data/xray-keys.ts:163"]
+      }
+    },
+    {
+      "legacy_key": "MG-212",
+      "tm_key": "TM-221",
+      "tcid": "TC-PAY-CFG-02",
+      "resolved_by": ["A", "B"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/features/gateway-pg/data/xray-keys.ts:67"],
+        "B": ["tests/features/gateway-pg/data/xray-keys.ts:164"]
+      }
+    },
+    {
+      "legacy_key": "MG-213",
+      "tm_key": "TM-226",
+      "tcid": "TC-PAY-CFG-03",
+      "resolved_by": ["A", "B"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/features/gateway-pg/data/xray-keys.ts:68"],
+        "B": ["tests/features/gateway-pg/data/xray-keys.ts:165"]
+      }
+    },
+    {
+      "legacy_key": "MG-214",
+      "tm_key": "TM-227",
+      "tcid": "TC-PAY-CFG-04",
+      "resolved_by": ["A", "B"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/features/gateway-pg/data/xray-keys.ts:69"],
+        "B": ["tests/features/gateway-pg/data/xray-keys.ts:166"]
+      }
+    },
+    {
+      "legacy_key": "MG-217",
+      "tm_key": "TM-133",
+      "tcid": "TC-PAY-CFG-07",
+      "resolved_by": ["A", "B"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/features/gateway-pg/data/xray-keys.ts:72"],
+        "B": ["tests/features/gateway-pg/data/xray-keys.ts:169"]
+      }
+    },
+    {
+      "legacy_key": "MG-218",
+      "tm_key": "TM-145",
+      "tcid": "TC-PAY-CFG-08",
+      "resolved_by": ["A", "B"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/features/gateway-pg/data/xray-keys.ts:73"],
+        "B": ["tests/features/gateway-pg/data/xray-keys.ts:170"]
+      }
+    },
+    {
+      "legacy_key": "MG-219",
+      "tm_key": "TM-148",
+      "tcid": "TC-PAY-CFG-09",
+      "resolved_by": ["A", "B"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/features/gateway-pg/data/xray-keys.ts:89"],
+        "B": ["tests/features/gateway-pg/data/xray-keys.ts:228"]
+      }
+    },
+    {
+      "legacy_key": "MG-222",
+      "tm_key": "TM-134",
+      "tcid": "TC-PAY-CFG-12",
+      "resolved_by": ["A", "B"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/features/gateway-pg/data/xray-keys.ts:92"],
+        "B": ["tests/features/gateway-pg/data/xray-keys.ts:231"]
+      }
+    },
+    {
+      "legacy_key": "MG-225",
+      "tm_key": "TM-142",
+      "tcid": "TC-PAY-CFG-15",
+      "resolved_by": ["A", "B"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/features/gateway-pg/data/xray-keys.ts:95"],
+        "B": ["tests/features/gateway-pg/data/xray-keys.ts:234"]
+      }
+    },
+    {
+      "legacy_key": "MG-284",
+      "tm_key": "TM-337",
+      "tcid": "TC-PAY-WAL-01",
+      "resolved_by": ["A", "B"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/features/gateway-pg/data/xray-keys.ts:85"],
+        "B": ["tests/features/gateway-pg/data/xray-keys.ts:224"]
+      }
+    },
+    {
+      "legacy_key": "MG-285",
+      "tm_key": "TM-325",
+      "tcid": "TC-PAY-WAL-02",
+      "resolved_by": ["A", "B"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/features/gateway-pg/data/xray-keys.ts:110"],
+        "B": ["tests/features/gateway-pg/data/xray-keys.ts:302"]
+      }
+    },
+    {
+      "legacy_key": "MG-590",
+      "tm_key": "TM-21",
+      "tcid": "TC-PAY-SBX-01",
+      "resolved_by": ["A", "B"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/features/gateway-pg/data/xray-keys.ts:218"],
+        "B": ["tests/features/gateway-pg/data/xray-keys.ts:536"]
+      }
+    },
+    {
+      "legacy_key": "MG-591",
+      "tm_key": "TM-23",
+      "tcid": "TC-PAY-SBX-02",
+      "resolved_by": ["A", "B"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/features/gateway-pg/data/xray-keys.ts:219"],
+        "B": ["tests/features/gateway-pg/data/xray-keys.ts:537"]
+      }
+    },
+    {
+      "legacy_key": "MG-592",
+      "tm_key": "TM-25",
+      "tcid": "TC-PAY-SBX-03",
+      "resolved_by": ["A", "B"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/features/gateway-pg/data/xray-keys.ts:220"],
+        "B": ["tests/features/gateway-pg/data/xray-keys.ts:538"]
+      }
+    },
+    {
+      "legacy_key": "MG-593",
+      "tm_key": "TM-27",
+      "tcid": "TC-PAY-SBX-04",
+      "resolved_by": ["A", "B"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/features/gateway-pg/data/xray-keys.ts:221"],
+        "B": ["tests/features/gateway-pg/data/xray-keys.ts:539"]
+      }
+    },
+    {
+      "legacy_key": "MG-594",
+      "tm_key": "TM-29",
+      "tcid": "TC-PAY-SBX-05",
+      "resolved_by": ["A", "B"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/features/gateway-pg/data/xray-keys.ts:222"],
+        "B": ["tests/features/gateway-pg/data/xray-keys.ts:540"]
+      }
+    },
+    {
+      "legacy_key": "MG-595",
+      "tm_key": "TM-31",
+      "tcid": "TC-PAY-SBX-06",
+      "resolved_by": ["A", "B"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/features/gateway-pg/data/xray-keys.ts:223"],
+        "B": ["tests/features/gateway-pg/data/xray-keys.ts:541"]
+      }
+    },
+    {
+      "legacy_key": "MG-596",
+      "tm_key": "TM-22",
+      "tcid": "TC-PAY-SBX-07",
+      "resolved_by": ["A", "B"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/features/gateway-pg/data/xray-keys.ts:224"],
+        "B": ["tests/features/gateway-pg/data/xray-keys.ts:542"]
+      }
+    },
+    {
+      "legacy_key": "MG-597",
+      "tm_key": "TM-24",
+      "tcid": "TC-PAY-SBX-08",
+      "resolved_by": ["A", "B"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/features/gateway-pg/data/xray-keys.ts:225"],
+        "B": ["tests/features/gateway-pg/data/xray-keys.ts:543"]
+      }
+    },
+    {
+      "legacy_key": "MG-598",
+      "tm_key": "TM-26",
+      "tcid": "TC-PAY-SBX-09",
+      "resolved_by": ["A", "B"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/features/gateway-pg/data/xray-keys.ts:226"],
+        "B": ["tests/features/gateway-pg/data/xray-keys.ts:544"]
+      }
+    },
+    {
+      "legacy_key": "MG-599",
+      "tm_key": "TM-28",
+      "tcid": "TC-PAY-SBX-10",
+      "resolved_by": ["A", "B"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/features/gateway-pg/data/xray-keys.ts:227"],
+        "B": ["tests/features/gateway-pg/data/xray-keys.ts:545"]
+      }
+    },
+    {
+      "legacy_key": "MG-600",
+      "tm_key": "TM-30",
+      "tcid": "TC-PAY-SBX-11",
+      "resolved_by": ["A", "B"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/features/gateway-pg/data/xray-keys.ts:228"],
+        "B": ["tests/features/gateway-pg/data/xray-keys.ts:546"]
+      }
+    },
+    {
+      "legacy_key": "MG-601",
+      "tm_key": "TM-32",
+      "tcid": "TC-PAY-SBX-12",
+      "resolved_by": ["A", "B"],
+      "decision": "auto",
+      "drift": false,
+      "atc_sites": {
+        "A": ["tests/features/gateway-pg/data/xray-keys.ts:229"],
+        "B": ["tests/features/gateway-pg/data/xray-keys.ts:547"]
+      }
+    },
+    {
+      "legacy_key": "MG-529",
+      "tm_key": "TM-343",
+      "tcid": "TC-PAY-COB-33",
+      "resolved_by": ["A", "B"],
+      "decision": "auto",
+      "drift": false,
+      "note": "AUTO-B only -- ebiz-matrix branch cargo registry (authorize.cargo.personalHappy). Does not exist in AUTO-A.",
+      "atc_sites": { "B": ["tests/features/gateway-pg/data/xray-keys.ts:285"] }
+    },
+    {
+      "legacy_key": "MG-539",
+      "tm_key": "TM-261",
+      "tcid": "TC-PAY-COB-36",
+      "resolved_by": ["A", "B"],
+      "decision": "auto",
+      "drift": false,
+      "note": "AUTO-B only -- ebiz-matrix branch cargo registry (authorize.cargo.colaboradorHappy). Does not exist in AUTO-A.",
+      "atc_sites": { "B": ["tests/features/gateway-pg/data/xray-keys.ts:286"] }
+    }
+  ],
+  "annotation_only_rows": {
+    "why": "Discovered scanning `annotation: [{ type: 'tms', description: 'MG-###' }]` across tests/features/gateway-pg/**/*.spec.ts during Fase 1.3 (2026-08-13). These are EMIT-ALL annotations (a spec credits several Xray Tests, per xray-reporter.ts's docblock) covering scenarios the @atc-decorator scan in `rows[]` never reaches -- HOLD/CARGO/WAL/quote/clone/reactivation cases, mostly Manual-only today. Kept separate from `rows[]` because there is no single bounded file to point `atc_sites` at (occurrences range 1-20+ per key across many spec files) and the set grows as specs are added -- exhaustive site lists would go stale immediately. All entries below: mechanism A (redirect) + B (tcid label, where present) agree, zero drift, zero orphans.",
+    "keys": [
+      { "legacy_key": "MG-144", "tm_key": "TM-192", "tcid": "TC-PAY-A-04" },
+      { "legacy_key": "MG-146", "tm_key": "TM-173", "tcid": null },
+      { "legacy_key": "MG-157", "tm_key": "TM-81", "tcid": "TC-PAY-D-06" },
+      { "legacy_key": "MG-163", "tm_key": "TM-113", "tcid": "TC-PAY-F-03" },
+      { "legacy_key": "MG-164", "tm_key": "TM-118", "tcid": "TC-PAY-F-04" },
+      { "legacy_key": "MG-167", "tm_key": "TM-111", "tcid": null },
+      { "legacy_key": "MG-174", "tm_key": "TM-47", "tcid": null },
+      { "legacy_key": "MG-194", "tm_key": "TM-300", "tcid": "TC-PAY-MPX-01" },
+      { "legacy_key": "MG-195", "tm_key": "TM-301", "tcid": "TC-PAY-MPX-02" },
+      { "legacy_key": "MG-295", "tm_key": "TM-377", "tcid": "TC-PAY-WAL-12" },
+      { "legacy_key": "MG-302", "tm_key": "TM-248", "tcid": "TC-PAY-WAL-19" },
+      { "legacy_key": "MG-361", "tm_key": "TM-83", "tcid": "TC-PAY-QUOTE-01" },
+      { "legacy_key": "MG-390", "tm_key": "TM-419", "tcid": "TC-PAY-REC-01" },
+      { "legacy_key": "MG-428", "tm_key": "TM-288", "tcid": "TC-PAY-CLON-01" },
+      { "legacy_key": "MG-440", "tm_key": "TM-209", "tcid": "TC-PAY-REACT-01" },
+      { "legacy_key": "MG-475", "tm_key": "TM-170", "tcid": "TC-PAY-WEB-02" },
+      { "legacy_key": "MG-495", "tm_key": "TM-467", "tcid": "TC-PAY-H-04" },
+      { "legacy_key": "MG-551", "tm_key": "TM-274", "tcid": "TC-PAY-COB-48" },
+      {
+        "legacy_key": "MG-156",
+        "tm_key": "TM-78",
+        "tcid": null,
+        "note": "found in a prose comment pairing it with TM-94 (3ds-retry-card-change.spec.ts:16) -- TM-94 is actually MG-155's target. Possible pre-existing doc drift, NOT fixed here (mechanical rename translates MG-156's own redirect only; narrative correctness is out of scope for Fase 1)."
+      },
+      { "legacy_key": "MG-291", "tm_key": "TM-353", "tcid": "TC-PAY-WAL-08" },
+      { "legacy_key": "MG-483", "tm_key": "TM-444", "tcid": "TC-PAY-C-06" },
+      { "legacy_key": "MG-476", "tm_key": "TM-437", "tcid": "TC-PAY-WEB-03" },
+      { "legacy_key": "MG-145", "tm_key": "TM-168", "tcid": null },
+      { "legacy_key": "MG-489", "tm_key": "TM-461", "tcid": "TC-PAY-F-06" },
+      { "legacy_key": "MG-142", "tm_key": "TM-184", "tcid": null },
+      { "legacy_key": "MG-286", "tm_key": "TM-364", "tcid": "TC-PAY-WAL-03" },
+      { "legacy_key": "MG-347", "tm_key": "TM-157", "tcid": "TC-PAY-COB-02" },
+      { "legacy_key": "MG-349", "tm_key": "TM-164", "tcid": "TC-PAY-COB-04" },
+      { "legacy_key": "MG-350", "tm_key": "TM-180", "tcid": "TC-PAY-COB-05" },
+      { "legacy_key": "MG-356", "tm_key": "TM-76", "tcid": "TC-PAY-COB-11" },
+      { "legacy_key": "MG-524", "tm_key": "TM-333", "tcid": "TC-PAY-COB-25" },
+      { "legacy_key": "MG-528", "tm_key": "TM-368", "tcid": "TC-PAY-COB-40" },
+      { "legacy_key": "MG-531", "tm_key": "TM-351", "tcid": "TC-PAY-COB-41" },
+      { "legacy_key": "MG-540", "tm_key": "TM-239", "tcid": "TC-PAY-COB-44" },
+      { "legacy_key": "MG-627", "tm_key": "TM-251", "tcid": "TC-PAY-E-04" }
+    ]
+  },
+  "orphans": [
+    {
+      "legacy_key": "MG-172",
+      "tcid": "TC-PAY-H-01",
+      "status": "orphan",
+      "decision": "pending",
+      "evidence": [
+        "Mechanism A: GET /rest/api/3/issue/MG-172 -> HTTP 404 (no live key, no redirect)",
+        "Mechanism B: JQL project = TM AND labels = \"tcid:TC-PAY-H-01\" -> 0 hits"
+      ],
+      "atc_sites": { "A": ["tests/components/api/CardApi.ts:148"], "B": [] },
+      "note": "Branch B already re-anchored this method to MG-149 / TM-67, so the orphan is resolved by the MG-149 drift decision. Do NOT create a replacement Test before that decision is signed."
+    }
+  ],
+  "out_of_scope": [
+    {
+      "key": "BL-036",
+      "atc_sites": {
+        "A": ["tests/components/api/AuthorizeSandboxApi.ts:75"],
+        "B": ["tests/components/api/AuthorizeSandboxApi.ts:75"]
+      },
+      "reason": "Internal backlog id, never an Xray Test -- so it is NOT migration debt. The Xray reporter drops it by design via the project-prefix allowlist. Keep as-is; a clarifying comment stops a future reader from renaming it."
+    },
+    {
+      "key": "MX-6132",
+      "atc_sites": {
+        "A": ["tests/components/api/ServiceTypeCountsApi.ts:42"],
+        "B": ["tests/components/api/ServiceTypeCountsApi.ts:42"]
+      },
+      "reason": "Lives intact in project MX, unrelated to this migration. Do NOT touch. Cosmetic aside: the only @atc without a `severity` option."
+    }
+  ],
+  "label_backfill_candidates": {
+    "why": "These five TM Tests carry no `tcid:` label, so mechanism B cannot find them and their mapping rests on the fragile key redirect alone. Adding the label makes the freeze durable. This is a WRITE to Xray -- a recommendation, never performed by the rename.",
+    "tests": [
+      { "tm_key": "TM-187", "add_label": "tcid:TC-PAY-A-03" },
+      { "tm_key": "TM-84", "add_label": "tcid:TC-PAY-D-01" },
+      { "tm_key": "TM-87", "add_label": "tcid:TC-PAY-D-02" },
+      { "tm_key": "TM-120", "add_label": "tcid:TC-PAY-G-01" },
+      { "tm_key": "TM-45", "add_label": "tcid:TC-PAY-G-05" }
+    ]
+  },
+  "containers": {
+    "why": "Test Plan / Test Execution / Test Set / Epic keys the runner scripts and docs reference. Needed to translate XRAY_TEST_PLAN_KEY and XRAY_KEY_DENYLIST. Verified live 2026-08-12.",
+    "test_plan": { "MG-178": "TM-35" },
+    "test_set": { "MG-196": "TM-578", "MG-602": "TM-591", "MG-198": "TM-580" },
+    "area_executions": {
+      "MG-510": "TM-3",
+      "MG-511": "TM-4",
+      "MG-512": "TM-7",
+      "MG-513": "TM-9",
+      "MG-514": "TM-11",
+      "MG-515": "TM-13",
+      "MG-516": "TM-2"
+    },
+    "psp_executions": { "MG-558": "TM-6", "MG-559": "TM-8", "MG-560": "TM-10", "MG-561": "TM-12" },
+    "other_executions": { "MG-553": "TM-5", "MG-557": "TM-593" },
+    "qa_process_epics": { "MG-134": "TM-34", "MG-135": "TM-20", "MG-509": "TM-1" },
+    "did_not_move": {
+      "MG-3": "Still MG-3 -- a product Story in project MG (the release anchor). Product issues did not migrate. Leave it as MG-3 when translating the denylist."
+    }
+  }
+}

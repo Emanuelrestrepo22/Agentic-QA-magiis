@@ -45,6 +45,17 @@ export default antfu({
     // MCP reference templates — syntax-sensitive opt-in configs. Linting them
     // (e.g. toml/array-bracket-newline) corrupts the layout users copy from.
     'docs/mcp/**',
+    // Persistent browser profiles written by playwright-cli. These hold
+    // thousands of Chromium cache JSON files that are not source and are not
+    // ours to format — left unignored they produce ~97k findings and make the
+    // pre-push lint gate unusable. The tracked `.playwright/cli.config.json`
+    // stays linted (only the profile data is skipped).
+    '.playwright/profiles/**',
+    // Per-skill session state (plan.md, progress.md, run snapshots) and the
+    // local scratch area for intermediate dumps. Generated working files, not
+    // hand-authored source — same rationale as the runtime artifacts above.
+    '.session/**',
+    'scratchpad/**',
   ],
 
   // Custom rules

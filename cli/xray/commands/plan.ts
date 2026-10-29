@@ -4,9 +4,11 @@
  * Commands: create, list, add-tests, remove-tests
  */
 
-import type { Flags, TestPlanResult } from '../types/index.js';
+import type { Flags, JiraFields, TestPlanResult } from '../types/index.js';
+import { ensureParentStuck, printBirthParent, resolveBirthParent } from '../lib/birth-parent.js';
 import { loadConfig } from '../lib/config.js';
 import { fetchAllAttachedTestIds, graphql, MUTATIONS, QUERIES } from '../lib/graphql.js';
+import { ISSUETYPE } from '../lib/hierarchy-model.js';
 import { getLinkedTests, resolveIssueId, resolveIssueIds } from '../lib/jira.js';
 import { log } from '../lib/logger.js';
 import { getBoolFlag, getFlag, requireFlag } from '../lib/parser.js';
@@ -28,18 +30,33 @@ export async function create(flags: Flags): Promise<void> {
     ? await resolveIssueIds(testsStr.split(',').map(t => t.trim()))
     : [];
 
+  // 3-axis at birth — resolved offline, before any network call.
+  const birth = resolveBirthParent(flags, ISSUETYPE.testPlan, projectKey);
+
   log.dim(`Creating Test Plan in project ${projectKey}...`);
 
-  const result = await graphql<{ createTestPlan: { testPlan: { jira: { key: string, summary: string }, issueId: string } } }>(MUTATIONS.createTestPlan, {
-    projectKey,
+  const jiraFields: Record<string, unknown> = {
     summary,
     description,
+    project: { key: projectKey },
+  };
+  if (birth.parentKey) {
+    jiraFields.parent = { key: birth.parentKey };
+  }
+
+  const result = await graphql<{ createTestPlan: { testPlan: { jira: JiraFields, issueId: string } } }>(MUTATIONS.createTestPlan, {
+    jira: { fields: jiraFields },
     testIssueIds,
   });
 
   const plan = result.createTestPlan.testPlan;
   log.success(`Test Plan created: ${plan.jira.key}`);
   console.log(`  Summary: ${plan.jira.summary}`);
+  printBirthParent(birth);
+
+  if (birth.parentKey && plan.jira.key) {
+    await ensureParentStuck(plan.jira.key, birth.parentKey, plan.jira.parent?.key ?? null);
+  }
 }
 
 // ============================================================================

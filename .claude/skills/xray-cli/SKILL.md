@@ -18,6 +18,27 @@ This skill owns `[TMS_TOOL]` **only in Modality jira-xray** (Jira Cloud + Xray p
 
 Agents arriving here from a `[TMS_TOOL] ...` pseudocode block without having resolved modality first should pause and consult the modality resolver before proceeding.
 
+## Which project holds the Xray entities (critical)
+
+Every command in this skill operates on **Xray entities** (Test, Test Set, Test Plan, Test Execution, Precondition), so its project is **`{{TMS_PROJECT_KEY}}`** — read from `.agents/project.yaml` -> `testing.tms_project_key`.
+
+This is **not necessarily `{{PROJECT_KEY}}`**. Those two resolve to different projects whenever the TMS lives apart from the product backlog — which is the case after a Jira-native project migration moves the Xray entities and leaves the product issues behind. Getting this wrong is silent: a `--project` pointing at the product project lists zero Tests (there are none there) instead of erroring, and an `import` credits results to a project that holds no matching Test.
+
+| What you are touching | Variable | Why |
+|---|---|---|
+| Test · Test Set · Test Plan · Test Execution · Precondition | `{{TMS_PROJECT_KEY}}` | Xray entities |
+| Story · Bug · Task · Epic (the covered work, defect links) | `{{PROJECT_KEY}}` | product issues — reached with `/acli`, not this skill |
+
+When a project keeps both in one place the two variables hold the same value and nothing changes. Use `{{TMS_PROJECT_KEY}}` regardless, so the skill stays correct in both topologies.
+
+## 3-axis at birth (non-negotiable)
+
+Every `create` in this CLI (`test` · `precondition` · `exec` · `plan` · `set`) sets `parent` **at birth** to the QA-process epic resolved from `.agents/project.yaml` → `qa.qa_epics` — Test Plan → `master_test_plan_epic`, Test → `test_repository_epic`, Test Execution / Precondition / Test Set → `test_artifacts_epic`. The mapping is a pure function of `issuetype.id` and lives in exactly one place, `cli/xray/lib/hierarchy-model.ts`.
+
+You do not pass `--epic`; the default is correct. An unrecognized type or an empty epic slot **aborts** — it never falls back to a default epic, and never invents or repurposes one. `--no-epic` creates a deliberate orphan and must be justified in the session log.
+
+Doctrine: `agentic-qa-core/references/defect-management-doctrine.md` Part 4.
+
 ## Quick start
 
 ```bash
@@ -37,16 +58,16 @@ bun xray import junit --file results.xml --project DEMO
 
 Every flag that takes an issue reference (`--execution`, `--plan`, `--set`, `--tests`, plus the positional argument of `exec get` / `set get`) accepts **both forms** interchangeably:
 
-- **Jira key**: `{{PROJECT_KEY}}-194` — resolved via Jira REST in-process. Requires Jira credentials configured (`auth login --jira-url --jira-email --jira-token` or the `JIRA_*` env vars).
+- **Jira key**: `{{TMS_PROJECT_KEY}}-194` — resolved via Jira REST in-process. Requires Jira credentials configured (`auth login --jira-url --jira-email --jira-token` or the `JIRA_*` env vars).
 - **Numeric Xray issueId**: `1042389` — used as-is, no resolution call.
 
 If only Xray credentials are configured (no Jira creds) and you pass a Jira key, the CLI fails with a guiding error pointing at the missing flags. Test Run identifiers (`run get`, `run status --id`, etc.) are GraphQL run ids — these are NOT Jira keys and resolution does not apply to them.
 
 ```bash
 # Both forms work identically
-bun xray exec get {{PROJECT_KEY}}-194
+bun xray exec get {{TMS_PROJECT_KEY}}-194
 bun xray exec get 1042389
-bun xray exec add-tests --execution {{PROJECT_KEY}}-194 --tests {{PROJECT_KEY}}-100,{{PROJECT_KEY}}-101,{{PROJECT_KEY}}-102
+bun xray exec add-tests --execution {{TMS_PROJECT_KEY}}-194 --tests {{TMS_PROJECT_KEY}}-100,{{TMS_PROJECT_KEY}}-101,{{TMS_PROJECT_KEY}}-102
 bun xray exec add-tests --execution 1042389 --tests 1041000,1041001,1041002
 ```
 
@@ -96,6 +117,10 @@ bun xray test list --jql "project = DEMO AND labels = critical"
 bun xray test add-step --test <issueId> --action "Click button" --result "Form submits"
 bun xray test add-step --test <issueId> --action "Submit form" --data "valid payload" --result "200 OK"
 
+# Rewrite a step IN PLACE, keeping its id (step ids come from `test get`)
+bun xray test update-step --test <issueId> --step <stepId> --action "New wording" --result "New expected"
+bun xray test update-step --test <issueId> --step <stepId> --result "Only the expected result changes"
+
 # Remove a step from a test
 bun xray test remove-step --test <issueId> --step <stepId>
 
@@ -104,6 +129,15 @@ bun xray test update-gherkin --test <issueId> --gherkin "Feature: Login..."
 bun xray test update-definition --test <issueId> --definition "curl http://api.test"
 bun xray test update-type --test <issueId> --type Cucumber
 ```
+
+> **To change an existing step, use `update-step`, not remove + add (gotcha).** A Test Run
+> references the Test's step **ids** directly, so `remove-step` orphans the reference every
+> already-executed run reported its status, comment and evidence against. `update-step`
+> rewrites in place and the id survives, leaving past executions coherent. (A run keeps its
+> own snapshot of the step *text*, so history still shows the wording it was executed
+> against — it is the id linkage that breaks.) Read step ids with `test get`, which prints
+> them as `N. [<stepId>] <action>`. Omitted `--action` / `--data` / `--result` are merged
+> from the step's current values, so a partial update never blanks the other fields.
 
 > **Manual steps do NOT persist on `create` (gotcha).** Xray Cloud silently drops
 > any steps passed to the `createTest` mutation (observed `stepCount:0` after a
@@ -127,11 +161,11 @@ bun xray precondition create --project DEMO --summary "DB seeded" --type Generic
   --definition "bun run db:seed" --labels setup,smoke --folder /Auth
 
 # Attach precondition(s) to a test (keys or numeric ids, both forms accepted)
-bun xray precondition add-to-test --test {{PROJECT_KEY}}-123 --preconditions {{PROJECT_KEY}}-90,{{PROJECT_KEY}}-91
+bun xray precondition add-to-test --test {{TMS_PROJECT_KEY}}-123 --preconditions {{TMS_PROJECT_KEY}}-90,{{TMS_PROJECT_KEY}}-91
 
 # Update a precondition's definition and/or type
-bun xray precondition update --precondition {{PROJECT_KEY}}-90 --definition "Seed with v2 fixtures"
-bun xray precondition update --precondition {{PROJECT_KEY}}-90 --type Generic
+bun xray precondition update --precondition {{TMS_PROJECT_KEY}}-90 --definition "Seed with v2 fixtures"
+bun xray precondition update --precondition {{TMS_PROJECT_KEY}}-90 --type Generic
 ```
 
 ### Test Executions
@@ -158,7 +192,7 @@ bun xray exec remove-tests --execution <id> --tests <id1>,<id2>
 
 # Associate Test Environment(s) with an EXISTING execution
 bun xray exec set-environment --execution <id> --environment staging
-bun xray exec set-environment --execution {{PROJECT_KEY}}-194 --environment staging,chrome
+bun xray exec set-environment --execution {{TMS_PROJECT_KEY}}-194 --environment staging,chrome
 ```
 
 > **Why Test Environments matter**: an execution pinned to an environment (e.g.
@@ -189,8 +223,12 @@ bun xray run step-status --run <runId> --step <stepId> --status PASSED
 # Add comment to a specific step (overwrites the previous step comment)
 bun xray run step-comment --run <runId> --step <stepId> --comment "Reproduced on 2026-04-29 build 4172"
 
-# Add comment
+# Add comment — ONE LINE ONLY through --comment
 bun xray run comment --id <runId> --comment "Test completed successfully"
+
+# Anything multi-line MUST go through a file (see the two warnings below)
+bun xray run comment --id <runId> --comment-file ./verdict.txt
+bun xray run step-comment --run <runId> --step <stepId> --comment-file ./step3.txt
 
 # Link defects
 bun xray run defect --id <runId> --issues DEMO-456,DEMO-789
@@ -211,6 +249,21 @@ bun xray run evidence-rm --id <runId> --evidence <evidenceId>
 bun xray run evidence-rm --id <runId> --filename error.png
 ```
 
+> **A multi-line `--comment` IS SILENTLY TRUNCATED TO ITS FIRST LINE. Use `--comment-file`.**
+> Measured 2026-08-20: `bun xray` is a `package.json` script (`xray: bun cli/xray/index.ts`), so it
+> re-spawns the entry point with the arguments appended, and on Windows that re-spawn drops
+> everything after the first newline. The mutation then succeeds for the shortened body, so the CLI
+> printed `Comment added` while Xray stored one line. A whole release campaign's run verdicts were
+> reduced to their opening sentence before anyone read one back. Two defences now exist: pass the
+> body with `--comment-file <path>` so it never touches argv, and the CLI reads the stored comment
+> back and **fails loudly** if it differs from what was sent. If you must inline a body, keep it to a
+> single line, or call `bun cli/xray/index.ts run comment ...` directly instead of `bun xray`.
+
+> **`run comment` REPLACES, it does not append.** A Test Run has ONE comment field, not a thread. To
+> add to an existing note — e.g. appending an iOS confirmation under an Android verdict — read the
+> current text first (`bun xray run get --id <runId>`), compose the combined body, and send that.
+> Sending only the new text destroys the previous record with no warning. Same for `step-comment`.
+
 > **Body size limit**: Xray Cloud rejects requests larger than 20 MB. The CLI auto-chunks large `--dir` uploads into batches under that limit (using ~15 MB per batch to leave headroom for the GraphQL envelope), so a folder of 14 PNGs at 600 KB each ships in a single round trip while a folder with one 30 MB recording would be rejected — split or compress those before uploading.
 
 ### Test Plans
@@ -224,8 +277,8 @@ bun xray plan create --project DEMO --summary "Release 2.0" --tests <id1>,<id2>
 bun xray plan list --project DEMO
 
 # Manage tests in plan
-bun xray plan add-tests --plan {{PROJECT_KEY}}-110 --tests {{PROJECT_KEY}}-100,{{PROJECT_KEY}}-101
-bun xray plan remove-tests --plan {{PROJECT_KEY}}-110 --tests {{PROJECT_KEY}}-100
+bun xray plan add-tests --plan {{TMS_PROJECT_KEY}}-110 --tests {{TMS_PROJECT_KEY}}-100,{{TMS_PROJECT_KEY}}-101
+bun xray plan remove-tests --plan {{TMS_PROJECT_KEY}}-110 --tests {{TMS_PROJECT_KEY}}-100
 ```
 
 ### Sync & Repair (Jira-layer ↔ Xray-layer reconciliation)
@@ -238,17 +291,17 @@ detect and repair the drift.
 
 ```bash
 # Diff a single Test Execution (dry-run by default)
-bun xray exec sync --execution {{PROJECT_KEY}}-194
-bun xray exec sync --execution {{PROJECT_KEY}}-194 --apply       # re-attach missing tests at the Xray layer
+bun xray exec sync --execution {{TMS_PROJECT_KEY}}-194
+bun xray exec sync --execution {{TMS_PROJECT_KEY}}-194 --apply       # re-attach missing tests at the Xray layer
 
 # Same for a Test Plan
-bun xray plan sync --plan {{PROJECT_KEY}}-110
-bun xray plan sync --plan {{PROJECT_KEY}}-110 --apply
+bun xray plan sync --plan {{TMS_PROJECT_KEY}}-110
+bun xray plan sync --plan {{TMS_PROJECT_KEY}}-110 --apply
 
 # Bulk scan every Test Execution + Test Plan in a project
-bun xray repair --project {{PROJECT_KEY}}                        # report only
-bun xray repair --project {{PROJECT_KEY}} --apply                # re-attach every drift detected
-bun xray repair --project {{PROJECT_KEY}} --apply --limit 200    # scan up to 200 of each type
+bun xray repair --project {{TMS_PROJECT_KEY}}                        # report only
+bun xray repair --project {{TMS_PROJECT_KEY}} --apply                # re-attach every drift detected
+bun xray repair --project {{TMS_PROJECT_KEY}} --apply --limit 200    # scan up to 200 of each type
 ```
 
 **What sync reports**
@@ -323,10 +376,10 @@ bun xray backup restore --file demo-backup.json --project NEW_PROJ
 
 # Sync mode — match existing issues by KEY (needs target Jira creds).
 # Use this for site->site migration where keys were preserved.
-bun xray backup restore --file demo-backup.json --project {{PROJECT_KEY}} --sync
+bun xray backup restore --file demo-backup.json --project {{TMS_PROJECT_KEY}} --sync
 
 # Restore with explicit key mapping (when keys changed)
-bun xray backup restore --file demo-backup.json --project {{PROJECT_KEY}} --map-keys mappings.csv
+bun xray backup restore --file demo-backup.json --project {{TMS_PROJECT_KEY}} --map-keys mappings.csv
 
 # Preflight: report destination config gaps before importing (read-only, authed to dest)
 bun xray backup preflight --dir .backups
@@ -411,29 +464,29 @@ wired but the Xray layer is not, runs come back empty — repair with `exec sync
 
 ```bash
 # 1. Create the Test Plan (ATP container)
-bun xray plan create --project {{PROJECT_KEY}} --summary "Auth Suite - Q3 ATP"
-#    -> {{PROJECT_KEY}}-110
+bun xray plan create --project {{TMS_PROJECT_KEY}} --summary "Auth Suite - Q3 ATP"
+#    -> {{TMS_PROJECT_KEY}}-110
 
 # 2. Create the Tests, adding steps one call at a time (Manual)
-bun xray test create --project {{PROJECT_KEY}} --summary "Verify login" --type Manual   # -> {{PROJECT_KEY}}-100
+bun xray test create --project {{TMS_PROJECT_KEY}} --summary "Verify login" --type Manual   # -> {{TMS_PROJECT_KEY}}-100
 bun xray test add-step --test <id-100> --action "Open app" --result "Login form displayed"
 bun xray test add-step --test <id-100> --action "Enter credentials" --data "user@test.com" --result "Dashboard shown"
-#    (repeat create + add-step per Test, e.g. {{PROJECT_KEY}}-101 ...)
+#    (repeat create + add-step per Test, e.g. {{TMS_PROJECT_KEY}}-101 ...)
 
 # 3. Attach the Tests to the Plan  (XRAY-INTERNAL membership)
-bun xray plan add-tests --plan {{PROJECT_KEY}}-110 --tests {{PROJECT_KEY}}-100,{{PROJECT_KEY}}-101
+bun xray plan add-tests --plan {{TMS_PROJECT_KEY}}-110 --tests {{TMS_PROJECT_KEY}}-100,{{TMS_PROJECT_KEY}}-101
 
 # 4. Create the Test Execution (ATR container), pinned to a Test Environment
-bun xray exec create --project {{PROJECT_KEY}} --summary "Auth Suite - Sprint 12 ATR" --environment staging
-#    -> {{PROJECT_KEY}}-194
+bun xray exec create --project {{TMS_PROJECT_KEY}} --summary "Auth Suite - Sprint 12 ATR" --environment staging
+#    -> {{TMS_PROJECT_KEY}}-194
 
 # 5. Attach the Tests to the Execution  (XRAY-INTERNAL membership)
-bun xray exec add-tests --execution {{PROJECT_KEY}}-194 --tests {{PROJECT_KEY}}-100,{{PROJECT_KEY}}-101
+bun xray exec add-tests --execution {{TMS_PROJECT_KEY}}-194 --tests {{TMS_PROJECT_KEY}}-100,{{TMS_PROJECT_KEY}}-101
 
 # 6. Run / import results, then set run statuses
-bun xray import junit --file test-results/junit.xml --execution {{PROJECT_KEY}}-194
+bun xray import junit --file test-results/junit.xml --execution {{TMS_PROJECT_KEY}}-194
 #    or drive runs manually:
-bun xray run list --execution {{PROJECT_KEY}}-194
+bun xray run list --execution {{TMS_PROJECT_KEY}}-194
 bun xray run status --id <runId> --status PASSED
 ```
 
@@ -468,6 +521,8 @@ bun xray backup restore --file backup.json --project NEW_PROJ
 - **X5.** NEVER run `bun xray import` or `bun xray backup restore` against production without `--dry-run` first. These commands write irreversibly across hundreds of TCs and runs — preview the diff before applying.
 - **X6.** NEVER mix Modality jira-xray and Modality jira-native workflows in the same skill phase. Modality is resolved once in `/test-documentation` Phase 0; downstream phases inherit and never re-decide mid-flow.
 - **X7.** NEVER push Xray run results for TCs flagged `to_be_automated=no` in the ROI verdict. Those are terminal Manual cases — pushing automated runs against them creates audit noise and breaks the Candidate / Manual / Deferred reporting.
+- **X8.** NEVER pass `--no-epic`, and NEVER repair a parent by hand, to "unblock" a create. An artifact born without a parent is invisible to every QA rollup — that is how 577 issues drifted out of the hierarchy. If the epic cannot be resolved, fix `.agents/project.yaml`; do not bypass.
+- **X9.** NEVER close a campaign that created Xray artifacts without running `bun run xray:hierarchy:check` (exits 1 on any orphan). `bun xray backup restore` is the one create path that does **not** parent at birth — by design, since it restores into an arbitrary target project — so after any restore this check is mandatory, not optional.
 
 ## Specific tasks
 

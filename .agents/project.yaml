@@ -6,6 +6,10 @@
 
 project:
   project_name: MAGIIS-4 # Jira project "MAGIIS-4"; dominio de trabajo = Carrier (v1/v2/IA)
+  # PRODUCT issues only (Historia / Tarea / Epic / Error). Stays MG after the 2026-08-10
+  # Xray migration — see the DUAL AXIS note under `testing.tms_project_key`. Do NOT flip this
+  # to TM: `{{PROJECT_KEY}}` is what the acli skill puts in `--project` and in story-workflow
+  # JQL, and it is the default project for `jira:sync-issues` (which pulls Epics/Stories/Bugs).
   project_key: MG # confirmado por JQL: tickets [Carrier v*] viven en MG
   webapp_domain: null # TODO: dominio del webapp Carrier (ej. app.magiis.com) — confirmar
 
@@ -35,7 +39,29 @@ issue_tracker:
 
 testing:
   default_env: staging # default QA env (confirmar URLs abajo)
-  tms_cli: xray-cli # Modalidad TMS = jira-xray (confirmado en vivo 2026-07-25). MG-220/221/223/224/226 = issues tipo Cucumber (Xray Test); MG-178 = Test Plan (Xray); MG-196 = Test Set (Xray); Test Executions Xray reales: por área MG-510..516 (staging, histórico) + MG-553 (manual E2E) + MG-557 (UI CFG Authorize) + POR PASARELA Ronda 1 env test (2026-07-26): MG-558 authorize / MG-559 ebizcharge / MG-560 stripe / MG-561 mercado-pago (membership: scripts/atp-gateway-membership.mjs).
+  # ===== DUAL AXIS — read this before writing any JQL or importing any result =====
+  # The 2026-08-10 Jira-native migration split this instance in two, and the split is NOT
+  # symmetric. Verified live 2026-08-12 (broad JQL + client-side filter on fields.*.id):
+  #   · Xray entities  (Test 10144 · Test Set 10145 · Test Plan 10146 · Test Execution 10147 ·
+  #     Precondition 10148) → project TM. ZERO Xray issuetypes remain in MG.
+  #   · Product issues (Historia · Tarea · Epic · Error) → stayed in project MG. The release
+  #     anchor MG-3 still resolves to MG-3, it did NOT become a TM key.
+  # So a legacy MG-#### key is NOT automatically a TM key: check which axis it belongs to.
+  # The frozen translation for every key the automation code carries lives in
+  # `.agents/xray-key-migration.json` (identifier table; sensitive detail is untracked).
+  tms_project_key: TM # {{TMS_PROJECT_KEY}} — project that holds every Xray entity. NOT `project_key` (that is MG, product issues).
+  tms_cli: xray-cli # Modalidad TMS = jira-xray (confirmado en vivo 2026-07-25)
+  # TMS topology, current TM keys (each verified live 2026-08-12 by following the legacy key):
+  #   Test Plan (ATP release Gateway 4-PSP) : TM-35   (was MG-178)
+  #   Test Set  (ATP · CFG pasarela)        : TM-578  (was MG-196)
+  #   Test Executions por ÁREA              : TM-3 · TM-4 · TM-7 · TM-9 · TM-11 · TM-13 · TM-2
+  #                                           (was MG-510..516; env staging, histórico de diseño)
+  #   Test Executions por PASARELA (Ronda 1): TM-6 authorize · TM-8 ebizcharge · TM-10 stripe ·
+  #                                           TM-12 mercado-pago (was MG-558..561; env `test`)
+  #   Otros Test Executions                 : TM-5 manual E2E (MG-553) · TM-593 UI CFG Authorize (MG-557)
+  # Membership de los ATR por pasarela: scripts/atp-gateway-membership.mjs.
+  # Los Xray Test del CFG que la automatización decora (antes MG-220/221/223/224/226) hoy son
+  # TM-151/154/138/141/158 — la tabla completa está en `.agents/xray-key-migration.json`.
 
 qa:
   formal_blocked_gate: true # When true and the substrate exposes a `blocked` story status, FAILED stories dispatch `defect_reported` (in_test -> blocked). When false (or no `blocked` slug), the skill leaves the story in `in_test` with the linked bug — non-strict fallback. See sprint-testing/references/sprint-orchestration.md Briefing 4 Step 5.
@@ -47,27 +73,32 @@ qa:
   # caching the discovered `*.key` here. NEVER parent a quality issue to a product/dev epic.
   # Read directly by skills (not {{VAR}} tokens) → skipped by vars:check, like git_strategy leaves.
   # Doctrine: .claude/skills/agentic-qa-core/references/defect-management-doctrine.md (Part 4).
-  # MG INSTANCE MAP (binding here): .../references/defect-management-mg-instance-map.md — in MG only
-  # THREE of the four epics exist, and QA is restricted to Xray entities (read/comment only on general
-  # issues), so `find-or-create` above does NOT apply to the missing one. Keys below verified live
-  # via JQL on 2026-07-28.
+  # MG INSTANCE MAP (binding here): .../references/defect-management-mg-instance-map.md — only THREE
+  # of the four epics exist, and QA is restricted to Xray entities (read/comment only on general
+  # issues), so `find-or-create` above does NOT apply to the missing one.
+  # THE THREE EPICS NOW LIVE IN PROJECT TM (they migrated 2026-08-10 along with every Xray entity).
+  # Keys below re-verified live 2026-08-12 by following each legacy key through its redirect.
+  # ⚠ These epics are in TM, but the Bug/Error issues a defect would parent to are in MG — which is
+  #   precisely why `defect_epic` stays null: there is no cross-project parent to give them.
   qa_epics:
     master_test_plan_epic:
       name: QA Master Test Plan # the MTP — parent of every Test Plan (FTP/STP/ATP); description mirrors
       # .context/master-test-plan.md + points to the official QA repo; cross-linked to the 3 sibling QA epics
-      key: MG-134 # verified live 2026-07-28
+      key: TM-34 # verified live 2026-08-12 (was MG-134)
     test_repository_epic:
       name: QA Test Repository # convention name; holds every Test (TC) issue
-      key: MG-135 # verified live 2026-07-28
+      key: TM-20 # verified live 2026-08-12 (was MG-135)
     test_artifacts_epic:
       name: QA Test Artifacts # holds every Test Execution (FTR/STR/ATR), Precondition, Test Set
-      key: MG-509 # verified live 2026-07-28
+      key: TM-1 # verified live 2026-08-12 (was MG-509)
     defect_epic:
-      name: QA Defect Management # methodology convention name — NOT PRESENT IN MG (see note below)
-      key: null # DOES NOT EXIST in MG (verified live 2026-07-28: only MG-134/135/509 exist) and must NOT be
-      # created: the `mg-scope-xray-only` governance rule limits QA to Xray entities. Left null deliberately —
-      # do NOT invent a key and do NOT repurpose MG-134/135/509. In MG a quality finding is reported as a
-      # structured comment on the covering Xray Test + the campaign Test Plan, so nothing needs this parent.
+      name: QA Defect Management # methodology convention name — DOES NOT EXIST IN THIS INSTANCE
+      key: null # Verified live 2026-08-12: it exists in NEITHER project. TM holds exactly three Epics
+      # (TM-1/TM-20/TM-34) and MG never had a fourth. This is NOT migration damage and NOT an accidental
+      # gap — it is the `mg-scope-xray-only` governance rule applied to the new project too: QA owns Xray
+      # entities, and general issues are read/comment-only. Left null deliberately — do NOT invent a key
+      # and do NOT repurpose TM-1/TM-20/TM-34. A quality finding is reported as a structured comment on
+      # the covering Xray Test + the campaign Test Plan, so nothing needs this parent.
       # Filing an `Error` issue instead requires explicit per-case user authorization (instance map, Part 8).
 
 # Git workflow for THIS project — the SOURCE OF TRUTH read by the git-flow-master skill

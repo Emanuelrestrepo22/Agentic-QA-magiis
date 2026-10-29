@@ -13,6 +13,7 @@ import type {
   TestRunResult,
   TestStepResponse,
 } from '../types/index.js';
+import { readFileSync } from 'node:fs';
 import { chunkAttachments, listDirFiles, readFileAsAttachment } from '../lib/evidence.js';
 import { graphql, MUTATIONS, QUERIES } from '../lib/graphql.js';
 import { resolveIssueId } from '../lib/jira.js';
@@ -97,15 +98,71 @@ export async function stepStatus(flags: Flags): Promise<void> {
 // COMMENT
 // ============================================================================
 
+/**
+ * Resolve a comment body from `--comment-file <path>` or `--comment <text>`.
+ *
+ * WHY THE FILE FORM EXISTS — a measured data-loss bug, not a convenience.
+ * `bun xray` is a package.json script (`xray: bun cli/xray/index.ts`), so it re-spawns the entry
+ * point with the arguments appended. On Windows that re-spawn drops everything after the first
+ * newline of a multi-line `--comment`, and the mutation still succeeds — the CLI printed
+ * "Comment added" while Xray stored one line. Whole review write-ups were silently reduced to their
+ * first sentence across a release campaign before anyone read one back.
+ *
+ * Passing the body through a file never touches argv, so it cannot be truncated by any shell or
+ * spawn layer. Prefer it for anything longer than a sentence.
+ */
+function resolveCommentText(flags: Flags): string {
+  const path = getFlag(flags, 'comment-file');
+  if (path) {
+    const body = readFileSync(path, 'utf8');
+    if (!body.trim()) {
+      throw new Error(`--comment-file "${path}" is empty. Refusing to overwrite the stored comment with nothing.`);
+    }
+    // Drop the file's trailing newline: Xray strips it server-side, which would otherwise make the
+    // read-back check below report a one-character mismatch on every single file-based comment.
+    return body.replace(/\s+$/, '');
+  }
+  return requireFlag(flags, 'comment');
+}
+
 export async function comment(flags: Flags): Promise<void> {
   const id = requireFlag(flags, 'id');
-  const commentText = requireFlag(flags, 'comment');
+  const commentText = resolveCommentText(flags);
 
   log.dim(`Adding comment to test run ${id}...`);
 
+  // NOTE: this REPLACES the run's comment — a Test Run has ONE comment field, not a thread. To add
+  // to an existing note, read it first (`run get --id <id>`) and send the combined body.
   await graphql(MUTATIONS.updateTestRunComment, { id, comment: commentText });
 
-  log.success('Comment added');
+  // Read back and compare. The truncation this guards against is SILENT: the mutation returns
+  // success for the shortened body, so without this check the caller believes the full text landed.
+  const check = await graphql<{ getTestRunById: TestRunResult }>(QUERIES.getTestRunById, { id });
+  const stored = check.getTestRunById?.comment ?? '';
+  // Compare with trailing whitespace normalised on BOTH sides: the server trims it, and a guard that
+  // fires on an invisible trailing newline is a guard people learn to ignore.
+  const norm = (s: string): string => s.replace(/\s+$/, '');
+  const lines = (s: string): number => s.split('\n').length;
+
+  if (norm(stored) === norm(commentText)) {
+    log.success(`Comment added (${commentText.length} chars, ${lines(commentText)} lines) — verified stored`);
+    return;
+  }
+
+  log.error('Comment MISMATCH: what Xray stored is not what was sent.');
+  console.error(`  sent  : ${commentText.length} chars / ${lines(commentText)} lines`);
+  console.error(`  stored: ${stored.length} chars / ${lines(stored)} lines`);
+  // Only call it truncation when the stored text really is a shortened prefix. A near-equal length
+  // is some other difference (server-side normalisation, encoding) and saying "truncated" would
+  // send whoever reads this chasing the wrong bug.
+  const isPrefix = stored.length > 0 && norm(commentText).startsWith(norm(stored));
+  if (isPrefix && stored.length < commentText.length * 0.9) {
+    console.error('  Diagnosis: the stored body is a shortened prefix of what was sent — the `bun xray`');
+    console.error('  re-spawn truncation, which cuts at the first newline and still reports success.');
+    console.error('  Fix: pass --comment-file <path>, or call `bun cli/xray/index.ts run comment ...`');
+    console.error('  directly instead of going through the `bun xray` script.');
+  }
+  throw new Error('Stored comment does not match the text sent. Nothing was lost silently — re-send with --comment-file.');
 }
 
 // ============================================================================
@@ -131,7 +188,9 @@ export async function defect(flags: Flags): Promise<void> {
 export async function stepComment(flags: Flags): Promise<void> {
   const testRunId = requireFlag(flags, 'run');
   const stepId = requireFlag(flags, 'step');
-  const commentText = requireFlag(flags, 'comment');
+  // Same truncation exposure as the run-level comment — see resolveCommentText. No read-back here:
+  // step comments are not returned by getTestRunById, so use --comment-file for anything multi-line.
+  const commentText = resolveCommentText(flags);
 
   log.dim(`Updating step ${stepId} comment on run ${testRunId}...`);
 

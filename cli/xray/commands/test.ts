@@ -4,9 +4,11 @@
  * Commands: create, get, list, add-step
  */
 
-import type { Flags, PreconditionResult, TestResult, TestStepResponse } from '../types/index.js';
+import type { Flags, JiraFields, PreconditionResult, TestResult, TestStepResponse } from '../types/index.js';
+import { ensureParentStuck, printBirthParent, resolveBirthParent } from '../lib/birth-parent.js';
 import { loadConfig } from '../lib/config.js';
 import { graphql, MUTATIONS, QUERIES } from '../lib/graphql.js';
+import { ISSUETYPE } from '../lib/hierarchy-model.js';
 import { log } from '../lib/logger.js';
 import { getFlag, getFlagArray, requireFlag } from '../lib/parser.js';
 
@@ -51,6 +53,10 @@ export async function create(flags: Flags): Promise<void> {
     }
   }
 
+  // 3-axis at birth: resolve the QA-process epic BEFORE any network call, so a
+  // cross-project or unresolvable destination aborts with zero side effects.
+  const birth = resolveBirthParent(flags, ISSUETYPE.xrayTest, projectKey);
+
   log.dim(`Creating ${testType} test in project ${projectKey}...`);
 
   const jiraFields: Record<string, unknown> = {
@@ -62,8 +68,11 @@ export async function create(flags: Flags): Promise<void> {
   if (assigneeId) {
     jiraFields.assignee = { id: assigneeId };
   }
+  if (birth.parentKey) {
+    jiraFields.parent = { key: birth.parentKey };
+  }
 
-  const result = await graphql<{ createTest: { test: { jira: { key: string, summary: string }, testType: { name: string }, issueId: string }, warnings: string[] } }>(MUTATIONS.createTest, {
+  const result = await graphql<{ createTest: { test: { jira: JiraFields, testType: { name: string }, issueId: string }, warnings: string[] } }>(MUTATIONS.createTest, {
     testType: { name: testType },
     unstructured,
     gherkin,
@@ -78,6 +87,11 @@ export async function create(flags: Flags): Promise<void> {
   console.log(`  Summary: ${test.jira.summary}`);
   console.log(`  Type: ${test.testType.name}`);
   console.log(`  Issue ID: ${test.issueId}`);
+  printBirthParent(birth);
+
+  if (birth.parentKey && test.jira.key) {
+    await ensureParentStuck(test.jira.key, birth.parentKey, test.jira.parent?.key ?? null);
+  }
 
   if (warnings && warnings.length > 0) {
     log.warn('Warnings:');
@@ -136,7 +150,10 @@ export async function get(flags: Flags, positional: string[]): Promise<void> {
   if (test.steps && test.steps.length > 0) {
     console.log(`\nSteps (${test.steps.length}):`);
     test.steps.forEach((s: TestStepResponse, i: number) => {
-      console.log(`  ${i + 1}. ${s.action}`);
+      // The step id is printed because `test remove-step --step <id>` needs it and the
+      // GraphQL query already returns it — without it here, rewriting a Manual test's steps
+      // means dropping to a raw GraphQL call just to read ids the CLI already had.
+      console.log(`  ${i + 1}. [${s.id}] ${s.action}`);
       if (s.data) {
         console.log(`     Data: ${s.data}`);
       }
@@ -234,6 +251,77 @@ export async function removeStep(flags: Flags): Promise<void> {
   });
 
   log.success(`Step ${stepId} removed from test ${issueId}`);
+}
+
+// ============================================================================
+// UPDATE STEP (rewrite a step IN PLACE, keeping its id)
+// ============================================================================
+
+/**
+ * Rewrites one Manual step without changing its id.
+ *
+ * Why this exists instead of remove-step + add-step: a Test Run references the Test's step
+ * ids directly (a run of a 5-step test lists those same 5 ids). Removing a step therefore
+ * damages the historical record of every execution that already ran it — the run loses the
+ * step it reported a status and a comment against. Updating in place keeps the id, so past
+ * executions stay coherent while the wording gets corrected.
+ *
+ * Omitted flags are MERGED from the step's current values, read back before writing. Xray's
+ * UpdateStepInput takes a whole step, so sending only --action would otherwise risk blanking
+ * the data and expected-result fields; read-merge-write removes that footgun.
+ */
+export async function updateStep(flags: Flags): Promise<void> {
+  const issueId = requireFlag(flags, 'test');
+  const stepId = requireFlag(flags, 'step');
+  const action = getFlag(flags, 'action');
+  const data = getFlag(flags, 'data');
+  const result = getFlag(flags, 'result');
+
+  if (action === undefined && data === undefined && result === undefined) {
+    throw new Error('Nothing to update: pass at least one of --action / --data / --result.');
+  }
+
+  // Read current values so omitted flags survive the write.
+  const current = await graphql<{ getTests: { results: TestResult[] } }>(QUERIES.getTest, {
+    jql: `issue in (${issueId})`,
+  });
+  const test = current.getTests.results?.[0];
+  if (!test) {
+    throw new Error(`Test not found: ${issueId}`);
+  }
+  const existing = (test.steps ?? []).find((s: TestStepResponse) => s.id === stepId);
+  if (!existing) {
+    const ids = (test.steps ?? []).map((s: TestStepResponse) => s.id).join(', ');
+    throw new Error(`Step ${stepId} does not belong to test ${issueId}. Steps present: ${ids || '(none)'}`);
+  }
+
+  const step = {
+    action: action ?? existing.action,
+    data: data ?? existing.data ?? '',
+    result: result ?? existing.result ?? '',
+  };
+
+  log.dim(`Updating step ${stepId} of test ${issueId}...`);
+
+  const response = await graphql<{ updateTestStep: { warnings?: string[] } }>(MUTATIONS.updateTestStep, {
+    stepId,
+    step,
+  });
+
+  // The mutation returns only attachment deltas and warnings — never the new field values —
+  // so the caller verifies with `test get` when it needs to see them.
+  for (const w of response.updateTestStep?.warnings ?? []) {
+    log.warn(w);
+  }
+
+  log.success(`Step ${stepId} updated (id preserved)`);
+  console.log(`  Action: ${step.action}`);
+  if (step.data) {
+    console.log(`  Data: ${step.data}`);
+  }
+  if (step.result) {
+    console.log(`  Expected: ${step.result}`);
+  }
 }
 
 // ============================================================================

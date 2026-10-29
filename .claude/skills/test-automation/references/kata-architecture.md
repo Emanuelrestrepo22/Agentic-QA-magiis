@@ -85,6 +85,12 @@ Rule: a component in a higher layer may use a lower layer, never the other way r
 
 These three complement the static data folders: `tests/data/fixtures/` (parameterization rows as JSON/CSV) and `tests/data/mocks/` (canned mock/stub responses). Factories generate fresh runtime data; fixtures and mocks hold committed static data. Naming + folder conventions for those two live in `automation-standards.md` §6.
 
+### Component grouping: flat by default, domain subfolders once it grows
+
+`tests/components/api/` and `tests/components/ui/` are **flat by default** — at low component counts (a handful of files) a flat folder is more navigable than a folder tree. Grouping components into domain subfolders (e.g. `ui/carrier/`, `ui/carrier/card-forms/`) is **permitted, not required, once a folder holds roughly 10+ concrete components** — this is an observed threshold (two real repos grouped on their own past that size; none below it did), not a mandated migration.
+
+✅ **The registry scan supports this.** `scripts/kata-manifest.ts` scans each `COMPONENT_PATHS` directory recursively (`**/*.ts`), so a component placed in a domain subfolder is picked up by `bun run kata:manifest` and stays covered by the anti-duplication gate (Critical Rule #12); its `relativePath` carries the subfolder, so two same-named components in different domains do not collide. This was not always true — the scan was non-recursive until 2026-09-08, and a repo pinned to an older boilerplate version still has that blind spot: confirm the scan is recursive before grouping there. Full canon, measured counts, and the variance table: `.context/ADR/ADR-0002-organizacion-de-tests-y-variantes-por-repo.md`.
+
 Import aliases are mandatory (no relative imports):
 
 ```typescript

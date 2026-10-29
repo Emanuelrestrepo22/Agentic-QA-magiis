@@ -4,9 +4,11 @@
  * Commands: create, get, list, add-tests, remove-tests
  */
 
-import type { Flags, TestResult, TestSetResult } from '../types/index.js';
+import type { Flags, JiraFields, TestResult, TestSetResult } from '../types/index.js';
+import { ensureParentStuck, printBirthParent, resolveBirthParent } from '../lib/birth-parent.js';
 import { loadConfig } from '../lib/config.js';
 import { graphql, MUTATIONS, QUERIES } from '../lib/graphql.js';
+import { ISSUETYPE } from '../lib/hierarchy-model.js';
 import { resolveIssueId, resolveIssueIds } from '../lib/jira.js';
 import { log } from '../lib/logger.js';
 import { getFlag, requireFlag } from '../lib/parser.js';
@@ -28,12 +30,22 @@ export async function create(flags: Flags): Promise<void> {
     ? await resolveIssueIds(testsStr.split(',').map(t => t.trim()))
     : [];
 
+  // 3-axis at birth — resolved offline, before any network call.
+  const birth = resolveBirthParent(flags, ISSUETYPE.testSet, projectKey);
+
   log.dim(`Creating Test Set in project ${projectKey}...`);
 
-  const result = await graphql<{ createTestSet: { testSet: { jira: { key: string, summary: string }, issueId: string } } }>(MUTATIONS.createTestSet, {
-    projectKey,
+  const jiraFields: Record<string, unknown> = {
     summary,
     description,
+    project: { key: projectKey },
+  };
+  if (birth.parentKey) {
+    jiraFields.parent = { key: birth.parentKey };
+  }
+
+  const result = await graphql<{ createTestSet: { testSet: { jira: JiraFields, issueId: string } } }>(MUTATIONS.createTestSet, {
+    jira: { fields: jiraFields },
     testIssueIds,
   });
 
@@ -41,6 +53,11 @@ export async function create(flags: Flags): Promise<void> {
   log.success(`Test Set created: ${set.jira.key}`);
   console.log(`  Summary: ${set.jira.summary}`);
   console.log(`  Issue ID: ${set.issueId}`);
+  printBirthParent(birth);
+
+  if (birth.parentKey && set.jira.key) {
+    await ensureParentStuck(set.jira.key, birth.parentKey, set.jira.parent?.key ?? null);
+  }
 }
 
 // ============================================================================
@@ -123,10 +140,7 @@ export async function removeTests(flags: Flags): Promise<void> {
 
   log.dim(`Removing ${testIssueIds.length} tests from test set...`);
 
-  const result = await graphql<{ removeTestsFromTestSet: { removedTests: string[] } }>(MUTATIONS.removeTestsFromTestSet, {
-    issueId,
-    testIssueIds,
-  });
+  await graphql(MUTATIONS.removeTestsFromTestSet, { issueId, testIssueIds });
 
-  log.success(`Removed ${result.removeTestsFromTestSet.removedTests.length} tests`);
+  log.success(`Removed ${testIssueIds.length} tests`);
 }

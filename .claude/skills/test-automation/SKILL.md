@@ -399,7 +399,7 @@ export class UiFixture extends TestContext {
 
 **T4.** NEVER call one ATC from inside another ATC. ATCs are atomic mini-flows. Reusable chains live in the Steps module (`tests/components/steps/*Steps.ts`), which is NOT decorated with `@atc`.
 
-**T5.** NEVER use relative imports (`../../../`). This repo uses path aliases (`@api/`, `@ui/`, `@schemas/`, `@utils/`, `@TestContext`, `@variables`, `@TestFixture`). Lint rejects relative paths.
+**T5.** NEVER use relative imports (`../../../`) **in this repo**. This repo uses path aliases (`@api/`, `@ui/`, `@schemas/`, `@utils/`, `@TestContext`, `@variables`, `@TestFixture`). Lint rejects relative paths. The alias is the portfolio default because it resolves cleanly at runtime (verified against Playwright 1.60 and tsx 4.22 — an alias is not a technical impossibility for any runner that reads `tsconfig.json` `paths`). A repo may still declare relative imports as its own convention, but only as a documented **style** variant with measured evidence (e.g. consistency with an existing corpus of specs) — never on the claim that the runner cannot resolve the alias. Canon + variance table: `.context/ADR/ADR-0002-organizacion-de-tests-y-variantes-por-repo.md`.
 
 **T6.** NEVER hardcode credentials. Read from `.env` via `config.testUser` from `@variables` (`LOCAL_USER_*` / `STAGING_USER_*`). Never inline a password, token, or API key in a spec, fixture, or test data file.
 

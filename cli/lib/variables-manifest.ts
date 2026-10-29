@@ -333,6 +333,55 @@ export const VAR_MANIFEST: VarSpec[] = [
     obtainHint: 'the HTTPS endpoint of the remote DB MCP — ask the team that hosts it.',
     note: 'Remote DB MCP endpoint, used as [DB_TOOL] on Oracle targets (DBHub cannot serve Oracle). Local only.',
   },
+  // --- Appium MCP (mobile: driver + passenger apps) ---
+  // Paths on the operator's machine, not credentials. Both MCP servers share one
+  // Android SDK and take a capabilities file plus a screenshot directory each.
+  // Full doctrine: docs/testing/mobile-appium-mcp.md.
+  {
+    name: 'APPIUM_ANDROID_HOME',
+    destinations: ['local'],
+    secret: false,
+    required: false,
+    critical: false,
+    obtainHint: 'the Android SDK root that holds platform-tools/ — usually already set as ANDROID_HOME.',
+    note: 'Android SDK root shared by the driver and passenger Appium MCP servers. Local only.',
+  },
+  {
+    name: 'APPIUM_CAPABILITIES_CONFIG',
+    destinations: ['local'],
+    secret: false,
+    required: false,
+    critical: false,
+    obtainHint: 'path to the capabilities JSON for the DRIVER app session.',
+    note: 'Appium capabilities file for the driver MCP server. Local only.',
+  },
+  {
+    name: 'APPIUM_SCREENSHOTS_DIR',
+    destinations: ['local'],
+    secret: false,
+    required: false,
+    critical: false,
+    obtainHint: 'directory where the driver session should write its screenshots.',
+    note: 'Screenshot output directory for the driver MCP server. Local only.',
+  },
+  {
+    name: 'APPIUM_PASSENGER_CAPABILITIES_CONFIG',
+    destinations: ['local'],
+    secret: false,
+    required: false,
+    critical: false,
+    obtainHint: 'path to the capabilities JSON for the PASSENGER app session.',
+    note: 'Appium capabilities file for the passenger MCP server. Local only.',
+  },
+  {
+    name: 'APPIUM_PASSENGER_SCREENSHOTS_DIR',
+    destinations: ['local'],
+    secret: false,
+    required: false,
+    critical: false,
+    obtainHint: 'directory where the passenger session should write its screenshots.',
+    note: 'Screenshot output directory for the passenger MCP server. Local only.',
+  },
 ];
 
 // ----------------------------------------------------------------------------

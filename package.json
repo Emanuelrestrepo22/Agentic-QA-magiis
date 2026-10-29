@@ -62,6 +62,8 @@
     "opencode": "bash -c 'set -a; . ./.env; set +a; exec opencode \"$@\"' --",
     "prepare": "husky",
     "pw:install": "playwright install --with-deps chromium",
+    "qa:coverage": "bun scripts/automation-coverage.ts",
+    "qa:stock:sync": "bun scripts/automation-stock-sync.ts",
     "repo:check": "bun run format:check && bun run lint:check && bun run types:check && bun run vars:check && bun run skills:check && bun run skills:registry:check && bun run vars:env:check",
     "repo:fix": "bun run format:fix && bun run lint:fix && bun run types:check && bun run vars:check && bun run skills:check && bun run skills:registry:check && bun run vars:env:check",
     "setup:doctor": "bun cli/doctor.ts",
@@ -83,11 +85,13 @@
     "test:ui": "playwright test --ui",
     "test": "playwright test",
     "types:check": "tsc --noEmit",
+    "propagate:children": "bun scripts/propagate-to-children.ts",
     "up": "bun cli/update-boilerplate.ts",
     "vars:check": "bun scripts/lint-vars.ts",
     "vars:env:check": "bun scripts/check-vars.ts",
     "xray": "bun cli/xray/index.ts",
-    "xray:gate": "bun scripts/xray-release-gate.ts"
+    "xray:gate": "bun scripts/xray-release-gate.ts",
+    "xray:hierarchy:check": "bun cli/xray/index.ts hierarchy audit --project TM --strict"
   },
   "dependencies": {
     "@clack/prompts": "^1.4.0",
@@ -118,7 +122,7 @@
     "typescript": "^5.8.3"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx}": [
+    "*.{ts,tsx,js,jsx,mjs,cjs}": [
       "eslint --fix"
     ],
     "*.{json,yml,yaml,css,scss,html}": [

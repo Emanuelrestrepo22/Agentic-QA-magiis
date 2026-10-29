@@ -85,6 +85,25 @@ async function syncToXray(results: Record<string, AtcResult[]>): Promise<SyncRes
     return { provider: 'xray', success: false, message: 'Missing credentials' };
   }
 
+  if (!projectKey) {
+    console.error('[ERROR] XRAY_PROJECT_KEY is empty. Refusing to import — Xray would file the execution wherever it likes.');
+    return { provider: 'xray', success: false, message: 'Missing XRAY_PROJECT_KEY' };
+  }
+
+  // Cross-project guard. `projectKey` lands in info.project while the ATC ids become testKey,
+  // and Xray does NOT reject a mismatch: it files a Test Execution in info.project and fails to
+  // match any testKey, so a green run reports "synced" while crediting nothing. A stale
+  // XRAY_PROJECT_KEY already put 32 issues in the wrong project once.
+  const foreign = Object.keys(results).filter(id => !id.startsWith(`${projectKey}-`));
+  if (foreign.length > 0) {
+    const shown = foreign.slice(0, 10).join(', ');
+    console.error(
+      `[ERROR] CROSS-PROJECT ABORT: XRAY_PROJECT_KEY=${projectKey} but ${foreign.length} ATC id(s) belong to another project: ${shown}${foreign.length > 10 ? ', ...' : ''}\n`
+      + '        Either XRAY_PROJECT_KEY is stale or the @atc keys were not retargeted. Nothing was imported.',
+    );
+    return { provider: 'xray', success: false, message: `Cross-project mismatch: ${foreign.length} id(s) not in ${projectKey}` };
+  }
+
   try {
     console.log('[AUTH] Authenticating with X-Ray Cloud...');
 
